@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\ProcessVisualization.Api.Host.props" />
+</Project>

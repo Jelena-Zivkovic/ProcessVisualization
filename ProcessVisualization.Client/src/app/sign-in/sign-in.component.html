@@ -1,0 +1,39 @@
+<div class="flex flex-row p-0 h-screen border-round card-content">
+  <div class="w-7 card-img">
+  </div>
+
+  <form [formGroup]="form" class="w-5 flex align-items-center justify-content-center">
+    <div class="flex flex-column w-8">
+      <h1 class="font-semibold text-xl">
+        Welcome to Visualization process
+      </h1>
+      <h3 class="font-light text-500 mt-2">
+        Diagram editor
+      </h3>
+      <div class="flex align-items-center justify-content-center mt-5">
+        <div class="flex flex-column w-full">
+          <label for="email" class="ml-2">Email</label>
+          <span class="p-input-icon-left w-full my-2">
+            <i class="pi pi-user"></i>
+            <input pInputText id="email" class="w-full" formControlName="Email" />
+          </span>
+        </div>
+      </div>
+      <div class="flex align-items-center justify-content-center mt-5">
+        <div class="flex flex-column w-full">
+          <label for="password" class="ml-2">Password</label>
+          <p-password id="password" class="w-full" formControlName="Password" [toggleMask]="true"></p-password>
+          <small id="password-help" class="ml-2">Enter your username to reset your password.</small>
+        </div>
+      </div>
+      <p-button label="Sign in" styleClass="p-button-rounded w-full mt-6" (click)="signIn()"></p-button>
+      <p-divider align="center">or</p-divider>
+      <p-button label="Contuine as guest" styleClass="p-button-outlined p-button-rounded w-full"
+        (click)="continueAsGest()"></p-button>
+      <p-divider class="mt-4"></p-divider>
+      <div class="mt-4 text-600 text-center ">
+        Don't have an account? <a href="/sign-up"> Get started with us</a>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "fe2fMhpc3eo7WrUbfSd/sJsrfB30gR4wqS+UIZAxOhQ=",
+  "Source": "ProcessVisualization.Api.Host",
+  "BasePath": "_content/ProcessVisualization.Api.Host",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

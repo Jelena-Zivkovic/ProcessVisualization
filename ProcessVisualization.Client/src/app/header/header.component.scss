@@ -1,0 +1,17 @@
+.logo {
+  //height: 80%;
+  background-color: #bb5d00;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  color: #e6f4f1;
+  text-shadow: 2px 2px 0px var(--primary-color);
+  margin-left: 1.5rem;
+  margin-right: 1rem;
+}
+
+::ng-deep .p-menubar {
+  background-color: var(--primary-500);
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}

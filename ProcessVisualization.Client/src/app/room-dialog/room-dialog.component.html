@@ -1,0 +1,18 @@
+<form [formGroup]="roomForm">
+  <div class="flex flex-column">
+    <label for="name">Name</label>
+    <input pInputText id="name" aria-describedby="name-help" formControlName="Name" />
+    <small id="username-help" *ngIf="(roomForm.controls['Name'].errors?.['required'] && (roomForm.controls['Name'].dirty || roomForm.controls['Name'].touched)
+    || roomForm.controls['Name'].errors?.['pattern'])">Enter your name.</small>
+  </div>
+  <div class="flex flex-column">
+    <label for="username">Username</label>
+    <span class="p-float-label">
+      <textarea id="float-input" rows="5" cols="30" pInputTextarea formControlName="Description"></textarea>
+      <label for="float-input">Summary</label>
+    </span>
+    <small id="username-help">Enter your username to reset your password.</small>
+  </div>
+  <p-button label="Cancel" (click)="cancel()"></p-button>
+  <p-button label="Submit" (click)="submit()"></p-button>
+</form>

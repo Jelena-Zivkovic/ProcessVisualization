@@ -1,0 +1,73 @@
+* {
+  //color: var(--text-color);
+  font-family: Helvetica;
+}
+
+:enabled:focus {
+  box-shadow: 0 0 0 0.2rem var(--primary-100) !important;
+  border-color: var(--primary-400) !important;
+}
+
+.p-button {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  .p-button-label {
+    color: var(--primary-color-text);
+  }
+}
+
+.p-button.p-button-outlined {
+  border-color: var(--primary-color);
+  .p-button-label {
+    color: var(--primary-color);
+  }
+}
+
+.p-button:enabled:hover {
+  background-color: var(--primary-400);
+}
+
+:enabled:hover {
+  border-color: var(--primary-400) !important;
+}
+
+///-----------------------------------
+.screen {
+  background-image: url("../assets/background\ \(3\).jpg");
+  margin-left: -10px;
+  background-size: cover;
+}
+
+.responsive {
+  width: 100%;
+  height: 100%;
+}
+
+// .card {
+//   height: calc(100% / 7 * 6);
+//   box-shadow: 0.1rem 0.2rem 0.3rem #737a78;
+// }
+
+.card-img {
+  background-image: url("../assets/login-img.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: inherit;
+  background-position: center;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.card-content {
+  background-color: #fafcfc;
+}
+
+.custom-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.diagram-container {
+  height: 100vh;
+}

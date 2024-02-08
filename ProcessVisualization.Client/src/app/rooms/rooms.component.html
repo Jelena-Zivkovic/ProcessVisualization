@@ -1,0 +1,83 @@
+<cmp-header></cmp-header>
+<div class="flex flex-row pt-3 rooms">
+  <div class="flex flex-column  w-4" style="min-width: 15rem;">
+    <div class="mx-4 my-2 flex flex-row justify-content-around border-bottom-1 border-200">
+      <div class="align-items-around action-button">
+        <p-card (click)="showRoomDialog()">
+          <div class="custom-icon">
+            <i class="fa-solid fa-plus"></i>
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <h4 class="text-center">Create room</h4>
+        </p-card>
+      </div>
+      <div class="align-items-center action-button ml-1">
+        <p-card>
+          <div class="custom-icon">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <h4 class="text-center">Join to room</h4>
+        </p-card>
+      </div>
+    </div>
+    <div class="mx-4 my-2" class="room" *ngFor="let room of rooms"
+      [ngClass]="{'border': (selectedRoom?.Id == room.Id)}">
+      <p-card (click)="showRoomDetails(room.Id)">
+        <div class="flex flex-row align-items-center">
+          <div class="room-logo">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div class="ml-4 room-name text-lg font-semibold">{{ room.Name }}</div>
+          <div class="ml-auto mr-1 w-1 room-hovered">
+            <i class="fa-solid fa-angle-right m-auto"></i>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+  <div *ngIf="selectedRoom" class="room-details my-2 ml-2 mr-4 w-full">
+    <div class="flex flex-row align-items-start">
+      <div class="room-sm-logo">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <div class="mx-4 my-3">
+        <div class="text-2xl mt-1 font-semibold">{{selectedRoom.Name}}
+          <p-menu #menu [model]="items1" [popup]="true"></p-menu>
+          <p-button type="button" (click)="openRoomDetailsAction($event)" icon="pi pi-angle-down"
+            class="room-details-buttons" styleClass="p-button-text"></p-button>
+        </div>
+        <div class="font-italic mt-2"> {{ (selectedRoom == undefined || selectedRoom == null ? 0 :
+          selectedRoom.Users.length)
+          + ((selectedRoom.Users && selectedRoom.Users.length > 2) ? " members" : " member" )
+          }} </div>
+      </div>
+    </div>
+    <p-table [columns]="cols" [value]="selectedRoom.Documents" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns">
+            {{ rowData[col.field] }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <div class="card flex justify-content-center">
+      <!-- <p-toast></p-toast> -->
+
+    </div>
+
+  </div>
+</div>
+
+<p-dialog [(visible)]="isRoomDialogOpen">
+  <cmp-room-dialog></cmp-room-dialog>
+</p-dialog>
