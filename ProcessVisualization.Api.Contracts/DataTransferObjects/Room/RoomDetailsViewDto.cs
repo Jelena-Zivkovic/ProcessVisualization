@@ -11,6 +11,6 @@ namespace ProcessVisualization.Api.Contracts.DataTransferObjects.Room
     public class RoomDetailsViewDto : RoomViewDto
     {
         public List<UserDto> Users { get; set; } 
-        public List<DocumentDto> Documents { get; set; }
+        public List<DocumentViewDto> Documents { get; set; }
     }
 }

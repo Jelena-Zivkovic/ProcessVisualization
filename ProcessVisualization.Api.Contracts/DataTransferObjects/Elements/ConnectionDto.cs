@@ -4,18 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProcessVisualization.Api.Data.Models
+namespace ProcessVisualization.Api.Contracts.DataTransferObjects.Elements
 {
-    public class Connection : IEntity<int>
+    public class ConnectionDto
     {
-        public int Id { get; set; }
         public string ConnectionId { get; set; }
-        public int DocumentId { get; set; }
-        public virtual Document Document { get; set; }
         public string Type { get; set; } = "bpmn:SequenceFlow";
         public string Target { get; set; }
         public string Source { get; set; }
-        public List<Point> WayPoints { get; set; }
-
+        public List<PointDto> WayPoints { get; set; }
     }
 }

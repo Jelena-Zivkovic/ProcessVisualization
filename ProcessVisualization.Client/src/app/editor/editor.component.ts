@@ -26,7 +26,15 @@ import { DefaultElement } from 'src/enum/default-element.enum';
 import { DiagramDto } from 'src/dtos/diagrams/diagram.dto';
 import { MenubarModule } from 'primeng/menubar';
 import { SaveSVGResult, SaveXMLResult } from 'bpmn-js/lib/BaseViewer';
-
+import { InjectionNames, OriginalPaletteProvider } from './bpmn-js/bpmn-js';
+import { CustomPaletteProvider } from './props-provider/CustomPaletteProvider';
+import { CustomPropsProvider } from './props-provider/CustomPropsProvider';
+//import {BpmnPropertiesPanelModule, } from 'bpmn-js-properties-panel';
+//import TokenSimulationModule from 'bpmn-js-token-simulation/lib/viewer';
+//const PropertiesModule = require('bpmn-js-properties-panel');
+import { BpmnPropertiesPanelModule, BpmnPropertiesProviderModule } from 'bpmn-js-properties-panel';
+//declare var BpmnPropertiesPanelModule: any;
+//declare var BpmnPropertiesProviderModule: any;
 
 @Component({
   selector: 'app-editor',
@@ -37,6 +45,7 @@ import { SaveSVGResult, SaveXMLResult } from 'bpmn-js/lib/BaseViewer';
 })
 export class EditorComponent implements OnChanges {
   private bpmnJS!: Modeler;
+  private zoomScale: number = 1;
   documentActions: any;
 
   // retrieve DOM element reference
@@ -49,9 +58,19 @@ export class EditorComponent implements OnChanges {
       propertiesPanel: {
         parent: 'propertiesRef'
       },
-      //moddleExtensions: {
-      //custom: custom
-      //}
+      moddleExtensions: {
+        //custom: customModdle
+      },
+      additionalModules: [
+        //BpmnPropertiesProviderModule,
+        //PropertiesModule?.Module.BpmnPropertiesPanelModule,
+        //PropertiesModule.BpmnPropertiesProviderModule,
+        //TokenSimulation,
+        { [InjectionNames.propertiesProvider]: ['type', CustomPropsProvider] },
+
+        { [InjectionNames.originalPaletteProvider]: ['type', OriginalPaletteProvider] },
+        { [InjectionNames.paletteProvider]: ['type', CustomPaletteProvider] },
+      ]
     });
     this.initDocumentActions();
     console.log(this.bpmnJS)
@@ -332,6 +351,21 @@ export class EditorComponent implements OnChanges {
         label: 'Export to svg',
         icon: 'pi pi-fw pi-file-export',
         command: () => { this.exportToSvg() }
+      },
+      {
+        label: 'Zoom in',
+        icon: 'pi pi-fw pi-plus',
+        command: () => { this.zoomIn() }
+      },
+      {
+        label: 'Zoom out',
+        icon: 'pi pi-fw pi-minus',
+        command: () => { this.zoomOut() }
+      },
+      {
+        label: 'Fif content',
+        icon: 'pi pi-fw pi-arrows-alt',
+        command: () => { this.fitContent() }
       }
     ];
   }
@@ -367,6 +401,24 @@ export class EditorComponent implements OnChanges {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     });
+  }
+
+  private zoomIn() {
+    this.zoomScale = this.zoomScale + 0.1;
+    (<Canvas>this.bpmnJS.get('canvas')).zoom(this.zoomScale);
+
+  }
+
+
+  private zoomOut() {
+    this.zoomScale = this.zoomScale - 0.1;
+    (<Canvas>this.bpmnJS.get('canvas')).zoom(this.zoomScale);
+  }
+
+
+  private fitContent() {
+    this.zoomScale = 1;
+    (<Canvas>this.bpmnJS.get('canvas')).zoom('fit-viewport');
   }
 }
 

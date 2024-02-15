@@ -20,9 +20,9 @@ namespace ProcessVisualization.Api.Business.Services
     public class AuthenticationService: IAuthenticationService
     {
 
-        private UserManager<IdentityUser> _userManger;
+        private UserManager<User> _userManger;
         private IConfiguration _configuration;
-        public AuthenticationService(UserManager<IdentityUser> userManager, IConfiguration configuration)
+        public AuthenticationService(UserManager<User> userManager, IConfiguration configuration)
         {
             _userManger = userManager;
             _configuration = configuration;
@@ -33,7 +33,7 @@ namespace ProcessVisualization.Api.Business.Services
             if (model == null)
                 throw new NullReferenceException("Reigster Model is null");
 
-            var identityUser = new IdentityUser
+            var identityUser = new User
             {
                 Email = model.Email,
                 UserName = model.Email,
@@ -59,8 +59,8 @@ namespace ProcessVisualization.Api.Business.Services
 
         public async Task<ResponseTemplateDto<LoginResultDto>> LoginUserAsync(LoginDto model)
         {
-            var user = await _userManger.FindByEmailAsync(model.Email);
-
+            User? user = await _userManger.FindByEmailAsync(model.Email);
+            
             if (user == null)
             {
                 return new ResponseTemplateDto<LoginResultDto>

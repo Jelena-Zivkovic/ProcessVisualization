@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProcessVisualization.Api.Business.Services.Interfaces;
+using ProcessVisualization.Api.Contracts.DataTransferObjects.Documents;
+using ProcessVisualization.Api.Host.Extensions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,6 +11,13 @@ namespace ProcessVisualization.Controllers
     [ApiController]
     public class DocumentController : ControllerBase
     {
+        private readonly IDocumentService _document;
+
+        public DocumentController(IDocumentService document)
+        {
+            _document = document;
+        }
+
         // GET: api/<DocumentsController>
         [HttpGet]
         public IEnumerable<string> Get()
@@ -38,6 +48,12 @@ namespace ProcessVisualization.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+
+        [HttpPost("Save")]
+        public ActionResult Save([FromBody] DocumentCreateDto value)
+        {
+            return Ok(_document.SaveDocument(value, this.User.GetUserId()));
         }
     }
 }

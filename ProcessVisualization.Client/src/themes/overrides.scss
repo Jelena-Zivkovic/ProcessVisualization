@@ -11,14 +11,16 @@
 .p-button {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
-  .p-button-label {
+  .p-button-label,
+  .p-button-icon {
     color: var(--primary-color-text);
   }
 }
 
 .p-button.p-button-outlined {
   border-color: var(--primary-color);
-  .p-button-label {
+  .p-button-label,
+  .p-button-icon {
     color: var(--primary-color);
   }
 }
@@ -68,6 +70,16 @@
   align-items: center;
 }
 
+//Diagram
 .diagram-container {
   height: 100vh;
+}
+
+.group[data-group="data-store"],
+.group[data-group="data-object"],
+.group[data-group="collaboration"],
+.group[data-group="artifact"],
+.group[data-group="activity"] div.bpmn-icon-subprocess-expanded,
+.djs-context-pad .group[data-group="edit"] [data-action="replace"] {
+  display: none;
 }

@@ -15,7 +15,9 @@ namespace ProcessVisualization.Api.Data.Models
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
+        public string LastUpdatedBy { get; set; }
         public virtual ICollection<Connection> Connections { get; set; }
         public virtual ICollection<Shape> Shapes { get; set; }
+        public virtual Room Room { get; set; }
     }
 }

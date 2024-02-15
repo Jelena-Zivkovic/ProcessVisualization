@@ -99,7 +99,7 @@ namespace ProcessVisualization.Api.Business.Services
                 ImageBase64 =  string.Empty,
                 Name = x.User.Name
             }).ToList();
-            result.Documents = room.Documents.Select(x => new DocumentDto {
+            result.Documents = room.Documents.Select(x => new DocumentViewDto {
                 Id = x.Id,
                 Name = x.Name,
                 CreatedAt = x.CreatedAt,

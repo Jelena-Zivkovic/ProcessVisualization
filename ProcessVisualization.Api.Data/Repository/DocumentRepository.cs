@@ -15,5 +15,6 @@ namespace ProcessVisualization.Api.Data.Repository
             var allDocuments = await context.Set<Document>().ToListAsync();
             return allDocuments.Where(x => x.RoomId == roomId).ToList();
         }
+
     }
 }

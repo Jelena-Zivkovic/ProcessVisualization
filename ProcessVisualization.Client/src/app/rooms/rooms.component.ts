@@ -46,8 +46,10 @@ export class RoomsComponent extends BaseImports {
 
   ngOnInit() {
     this.webapiRoomsService.getAllRoom().subscribe(res => {
-      console.log(res, Object.keys(res[0]));
       this.rooms = res;
+      if (res.length > 0) {
+        this.showRoomDetails(res[0].Id);
+      }
     });
 
     this.cols = [
@@ -98,6 +100,10 @@ export class RoomsComponent extends BaseImports {
       console.log(res);
       this.selectedRoom = res;
     })
+  }
+
+  addNewDiagram() {
+    this.routerService.navigate("editor")
   }
 
   showRoomDialog() {
