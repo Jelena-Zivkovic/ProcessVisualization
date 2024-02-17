@@ -3,7 +3,7 @@
   <div class="flex flex-column  w-4" style="min-width: 15rem;">
     <div class="mx-4 my-2 flex flex-row justify-content-around border-bottom-1 border-200">
       <div class="align-items-around action-button">
-        <p-card (click)="showRoomDialog()">
+        <p-card (click)="toggleRoomDialog()">
           <div class="custom-icon">
             <i class="fa-solid fa-plus"></i>
             <i class="fa-solid fa-users"></i>
@@ -12,7 +12,7 @@
         </p-card>
       </div>
       <div class="align-items-center action-button ml-1">
-        <p-card>
+        <p-card (click)="showJoinRoomDialog()">
           <div class="custom-icon">
             <i class="fa-solid fa-arrow-right-to-bracket"></i>
             <i class="fa-solid fa-users"></i>
@@ -21,10 +21,10 @@
         </p-card>
       </div>
     </div>
-    <div class="mx-4 my-2" class="room" *ngFor="let room of rooms"
-      [ngClass]="{'border': (selectedRoom?.Id == room.Id)}">
+    <div class="mx-4 my-1 room" *ngFor="let room of rooms" [id]="'room_' +room.Id">
       <p-card (click)="showRoomDetails(room.Id)">
-        <div class="flex flex-row align-items-center">
+        <div class="flex flex-row align-items-center"
+          [ngClass]="{'border': (selectedRoom && selectedRoom.Id == room.Id)}">
           <div class="room-logo">
             <i class="fa-solid fa-users"></i>
           </div>
@@ -77,10 +77,21 @@
       <!-- <p-toast></p-toast> -->
 
     </div>
-
   </div>
 </div>
 
-<p-dialog [(visible)]="isRoomDialogOpen">
-  <cmp-room-dialog></cmp-room-dialog>
+<p-dialog [(visible)]="isRoomDialogOpen" header="Create new room" [modal]="true">
+  <cmp-room-dialog (closeDialog)="toggleRoomDialog($event)"></cmp-room-dialog>
+</p-dialog>
+
+<p-dialog [(visible)]="isJoinRoomDialogOpen" header="Join to room" [modal]="true">
+  <div class="flex flex-column mb-3">
+    <label for="name" class="mb-1">Room code:</label>
+    <input pInputText id="name" aria-describedby="name-help" [(ngModel)]="roomCode" />
+  </div>
+  <div class="flex justify-content-end">
+    <p-button label="Cancel" (click)="isJoinRoomDialogOpen = false" class="mx-2" styleClass="p-button-outlined w-full">
+    </p-button>
+    <p-button label="Join" (click)="joinRoom()"></p-button>
+  </div>
 </p-dialog>

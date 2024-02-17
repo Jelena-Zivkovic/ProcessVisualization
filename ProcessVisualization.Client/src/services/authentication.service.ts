@@ -45,7 +45,6 @@ export class AuthenticationService {
         map((res: Response) => {
           let body: any;
           body = res;
-          console.log(body)
           if (body.IsSuccess) {
             if (body.Data.FirstTime) {
               return this.routerService.navigate('validate-registration');
@@ -170,7 +169,6 @@ export class AuthenticationService {
     return headers;
   }
 
-
   isTokenActive() {
     var _headers = this.generateRequestHeaders();
     var requestOptions = { headers: _headers };
@@ -192,5 +190,9 @@ export class AuthenticationService {
           }
         })
       );
+  }
+
+  getLoginData(): AuthenticationResponseDto {
+    return <AuthenticationResponseDto>JSON.parse(localStorage.getItem(this.key) ?? "{}");
   }
 }

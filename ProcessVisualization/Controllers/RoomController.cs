@@ -39,14 +39,20 @@ namespace ProcessVisualization.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] RoomCreateDto room)
         {
-            return Ok(_room.CreateRoomAsync(room.Name, this.User.GetUserId()));
+            return Ok(_room.CreateRoom(room.Name, this.User.GetUserId()));
         }
 
         // POST api/<RoomController>
-        [HttpPost("JoinRoom/{roomId}/{userId}")]
-        public ActionResult JoinRoom(int roomId, string userId)
+        [HttpPost("JoinRoom")]
+        public ActionResult JoinRoom([FromBody] RoomJoinDto data)
         {
-            return Ok(_room.JoinRoom(roomId, userId));
+            return Ok(_room.JoinRoom(data.RoomCode, data.UserEmail));
+        }
+
+        [HttpPost("LeaveRoom")]
+        public ActionResult LeaveRoom([FromBody] LeaveRoomDto data)
+        {
+            return Ok(_room.LeaveRoom(data.RoomId, data.UserEmail));
         }
 
         // PUT /<RoomController>/5

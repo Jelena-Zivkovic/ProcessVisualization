@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProcessVisualization.Api.Data;
 
@@ -11,9 +12,10 @@ using ProcessVisualization.Api.Data;
 namespace ProcessVisualization.Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240215214822_DocumentChange")]
+    partial class DocumentChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,7 +167,7 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     b.Property<string>("ConnectionId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DocumentId")
                         .HasColumnType("int");
@@ -185,9 +187,6 @@ namespace ProcessVisualization.Api.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DocumentId");
-
-                    b.HasIndex("ConnectionId", "DocumentId")
-                        .IsUnique();
 
                     b.ToTable("Connections");
                 });
@@ -353,12 +352,12 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("DocumentId")
+                    b.Property<int?>("DocumentId")
                         .HasColumnType("int");
 
                     b.Property<string>("ElementId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Height")
                         .HasColumnType("decimal(18,4)");
@@ -379,9 +378,6 @@ namespace ProcessVisualization.Api.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DocumentId");
-
-                    b.HasIndex("ElementId", "DocumentId")
-                        .IsUnique();
 
                     b.ToTable("Shapes");
                 });
@@ -573,8 +569,7 @@ namespace ProcessVisualization.Api.Data.Migrations
                     b.HasOne("ProcessVisualization.Api.Data.Models.Document", null)
                         .WithMany("Shapes")
                         .HasForeignKey("DocumentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("ProcessVisualization.Api.Data.Models.Connection", b =>

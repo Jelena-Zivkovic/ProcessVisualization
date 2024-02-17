@@ -10,6 +10,8 @@ namespace ProcessVisualization.Api.Business.Services.Interfaces
 {
     public interface IDocumentService
     {
-        public ResponseTemplateDto<DateTime?> SaveDocument(DocumentCreateDto document, string UserId);
+        public ResponseTemplateDto<DocumentCreateDto?> SaveDocument(DocumentCreateDto document, string UserId);
+        public ResponseTemplateDto<DocumentDetailDto> GetDocument(int id);
+        public ResponseTemplateDto<DocumentCreateDto?> CreateDocument(int roomId);
     }
 }

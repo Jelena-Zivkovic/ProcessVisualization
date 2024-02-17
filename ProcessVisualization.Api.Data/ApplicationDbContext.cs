@@ -12,11 +12,11 @@ namespace ProcessVisualization.Api.Data
         private IConfiguration Configuration;
         public DbSet<RoomUser> RoomUsers { get; set; }
         public DbSet<Room> Rooms { get; set; }
-        /*public DbSet<Document> Documents { get; set; }
+        public DbSet<Document> Documents { get; set; }
         public DbSet<Connection> Connections { get; set; }
         public DbSet<Element> Elements { get; set; }
         public DbSet<Shape> Shapes { get; set; }
-        public DbSet<Point> Points { get; set; }*/
+        public DbSet<Point> Points { get; set; }
 
         public ApplicationDbContext() { }
         
@@ -34,7 +34,9 @@ namespace ProcessVisualization.Api.Data
 
             base.OnModelCreating(builder);
 
-           // builder.ApplyConfiguration(new DocumentConfig());
+            builder.ApplyConfiguration(new ShapeConfig());
+            builder.ApplyConfiguration(new ConnectionConfig());
+            // builder.ApplyConfiguration(new DocumentConfig());
         }
         }
 }

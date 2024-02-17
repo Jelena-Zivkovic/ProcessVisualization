@@ -12,6 +12,9 @@ import {
 } from 'rxjs';
 import { Constants } from 'src/app/app.constants';
 import { BaseApiService } from './base-api.service';
+import { ResponseTemplateDto } from 'src/dtos/response-template.dto';
+import { RoomJoinDto } from 'src/dtos/rooms/room-join.dto';
+import { LeaveRoomDto } from 'src/dtos/rooms/leave-room.dto';
 
 @Injectable()
 export class WebapiRoomsService extends BaseApiService {
@@ -36,10 +39,27 @@ export class WebapiRoomsService extends BaseApiService {
   }
 
   createRoom(room: any, showLoader = true) {
-    return this.http.post<any>(
+    return this.http.post<ResponseTemplateDto<RoomViewDto>>(
       this.baseUrl,
       room,
       this.getHttpParams(showLoader, null, room)
+    );
+  }
+
+  joinRoom(data: RoomJoinDto, showLoader = true) {
+    return this.http.post<ResponseTemplateDto<RoomViewDto>>(
+      this.baseUrl + "/JoinRoom",
+      data,
+      this.getHttpParams(showLoader, null, data)
+    );
+  }
+
+
+  leaveRoom(data: LeaveRoomDto, showLoader = true) {
+    return this.http.post<ResponseTemplateDto<number>>(
+      this.baseUrl + "/LeaveRoom",
+      data,
+      this.getHttpParams(showLoader, null, data)
     );
   }
 }

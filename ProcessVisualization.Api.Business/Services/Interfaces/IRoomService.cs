@@ -12,8 +12,8 @@ namespace ProcessVisualization.Api.Business.Services.Interfaces
     {
         public List<RoomViewDto> GetAll(string userId);
         public RoomDetailsViewDto GetByIdAsync(int id);
-        public Task<ResponseTemplateDto<RoomViewDto>> CreateRoomAsync(string roomName, string userId);
-        public ResponseTemplateDto<RoomViewDto> JoinRoom(int roomId, string userId);
+        public ResponseTemplateDto<RoomViewDto> CreateRoom(string roomName, string userId);
+        public ResponseTemplateDto<RoomViewDto> JoinRoom(string roomCode, string userEmail);
         public ResponseTemplateDto<int> LeaveRoom(int roomId, string userId);
     }
 }

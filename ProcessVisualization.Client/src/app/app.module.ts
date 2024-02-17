@@ -9,11 +9,15 @@ import { CommonService } from 'src/services/common.service';
 import { LoggerService } from 'src/services/logger.service';
 import { RouterService } from 'src/services/router.service';
 import { SharedService } from 'src/services/shared.service';
+import { WebapiDocumentsService } from 'src/services/webapi-documents.service';
 import { WebapiRoomsService } from 'src/services/webapi-rooms.service';
 import { WebapiUsersService } from 'src/services/webapi-users.service';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @NgModule({
   declarations: [
@@ -24,6 +28,7 @@ import { AppComponent } from './app.component';
     AppRoutingModule,
     RouterModule,
     FormsModule,
+    ToastModule,
   ],
   exports: [
     BrowserModule,
@@ -37,6 +42,8 @@ import { AppComponent } from './app.component';
     LoggerService,
     WebapiRoomsService,
     WebapiUsersService,
+    WebapiDocumentsService,
+    MessageService,
     provideHttpClient(),
   ],
   bootstrap: [AppComponent]

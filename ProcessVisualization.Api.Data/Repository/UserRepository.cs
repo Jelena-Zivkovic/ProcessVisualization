@@ -14,5 +14,12 @@ namespace ProcessVisualization.Api.Data.Repository
             var allUsers = await context.Set<User>().ToListAsync();
             return allUsers.Where(x => x.RoomUsers.Any(x => x.RoomId == roomId)).ToList();
         }
+
+
+        public async Task<User?> GetUsersByEmailAsync(string email)
+        {
+            var allUsers = await context.Set<User>().Include(x => x.RoomUsers).ToListAsync();
+            return allUsers.Where(x => x.Email == email).FirstOrDefault();
+        }
     }
 }

@@ -1,10 +1,10 @@
 export class ResponseTemplateDto<T> {
-    ErrorMessage: string | null;
-    IsSuccess: boolean | null;
-    Data?: T;
+  Message: string | null;
+  IsSuccess: boolean | null;
+  Data?: T;
 
-    constructor() {
-        this.ErrorMessage = null;
-        this.IsSuccess = null;
-    }
+  constructor() {
+    this.Message = null;
+    this.IsSuccess = null;
+  }
 }

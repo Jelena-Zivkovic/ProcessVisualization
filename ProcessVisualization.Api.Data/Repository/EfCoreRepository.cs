@@ -21,7 +21,7 @@ namespace ProcessVisualization.Api.Data.Repository
             return entity;
         }
 
-        public async Task<TEntity> Delete(int id)
+        public async Task<TEntity> Delete(T id)
         {
             var entity = await context.Set<TEntity>().FindAsync(id);
             if (entity == null)
@@ -35,7 +35,7 @@ namespace ProcessVisualization.Api.Data.Repository
             return entity;
         }
 
-        public async Task<TEntity> Get(int id)
+        public async Task<TEntity> Get(T id)
         {
             return await context.Set<TEntity>().FindAsync(id);
         }
@@ -48,6 +48,7 @@ namespace ProcessVisualization.Api.Data.Repository
         public async Task<TEntity> Update(TEntity entity)
         {
             context.Entry(entity).State = EntityState.Modified;
+            context.Update(entity);
             await context.SaveChangesAsync();
             return entity;
         }

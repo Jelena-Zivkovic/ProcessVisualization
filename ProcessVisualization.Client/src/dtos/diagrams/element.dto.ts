@@ -1,7 +1,7 @@
 export class ElementDto {
-  id: string = "";
+  Id: string = "";
   businessObject?: any;
-  type: string = "";
+  Type: string = "";
   labelId?: any;//Label
   labelIds: string[] = [];//Label
   parent?: string;

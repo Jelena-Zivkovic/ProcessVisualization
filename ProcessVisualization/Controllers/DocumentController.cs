@@ -7,7 +7,7 @@ using ProcessVisualization.Api.Host.Extensions;
 
 namespace ProcessVisualization.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class DocumentController : ControllerBase
     {
@@ -27,15 +27,22 @@ namespace ProcessVisualization.Controllers
 
         // GET api/<DocumentsController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public ActionResult Get(int id)
         {
-            return "value";
+            return Ok(_document.GetDocument(id));
+        }
+
+        [HttpPost("Save")]
+        public ActionResult Save([FromBody] DocumentCreateDto value)
+        {
+            return Ok(_document.SaveDocument(value, this.User.GetUserId()));
         }
 
         // POST api/<DocumentsController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post([FromBody] int roomId)
         {
+            return Ok(_document.CreateDocument(roomId));
         }
 
         // PUT api/<DocumentsController>/5
@@ -50,10 +57,5 @@ namespace ProcessVisualization.Controllers
         {
         }
 
-        [HttpPost("Save")]
-        public ActionResult Save([FromBody] DocumentCreateDto value)
-        {
-            return Ok(_document.SaveDocument(value, this.User.GetUserId()));
-        }
     }
 }

@@ -8,6 +8,7 @@ import { KeyValue } from '@angular/common';
 import { Constants } from 'src/app/app.constants';
 import { DropdownItemDo } from 'src/dos/dropdown/dropdown-item.do';
 import { DropdownItemStringDo } from 'src/dos/dropdown/dropdown-item-string.do';
+import { DiagramCreateDto } from 'src/dtos/diagrams/diagram-create.dto';
 
 @Injectable()
 export class CommonService {
@@ -128,5 +129,30 @@ export class CommonService {
     res.value = null;
     res.label = '--Select--';
     return res;
+  }
+
+  setRoomId(roomId: number) {
+    localStorage.setItem("roomId", roomId.toString());
+  }
+
+  getRoomId(): number {
+    return +(localStorage.getItem("roomId") ?? "");
+  }
+
+
+  setDocument(doc: DiagramCreateDto) {
+    localStorage.setItem("diagram", JSON.stringify(doc));
+  }
+
+  getDocument(): DiagramCreateDto {
+    var doc = localStorage.getItem("diagram");
+    if (doc != null) {
+      return <DiagramCreateDto>JSON.parse(doc);
+    }
+    return new DiagramCreateDto();
+  }
+
+  clearDocument(): void {
+    localStorage.removeItem("diagram");
   }
 }

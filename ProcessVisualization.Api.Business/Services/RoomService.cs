@@ -28,15 +28,15 @@ namespace ProcessVisualization.Api.Business.Services
             _roomUserRepository = roomUserRepository;
         }
 
-        public async Task<ResponseTemplateDto<RoomViewDto>> CreateRoomAsync(string roomName, string userId)
+        public ResponseTemplateDto<RoomViewDto> CreateRoom(string roomName, string userId)
         {
             var allRooms = _roomRepository.GetAll();
-            if(allRooms.Result.Exists(x => x.Name == roomName))
+            if (allRooms.Result.Exists(x => x.Name == roomName))
             {
                 return new ResponseTemplateDto<RoomViewDto>(false, "Alredy exist room with name: " + roomName);
             }
 
-            var roomCode = DateTime.UtcNow.Ticks.ToString("X")+ userId.Take(6);
+            var roomCode = DateTime.UtcNow.Ticks.ToString("X") +"_" + roomName;
             var newRoom = new Data.Models.Room
             {
                 CreatedAt = DateTime.UtcNow,
@@ -52,7 +52,7 @@ namespace ProcessVisualization.Api.Business.Services
                 isAdmin = true
             });
 
-            return new ResponseTemplateDto<RoomViewDto>(true,  new RoomViewDto
+            return new ResponseTemplateDto<RoomViewDto>(true, new RoomViewDto
             {
                 Description = newRoom.Description,
                 CreatedAt = newRoom.CreatedAt,
@@ -65,7 +65,7 @@ namespace ProcessVisualization.Api.Business.Services
 
         public List<RoomViewDto> GetAll(string userId)
         {
-            var roomIds = _roomUserRepository.GetAll().Result.Where(x => userId == x.UserId).Select(x => x.RoomId).ToList();
+            var roomIds = _roomUserRepository.GetAll().Result.Where(x => ( userId == x.UserId  && x.isActive)).Select(x => x.RoomId).ToList();
             var rooms = _roomRepository.GetAll();
             return rooms.Result.Where(x => roomIds.Contains(x.Id)).Select(r => new RoomViewDto { 
                 Id = r.Id,
@@ -92,7 +92,7 @@ namespace ProcessVisualization.Api.Business.Services
             result.ImageUrl = room.ImageUrl;
             result.CreatedAt = room.CreatedAt;
             result.LastUpdatedAt = room.LastUpdatedAt;
-            result.Users = room.RoomUsers.Select(x => new UserDto
+            result.Users = room.RoomUsers.Where(x => x.isActive).Select(x => new UserDto
             {
                 Email = x.User.Email,
                 Id = x.User.Id,
@@ -110,22 +110,42 @@ namespace ProcessVisualization.Api.Business.Services
             return result;
         }
 
-        public ResponseTemplateDto<RoomViewDto> JoinRoom(int roomId, string userId)
+        public ResponseTemplateDto<RoomViewDto> JoinRoom(string roomCode, string email)
         {
-            var res = _roomUserRepository.Add(new Data.Models.RoomUser
+            var user = _userRepository.GetUsersByEmailAsync(email).Result;
+
+            if (user == null) {
+                return new ResponseTemplateDto<RoomViewDto>(false, "User with email: " + email + ". The user needs to be registered to join the room.");
+            }
+
+            var room = _roomRepository.GetByCode(roomCode).Result; 
+            if (room == null) {
+                return new ResponseTemplateDto<RoomViewDto>(false, "The room code doesn't exist.");
+            }
+
+            var roomUser = user.RoomUsers.Where(x => x.RoomId == room.Id).FirstOrDefault();
+            if (roomUser == null)
             {
-                RoomId = roomId,
-                UserId = userId,
-                isAdmin = false,
-                isActive = true
-            });
+                var res = _roomUserRepository.Add(new Data.Models.RoomUser
+                {
+                    RoomId = room.Id,
+                    UserId = user.Id,
+                    isAdmin = false,
+                    isActive = true
+                }).Result;
+            }
+            else {
+                roomUser.isActive = true;
+                roomUser = _roomUserRepository.Update(roomUser).Result;
+            }
 
             return new ResponseTemplateDto<RoomViewDto>();
         }
 
-        public ResponseTemplateDto<int> LeaveRoom(int roomId, string userId)
+        public ResponseTemplateDto<int> LeaveRoom(int roomId, string userEmail)
         {
-            var roomUser = _roomRepository.Get(roomId).Result;
+            var roomUser = _userRepository.GetUsersByEmailAsync(userEmail).Result;
+
             var ru =  roomUser.RoomUsers.Where(x => x.RoomId == roomId).FirstOrDefault();
             if (ru != null)
             {

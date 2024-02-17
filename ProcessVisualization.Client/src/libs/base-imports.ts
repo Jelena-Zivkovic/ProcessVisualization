@@ -8,6 +8,7 @@ import { CommonService } from 'src/services/common.service';
 import { LoggerService } from 'src/services/logger.service';
 import { RouterService } from 'src/services/router.service';
 import { SharedService } from 'src/services/shared.service';
+import { WebapiDocumentsService } from 'src/services/webapi-documents.service';
 import { WebapiRoomsService } from 'src/services/webapi-rooms.service';
 import { WebapiUsersService } from 'src/services/webapi-users.service';
 //services
@@ -22,6 +23,7 @@ export class BaseImports {
   loggerService: LoggerService;
   webapiRoomsService: WebapiRoomsService;
   webapiUsersService: WebapiUsersService;
+  webapiDocumentsService: WebapiDocumentsService;
 
   http: HttpClient;
 
@@ -37,6 +39,7 @@ export class BaseImports {
 
     this.webapiRoomsService = injector.get(WebapiRoomsService);
     this.webapiUsersService = injector.get(WebapiUsersService);
+    this.webapiDocumentsService = injector.get(WebapiDocumentsService);
 
     this.http = injector.get(HttpClient);
   }

@@ -101,6 +101,7 @@ namespace ProcessVisualization.Api.Business.Services
                 Message = tokenAsString,
                 IsSuccess = true,
                 Data = new LoginResultDto { 
+                    Email = user.Email,
                     AccessToken = tokenAsString,
                     RefreshToken = "dfa"+ tokenAsString,
                     ExpiresIn = (int.Parse(_configuration["Jwt:expiryInMinutes"])) * 60

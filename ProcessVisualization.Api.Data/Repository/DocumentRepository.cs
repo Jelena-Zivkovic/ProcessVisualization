@@ -16,5 +16,12 @@ namespace ProcessVisualization.Api.Data.Repository
             return allDocuments.Where(x => x.RoomId == roomId).ToList();
         }
 
+        public Document? Get(int id)
+        {
+            return context.Set<Document>().Where(x => x.Id == id)
+                .Include(x => x.Connections)
+                .Include(x => x.Shapes).FirstOrDefault();
+        }
+
     }
 }

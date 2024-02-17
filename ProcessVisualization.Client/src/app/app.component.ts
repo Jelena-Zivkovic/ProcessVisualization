@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Injector } from '@angular/core';
+import { BaseImports } from 'src/libs/base-imports';
 import { AppModule } from './app.module';
 
 @Component({
@@ -6,6 +7,9 @@ import { AppModule } from './app.module';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent extends BaseImports {
   title = 'ProcessVisualization.Client';
+  constructor(injector: Injector) {
+    super(injector);
+  }
 }

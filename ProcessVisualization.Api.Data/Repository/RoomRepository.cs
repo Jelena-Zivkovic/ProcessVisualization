@@ -17,5 +17,11 @@ namespace ProcessVisualization.Api.Data.Repository
                     .ThenInclude(x => x.User).FirstOrDefault();
             return room;
         }
+
+        public async Task<Room> GetByCode(string code)
+        {
+            var room = context.Set<Room>().Where(x => x.RoomCode == code).FirstOrDefault();
+            return room;
+        }
     }
 }

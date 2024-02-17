@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace ProcessVisualization.Api.Data.Models
 {
-    public class Shape : IEntity<string>
+    public class Shape : IEntity<int>
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
+        public int DocumentId { get; set; }
+        public virtual Document Document { get; set; }
         public string ElementId { get; set; }
         public string Type { get; set; }
 

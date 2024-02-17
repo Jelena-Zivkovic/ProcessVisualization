@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, Injector, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
@@ -23,7 +23,7 @@ import { ElementDto } from 'src/dtos/diagrams/element.dto';
 import { ShapeDto } from 'src/dtos/diagrams/shape.dto';
 import { ConnectionDto } from 'src/dtos/diagrams/connection.dto';
 import { DefaultElement } from 'src/enum/default-element.enum';
-import { DiagramDto } from 'src/dtos/diagrams/diagram.dto';
+import { DiagramCreateDto } from 'src/dtos/diagrams/diagram-create.dto';
 import { MenubarModule } from 'primeng/menubar';
 import { SaveSVGResult, SaveXMLResult } from 'bpmn-js/lib/BaseViewer';
 import { InjectionNames, OriginalPaletteProvider } from './bpmn-js/bpmn-js';
@@ -33,6 +33,8 @@ import { CustomPropsProvider } from './props-provider/CustomPropsProvider';
 //import TokenSimulationModule from 'bpmn-js-token-simulation/lib/viewer';
 //const PropertiesModule = require('bpmn-js-properties-panel');
 import { BpmnPropertiesPanelModule, BpmnPropertiesProviderModule } from 'bpmn-js-properties-panel';
+import { BaseImports } from 'src/libs/base-imports';
+import { WebapiDocumentsService } from 'src/services/webapi-documents.service';
 //declare var BpmnPropertiesPanelModule: any;
 //declare var BpmnPropertiesProviderModule: any;
 
@@ -43,15 +45,29 @@ import { BpmnPropertiesPanelModule, BpmnPropertiesProviderModule } from 'bpmn-js
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss']
 })
-export class EditorComponent implements OnChanges {
+export class EditorComponent extends BaseImports implements OnChanges {
   private bpmnJS!: Modeler;
   private zoomScale: number = 1;
+  diagram: DiagramCreateDto;
+
   documentActions: any;
 
   // retrieve DOM element reference
   @ViewChild('diagramRef', { static: true }) private diagramRef: ElementRef | undefined;
   @ViewChild('propertiesRef', { static: true }) private propertiesRef: ElementRef | undefined;
-  constructor() {
+  constructor(injector: Injector) {
+    super(injector);
+    this.diagram = this.commonService.getDocument();
+    const roomId = this.commonService.getRoomId();
+    console.log(this.diagram, !this.diagram.Id, roomId);
+    if (!this.diagram.Id && roomId) {
+      this.webapiDocumentsService.create(roomId).subscribe((res) => {
+        console.log("Create", res)
+        this.diagram = res.Data ?? new DiagramCreateDto(roomId);
+      });
+    }
+
+
     this.bpmnJS = new Modeler({
       container: this.diagramRef?.nativeElement,
       height: "100%",
@@ -84,56 +100,13 @@ export class EditorComponent implements OnChanges {
     //this.importPalette();
 
     const commandStack: any = this.bpmnJS.get('commandStack');
-    const eventBus: EventBus = this.bpmnJS.get('eventBus');
+    this.autosave();
     /*
         commandStack.on('commandStack.changed', (event: any) => {
           // Handle diagram changes here
           console.log('Diagram changed:', event);
         });*/
-    eventBus.on('commandStack.changed', (event: Event) => {
-      // save XML
-      console.log('Diagram changed 11:', event);
-      console.log(Object.values(DefaultElement))
 
-      var defaultElements = Object.values(DefaultElement);
-      const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
-      var diagram: DiagramDto = new DiagramDto();
-      elementRegistry.getAll().filter(y => !defaultElements.find(z => z == y.id)).forEach(x => {
-        var el: ElementDto = {
-          id: x.id,
-          businessObject: undefined,//x.businessObject,
-          labelId: (<Element>x).label?.id,
-          labelIds: (<Element>x).labels.map(x => x.id),
-          //parent: (<Element>x).parent,
-          //incoming: (<Element>x).incoming,
-          //outgoing: (<Element>x).outgoing,
-          type: (<Element>x).type
-        };
-
-        if ((<Shape>x).x != undefined) {
-          (<ShapeDto>el).x = (<Shape>x).x;
-          (<ShapeDto>el).y = (<Shape>x).y;
-          (<ShapeDto>el).width = (<Shape>x).width;
-          (<ShapeDto>el).height = (<Shape>x).height;
-
-          diagram.Shapes.push(<ShapeDto>el);
-        }
-
-        if ((<Connection>x).target) {
-          (<ConnectionDto>el).target = (<Connection>x).target?.id;
-          (<ConnectionDto>el).source = (<Connection>x).source?.id;
-          (<ConnectionDto>el).waypoints = (<Connection>x).waypoints.map(y => {
-            return {
-              x: y.x,
-              y: y.y
-            }
-          });
-          diagram.Connections.push(<ConnectionDto>el);
-        }
-        return el;
-      });
-      console.log(diagram, elementRegistry.getAll());
-    });
     //commandStack.off('changed');
   }
   ngOnChanges(changes: SimpleChanges): void {
@@ -187,8 +160,8 @@ export class EditorComponent implements OnChanges {
   }
   //
 
-  private async createGraph12(diagram?: DiagramDto) {
-    var res = {
+  private async createGraph12(diagram?: DiagramCreateDto) {
+    /*var res = {
       "Shapes": [
         {
           "id": "task1",
@@ -237,8 +210,9 @@ export class EditorComponent implements OnChanges {
           ]
         }
       ]
-    };
+    };*/
 
+    //res = this.diagram;
     const elementFactory: ElementFactory = await this.bpmnJS.get('elementFactory'),
       elementRegistry: ElementRegistry = await this.bpmnJS.get('elementRegistry'),
       modeling: Modeling = await this.bpmnJS.get('modeling');
@@ -246,19 +220,19 @@ export class EditorComponent implements OnChanges {
     const process: ElementLike | undefined = await elementRegistry.get('Process'),
       startEvent: ElementLike | undefined = await elementRegistry.get('StartEvent');
 
-    res.Shapes.forEach(element => {
+    this.diagram.Shapes.forEach(element => {
       const task = elementFactory.createShape({
-        type: element.type,
-        id: element.id,
+        type: element.Type,
+        id: element.Id,
       });
 
-      modeling.createShape(task, { x: <number>element.x, y: <number>element.y }, <Parent>process);
+      modeling.createShape(task, { x: <number>element.X, y: <number>element.Y }, <Parent>process);
     });
 
-    res.Connections.forEach(element => {
-      if (element && (<ConnectionDto>element)?.source && (<ConnectionDto>element)?.target) {
-        var source = <Element>elementRegistry.find(x => x.id == element.source);
-        var target = <Element>elementRegistry.find(x => x.id == element.target);
+    this.diagram.Connections.forEach(element => {
+      if (element && (<ConnectionDto>element)?.Source && (<ConnectionDto>element)?.Target) {
+        var source = <Element>elementRegistry.find(x => x.id == element.Source);
+        var target = <Element>elementRegistry.find(x => x.id == element.Target);
         if (source && target) {
           modeling.connect(source, target);
         }
@@ -419,6 +393,68 @@ export class EditorComponent implements OnChanges {
   private fitContent() {
     this.zoomScale = 1;
     (<Canvas>this.bpmnJS.get('canvas')).zoom('fit-viewport');
+  }
+
+  private autosave() {
+    const eventBus: EventBus = this.bpmnJS.get('eventBus');
+    eventBus.on('commandStack.changed', (event: Event) => {
+      // save XML
+      console.log('Diagram changed 11:', event);
+      console.log(Object.values(DefaultElement))
+      this.save();
+    });
+  }
+
+
+  private save() {
+    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
+    this.diagram.Shapes = [];
+    this.diagram.Connections = [];
+    var defaultElements = Object.values(DefaultElement);
+    elementRegistry.getAll().filter(y => !defaultElements.find(z => z == y.id)).forEach(x => {
+      console.log("Parent", (<Element>x).parent);
+      var el: ElementDto = {
+        Id: x.id,
+        businessObject: undefined,//x.businessObject,
+        labelId: (<Element>x).label?.id,
+        labelIds: (<Element>x).labels.map(x => x.id),
+        //parent: (<Element>x).parent,
+        //incoming: (<Element>x).incoming,
+        //outgoing: (<Element>x).outgoing,
+        Type: (<Element>x).type
+      };
+
+      if ((<Shape>x).x != undefined) {
+        (<ShapeDto>el).X = (<Shape>x).x;
+        (<ShapeDto>el).Y = (<Shape>x).y;
+        (<ShapeDto>el).Width = (<Shape>x).width;
+        (<ShapeDto>el).Height = (<Shape>x).height;
+
+        this.diagram.Shapes.push(<ShapeDto>el);
+      }
+
+      if ((<Connection>x).target) {
+        (<ConnectionDto>el).Target = (<Connection>x).target?.id;
+        (<ConnectionDto>el).Source = (<Connection>x).source?.id;
+        (<ConnectionDto>el).WayPoints = (<Connection>x).waypoints.map(y => {
+          return {
+            x: y.x,
+            y: y.y
+          }
+        });
+        this.diagram.Connections.push(<ConnectionDto>el);
+      }
+      return el;
+    });
+
+    this.webapiDocumentsService.save(this.diagram).subscribe(res => {
+      console.log("Saved", res);
+      this.commonService.setDocument(res.Data ?? this.diagram);
+      this.diagram.Id = res.Data?.Id;
+
+    })
+
+    console.log(this.diagram, elementRegistry.getAll());
   }
 }
 

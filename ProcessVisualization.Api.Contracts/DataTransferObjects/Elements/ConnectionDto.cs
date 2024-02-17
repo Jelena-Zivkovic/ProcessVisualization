@@ -8,7 +8,7 @@ namespace ProcessVisualization.Api.Contracts.DataTransferObjects.Elements
 {
     public class ConnectionDto
     {
-        public string ConnectionId { get; set; }
+        public string Id { get; set; }
         public string Type { get; set; } = "bpmn:SequenceFlow";
         public string Target { get; set; }
         public string Source { get; set; }

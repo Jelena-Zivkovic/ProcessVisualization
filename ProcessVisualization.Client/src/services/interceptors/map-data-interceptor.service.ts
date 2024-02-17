@@ -37,7 +37,7 @@ export class MapDataInterceptorService
           if (res instanceof HttpResponse) {
             const data = res.body as ResponseTemplateDto<any>;
             if (!data.IsSuccess) {
-              alert(data.ErrorMessage!);
+              alert(data.Message!);
             }
           }
           return res;

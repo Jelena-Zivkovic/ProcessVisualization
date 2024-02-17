@@ -4,7 +4,7 @@
 
 namespace ProcessVisualization.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ShapeController : ControllerBase
     {

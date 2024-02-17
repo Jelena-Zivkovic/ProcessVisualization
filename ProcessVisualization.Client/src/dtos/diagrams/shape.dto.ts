@@ -1,10 +1,10 @@
 import { ElementDto } from "./element.dto";
 
 export class ShapeDto extends ElementDto {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  X: number;
+  Y: number;
+  Width: number;
+  Height: number;
   isImplicit?: boolean;
   isFrame?: boolean;
   children: ElementDto[] = [];
@@ -14,9 +14,9 @@ export class ShapeDto extends ElementDto {
   constructor() {
     super();
 
-    this.x = -1;
-    this.y = -1;
-    this.width = -1;
-    this.height = -1;
+    this.X = -1;
+    this.Y = -1;
+    this.Width = -1;
+    this.Height = -1;
   }
 }

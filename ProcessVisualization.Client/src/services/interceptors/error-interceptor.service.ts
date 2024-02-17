@@ -126,7 +126,7 @@ export class ErrorInterceptorService
     errBody.IsSuccess = false;
     errBody.Data = false;
 
-    errBody.ErrorMessage = errorMessage;
+    errBody.Message = errorMessage;
     return this.logAndThrowError(
       errBody,
       req.method + JSON.stringify(req.urlWithParams) + JSON.stringify(req.body)
