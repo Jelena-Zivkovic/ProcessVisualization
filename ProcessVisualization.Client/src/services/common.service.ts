@@ -139,7 +139,6 @@ export class CommonService {
     return +(localStorage.getItem("roomId") ?? "");
   }
 
-
   setDocument(doc: DiagramCreateDto) {
     localStorage.setItem("diagram", JSON.stringify(doc));
   }

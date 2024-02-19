@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ProcessVisualization.Api.Data.Models;
+using ProcessVisualization.Api.Host.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ var connectionString = builder.Configuration.GetConnectionString("SqlConnection"
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
+builder.Services.AddSignalR();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -56,13 +58,14 @@ builder.Services.AddAuthentication(auth =>
 
 builder.Services.RegisterApiServices(configuration, environment);
 
-builder.Services.AddCors(options => {
 
+builder.Services.AddCors(options => {
     options.AddPolicy(CorsPolicy, corsOptions =>
     {
         corsOptions.AllowAnyHeader();
         corsOptions.AllowAnyMethod();
         corsOptions.AllowAnyOrigin();
+        corsOptions.SetIsOriginAllowed((hosts) => true);
     });
 });
 
@@ -81,6 +84,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
+app.MapHub<EditorHub>("editorhub");
+app.MapHub<ChatHub>("/chatHub");
 
 app.MapControllers();
 

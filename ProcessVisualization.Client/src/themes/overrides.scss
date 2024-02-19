@@ -87,3 +87,27 @@
 .p-dialog {
   min-width: 500px;
 }
+
+@function unicode($str) {
+  @return unquote('"') + unquote(str-insert($str, "\\", 1)) + unquote('"');
+}
+
+///File explorer
+p-table.p-element.file-explorer {
+  .p-datatable.p-component > .p-datatable-wrapper > .p-datatable-table {
+    .p-datatable-tbody {
+      tr {
+        background-color: red;
+
+        td:first-child::before {
+          //font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+          //"Lucida Sans", Arial, sans-serif;
+          content: "\1F5CE";
+          font-weight: 900;
+          font-size: 18px;
+          background-color: green;
+        }
+      }
+    }
+  }
+}

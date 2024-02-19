@@ -1,4 +1,4 @@
-import { Component, ElementRef, Injector, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, Injector, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
@@ -11,7 +11,7 @@ import ElementFactory from 'diagram-js/lib/core/ElementFactory';
 import Modeling from 'diagram-js/lib/features/modeling/Modeling';
 import EventBus from 'diagram-js/lib/core/EventBus';
 
-import { from, Observable, of } from 'rxjs';
+import { from, ignoreElements, Observable, of } from 'rxjs';
 import { ElementLike, Parent } from 'diagram-js/lib/model/Types';
 import { Connection, Element } from 'bpmn-js/lib/model/Types';
 import { getLocaleDirection } from '@angular/common';
@@ -26,15 +26,16 @@ import { DefaultElement } from 'src/enum/default-element.enum';
 import { DiagramCreateDto } from 'src/dtos/diagrams/diagram-create.dto';
 import { MenubarModule } from 'primeng/menubar';
 import { SaveSVGResult, SaveXMLResult } from 'bpmn-js/lib/BaseViewer';
-import { InjectionNames, OriginalPaletteProvider } from './bpmn-js/bpmn-js';
+import { InjectionNames, OriginalPaletteProvider, OriginalPropertiesProvider, PropertiesPanelModule } from './bpmn-js/bpmn-js';
 import { CustomPaletteProvider } from './props-provider/CustomPaletteProvider';
 import { CustomPropsProvider } from './props-provider/CustomPropsProvider';
 //import {BpmnPropertiesPanelModule, } from 'bpmn-js-properties-panel';
 //import TokenSimulationModule from 'bpmn-js-token-simulation/lib/viewer';
 //const PropertiesModule = require('bpmn-js-properties-panel');
-import { BpmnPropertiesPanelModule, BpmnPropertiesProviderModule } from 'bpmn-js-properties-panel';
+//import { BpmnPropertiesPanelModule, BpmnPropertiesProviderModule } from 'bpmn-js-properties-panel';
 import { BaseImports } from 'src/libs/base-imports';
 import { WebapiDocumentsService } from 'src/services/webapi-documents.service';
+import { SignalRService } from 'src/services/siganlrHub-editor.service';
 //declare var BpmnPropertiesPanelModule: any;
 //declare var BpmnPropertiesProviderModule: any;
 
@@ -45,52 +46,67 @@ import { WebapiDocumentsService } from 'src/services/webapi-documents.service';
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss']
 })
-export class EditorComponent extends BaseImports implements OnChanges {
+export class EditorComponent extends BaseImports implements OnChanges, OnInit {
   private bpmnJS!: Modeler;
   private zoomScale: number = 1;
   diagram: DiagramCreateDto;
+  email: string = "";
+  group: string = "";
 
   documentActions: any;
 
   // retrieve DOM element reference
   @ViewChild('diagramRef', { static: true }) private diagramRef: ElementRef | undefined;
   @ViewChild('propertiesRef', { static: true }) private propertiesRef: ElementRef | undefined;
-  constructor(injector: Injector) {
+  constructor(injector: Injector, private signalRService: SignalRService) {
     super(injector);
+
     this.diagram = this.commonService.getDocument();
     const roomId = this.commonService.getRoomId();
-    console.log(this.diagram, !this.diagram.Id, roomId);
+    this.email = this.authenticationService.getLoginData().Email;
+
     if (!this.diagram.Id && roomId) {
       this.webapiDocumentsService.create(roomId).subscribe((res) => {
-        console.log("Create", res)
         this.diagram = res.Data ?? new DiagramCreateDto(roomId);
       });
     }
 
+    this.group = `${roomId}.${this.diagram.Id}`;
+    console.log(this.group);
 
     this.bpmnJS = new Modeler({
       container: this.diagramRef?.nativeElement,
       height: "100%",
       propertiesPanel: {
-        parent: 'propertiesRef'
+        parent: this.propertiesRef?.nativeElement
       },
       moddleExtensions: {
         //custom: customModdle
       },
       additionalModules: [
-        //BpmnPropertiesProviderModule,
-        //PropertiesModule?.Module.BpmnPropertiesPanelModule,
+        //PropertiesPanelModule,
+        //BpmnPropertiesPanelModule,
         //PropertiesModule.BpmnPropertiesProviderModule,
         //TokenSimulation,
-        { [InjectionNames.propertiesProvider]: ['type', CustomPropsProvider] },
+        //{ [InjectionNames.bpmnPropertiesProvider]: ['type', OriginalPropertiesProvider.propertiesProvider[1]] },
+        //{ [InjectionNames.propertiesProvider]: ['type', CustomPropsProvider] },
 
         { [InjectionNames.originalPaletteProvider]: ['type', OriginalPaletteProvider] },
         { [InjectionNames.paletteProvider]: ['type', CustomPaletteProvider] },
       ]
     });
     this.initDocumentActions();
-    console.log(this.bpmnJS)
   }
+  ngOnInit(): void {
+    this.signalRService.startConnection(this.group);
+    this.signalRService.addReceiveMessageListener();
+
+    setInterval(() => {
+      //this.signalRService.sendMessageToGroup("room1", "user1", "this.diagram");
+    }, 5000);
+  }
+
+
   ngAfterContentInit(): void {
     // attach BpmnJS instance to DOM element
     this.bpmnJS.attachTo(this.diagramRef?.nativeElement);
@@ -100,7 +116,9 @@ export class EditorComponent extends BaseImports implements OnChanges {
     //this.importPalette();
 
     const commandStack: any = this.bpmnJS.get('commandStack');
-    this.autosave();
+    this.onChange();
+
+
     /*
         commandStack.on('commandStack.changed', (event: any) => {
           // Handle diagram changes here
@@ -115,6 +133,7 @@ export class EditorComponent extends BaseImports implements OnChanges {
   }
   ngOnDestroy(): void {
     this.bpmnJS.destroy();
+    this.signalRService.removeFromGroup(this.group);
   }
 
   /**
@@ -337,9 +356,14 @@ export class EditorComponent extends BaseImports implements OnChanges {
         command: () => { this.zoomOut() }
       },
       {
-        label: 'Fif content',
+        label: 'Fit content',
         icon: 'pi pi-fw pi-arrows-alt',
         command: () => { this.fitContent() }
+      },
+      {
+        label: 'Send mess',
+        icon: 'pi pi-fw pi-arrows-alt',
+        command: () => { this.signalRService.sendMessageToGroup(this.group, this.email, this.diagram); }
       }
     ];
   }
@@ -395,14 +419,32 @@ export class EditorComponent extends BaseImports implements OnChanges {
     (<Canvas>this.bpmnJS.get('canvas')).zoom('fit-viewport');
   }
 
-  private autosave() {
+  private onChange() {
     const eventBus: EventBus = this.bpmnJS.get('eventBus');
+    var autoSave: boolean = false;
+    /*eventBus.on([
+      'create.move',
+      'create.end',
+      'shape.move.move',
+      'shape.move.end'
+    ], function (event) {
+      console.log(event);
+    })*/
+
+
     eventBus.on('commandStack.changed', (event: Event) => {
-      // save XML
+      autoSave = true;
+
       console.log('Diagram changed 11:', event);
-      console.log(Object.values(DefaultElement))
-      this.save();
+      console.log(Object.values(DefaultElement));
     });
+
+    setInterval(() => {
+      if (autoSave) {
+        this.save();
+        autoSave = false;
+      }
+    }, 15000);
   }
 
 
@@ -453,8 +495,6 @@ export class EditorComponent extends BaseImports implements OnChanges {
       this.diagram.Id = res.Data?.Id;
 
     })
-
-    console.log(this.diagram, elementRegistry.getAll());
   }
 }
 

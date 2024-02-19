@@ -1,4 +1,5 @@
-﻿using ProcessVisualization.Api.Business.Services.Interfaces;
+﻿using Microsoft.Extensions.Caching.Memory;
+using ProcessVisualization.Api.Business.Services.Interfaces;
 using ProcessVisualization.Api.Contracts.DataTransferObjects;
 using ProcessVisualization.Api.Contracts.DataTransferObjects.Documents;
 using ProcessVisualization.Api.Contracts.DataTransferObjects.Elements;
@@ -16,9 +17,11 @@ namespace ProcessVisualization.Api.Business.Services
     public class DocumentService : IDocumentService
     {
         internal readonly DocumentRepository _documentRepository;
+        internal readonly MemoryCache _cache;
 
         public DocumentService(DocumentRepository documentRepository) {
             _documentRepository = documentRepository;
+            _cache = new MemoryCache(new MemoryCacheOptions());
         }
 
         public ResponseTemplateDto<DocumentDetailDto> GetDocument(int id)

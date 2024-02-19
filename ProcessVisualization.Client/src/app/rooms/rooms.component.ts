@@ -60,6 +60,7 @@ export class RoomsComponent extends BaseImports {
 
     this.items1 = [
       {
+        label: "Option",
         items: [
           {
             label: 'Manage members',
@@ -149,6 +150,20 @@ export class RoomsComponent extends BaseImports {
       this.messageService.add({ severity: 'success', summary: 'Success', detail: "Room " + this.selectedRoom.Name + " was successfully leaved" });
       this.loadAllRooms();
     });
+  }
+
+  openDocument(roomId: number) {
+    this.commonService.clearDocument();
+    this.commonService.setRoomId(this.selectedRoom.Id);
+    this.webapiDocumentsService.getDocument(roomId).subscribe((res) => {
+      if (res.IsSuccess) {
+        this.commonService.setDocument(res.Data);
+        this.routerService.navigate("editor");
+      }
+      else {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: res.Message ?? "" });
+      }
+    })
   }
 
   private loadAllRooms(): void {
