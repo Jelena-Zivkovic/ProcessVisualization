@@ -1,4 +1,4 @@
-import {IPalette, IPaletteProvider} from "../bpmn-js/bpmn-js";
+import { IPalette, IPaletteProvider } from "../bpmn-js/bpmn-js";
 
 export class CustomPaletteProvider implements IPaletteProvider {
 
@@ -12,20 +12,18 @@ export class CustomPaletteProvider implements IPaletteProvider {
   // originalPaletteProvider will be new'ed and thus call palette.registerProvider for itself.
   // There probably is a better way.
   constructor(private palette: IPalette, private originalPaletteProvider: IPaletteProvider, elementFactory: any) {
-    // console.log(this.constructor.name, "constructing", palette, originalPaletteProvider);
     palette.registerProvider(this);
     this.elementFactory = elementFactory;
   }
 
   getPaletteEntries() {
-    // console.log(this.constructor.name, "getPaletteEntries", this.palette, this.originalPaletteProvider);
     return {
       save: {
         group: 'tools',
         className: ['fa-save', 'fa'],
         title: 'TEST',
         action: {
-          click: () => console.log( 'TEST Action clicked! Elementfactory: ', this.elementFactory)
+          click: () => console.log('TEST Action clicked! Elementfactory: ', this.elementFactory)
         }
       }
     };

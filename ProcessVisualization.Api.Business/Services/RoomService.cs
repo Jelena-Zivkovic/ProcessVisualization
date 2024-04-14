@@ -50,7 +50,7 @@ namespace ProcessVisualization.Api.Business.Services
                 Room = newRoom,
                 UserId = userId,
                 isAdmin = true
-            });
+            }).Result;
 
             return new ResponseTemplateDto<RoomViewDto>(true, new RoomViewDto
             {

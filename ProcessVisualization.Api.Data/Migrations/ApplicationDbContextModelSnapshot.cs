@@ -189,7 +189,7 @@ namespace ProcessVisualization.Api.Data.Migrations
                     b.HasIndex("ConnectionId", "DocumentId")
                         .IsUnique();
 
-                    b.ToTable("Connections");
+                    b.ToTable("Connections", (string)null);
                 });
 
             modelBuilder.Entity("ProcessVisualization.Api.Data.Models.Document", b =>
@@ -225,7 +225,7 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("Documents");
+                    b.ToTable("Documents", (string)null);
                 });
 
             modelBuilder.Entity("ProcessVisualization.Api.Data.Models.Element", b =>
@@ -250,7 +250,7 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     b.HasIndex("DocumentId");
 
-                    b.ToTable("Elements");
+                    b.ToTable("Elements", (string)null);
                 });
 
             modelBuilder.Entity("ProcessVisualization.Api.Data.Models.Point", b =>
@@ -274,7 +274,7 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     b.HasIndex("ConnectionId");
 
-                    b.ToTable("Points");
+                    b.ToTable("Points", (string)null);
                 });
 
             modelBuilder.Entity("ProcessVisualization.Api.Data.Models.Room", b =>
@@ -312,7 +312,7 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("Rooms", (string)null);
                 });
 
             modelBuilder.Entity("ProcessVisualization.Api.Data.Models.RoomUser", b =>
@@ -342,7 +342,7 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RoomUsers");
+                    b.ToTable("RoomUsers", (string)null);
                 });
 
             modelBuilder.Entity("ProcessVisualization.Api.Data.Models.Shape", b =>
@@ -383,7 +383,7 @@ namespace ProcessVisualization.Api.Data.Migrations
                     b.HasIndex("ElementId", "DocumentId")
                         .IsUnique();
 
-                    b.ToTable("Shapes");
+                    b.ToTable("Shapes", (string)null);
                 });
 
             modelBuilder.Entity("ProcessVisualization.Api.Data.Models.User", b =>

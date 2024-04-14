@@ -22,9 +22,8 @@
       </div>
     </div>
     <div class="mx-4 my-1 room" *ngFor="let room of rooms" [id]="'room_' +room.Id">
-      <p-card (click)="showRoomDetails(room.Id)">
-        <div class="flex flex-row align-items-center"
-          [ngClass]="{'border': (selectedRoom && selectedRoom.Id == room.Id)}">
+      <p-card (click)="showRoomDetails(room.Id)" [ngClass]="{'selected': (selectedRoom && selectedRoom.Id == room.Id)}">
+        <div class="flex flex-row align-items-center">
           <div class="room-logo">
             <i class="fa-solid fa-users"></i>
           </div>
@@ -68,11 +67,11 @@
       </ng-template>
       <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr>
-          <td *ngFor="let col of columns">
-            {{ rowData[col.field] }}
+          <td *ngFor="let col of columns" class="w-max">
+            <span> {{ rowData[col.field] }}</span>
           </td>
-          <td>
-            <button type="button" pButton icon="pi pi-plus" (click)="openDocument(rowData.Id)"></button>
+          <td class="flex justify-content-end p-2 px-5">
+            <button type="button" pButton icon="pi pi-file-edit" (click)="openDocument(rowData.Id)"></button>
           </td>
         </tr>
       </ng-template>

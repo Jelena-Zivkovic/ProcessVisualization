@@ -8,19 +8,25 @@ using ProcessVisualization.Api.Data.Models;
 using ProcessVisualization.Api.Data.Repository;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace ProcessVisualization.Api.Business.Services
 {
     public class DocumentService : IDocumentService
     {
         internal readonly DocumentRepository _documentRepository;
+        internal readonly ShapeRepository _shapeRepository;
+        internal readonly ConnectionRepository _connectionRepository;
         internal readonly MemoryCache _cache;
 
-        public DocumentService(DocumentRepository documentRepository) {
+        public DocumentService(DocumentRepository documentRepository, ShapeRepository shapeRepository, ConnectionRepository connectionRepository) {
             _documentRepository = documentRepository;
+            _shapeRepository = shapeRepository;
+            _connectionRepository = connectionRepository;
             _cache = new MemoryCache(new MemoryCacheOptions());
         }
 
@@ -36,6 +42,7 @@ namespace ProcessVisualization.Api.Business.Services
             {
                 Id = id,
                 Name = doc.Name,
+                Description = doc.Description,
                 CreatedAt = doc.CreatedAt,
                 UpdatedAt = doc.LastUpdatedAt,
                 RoomId = doc.RoomId,
@@ -45,7 +52,7 @@ namespace ProcessVisualization.Api.Business.Services
                     Source = x.Source,
                     Target = x.Target,
                     Type = x.Type,
-                    WayPoints = x.WayPoints.Select(y => new PointDto { X = y.X, Y = y.Y }).ToList(),
+                    //WayPoints = x.WayPoints.Select(y => new PointDto { X = y.X, Y = y.Y }).ToList(),
                 }).ToList(),
                 Shapes = doc.Shapes.Select(x => new ShapeDto
                 {
@@ -64,33 +71,52 @@ namespace ProcessVisualization.Api.Business.Services
             var document = new Document
             {
                 Name = documentDto.Name,
-                Description = documentDto.Name,
+                Description = documentDto.Description ?? "",
                 LastUpdatedAt = DateTime.Now,
                 LastUpdatedBy = UserId,
-                Connections = documentDto.Connections.Select(x => new Connection
-                {
-                    Target = x.Target,
-                    Source = x.Source,
-                    Type = x.Type,
-                    ConnectionId = x.Id,
-                    WayPoints = x.WayPoints.Select(y => new Point
-                    {
-                        X = y.X,
-                        Y = y.Y
-                    }).ToList(),
-                }).ToList(),
-                Shapes = documentDto.Shapes.Select(x => new Shape
-                {
-                    ElementId = x.Id,
-                    Height = x.Height,
-                    Width = x.Width,
-                    X = x.X,
-                    Y = x.Y,
-                    Type = x.Type,
-
-                }).ToList(),
                 RoomId = documentDto.RoomId
             };
+
+            document.Connections = new Collection<Data.Models.Connection>();
+            foreach (var conn in  documentDto.Connections)
+            {
+                var newConn = new Data.Models.Connection
+                {
+                    Target = conn.Target,
+                    Source = conn.Source,
+                    Type = conn.Type,
+                    ConnectionId = conn.Id,
+                };
+
+                newConn.WayPoints = new List<Point>();
+
+                foreach (var point in conn.WayPoints) {
+                    var newPoint = new Point
+                    {
+                        X = point.X,
+                        Y = point.Y
+                    };
+
+
+                    newConn.WayPoints.Add(newPoint);
+
+                }
+                document.Connections.Add(newConn);
+            }
+            document.Shapes = new Collection<Shape>();
+            foreach (var shape in documentDto.Shapes)
+            {
+                var newShape = new Data.Models.Shape
+                {
+                    ElementId = shape.Id,
+                    Height = shape.Height,
+                    Width = shape.Width,
+                    X = shape.X,
+                    Y = shape.Y,
+                    Type = shape.Type,
+                };
+                document.Shapes.Add(newShape);
+            }
 
             if (documentDto.Id.HasValue)
             {
@@ -107,31 +133,37 @@ namespace ProcessVisualization.Api.Business.Services
 
             }
 
-            var res = _documentRepository.Update(document);
-
-            return new ResponseTemplateDto<DocumentCreateDto?>(true, new DocumentCreateDto
+            var res  = _documentRepository.UpdateDocument(document);
+            if(res != null)
             {
-                Id = res.Result.Id,
-                Name = res.Result.Name,
-                RoomId = res.Result.RoomId,
-                Connections = res.Result.Connections.Select(x => new ConnectionDto
+                return new ResponseTemplateDto<DocumentCreateDto?>(true, new DocumentCreateDto()
                 {
-                    Id = x.ConnectionId,
-                    Source = x.Source,
-                    Target = x.Target,
-                    Type = x.Type,
-                    WayPoints = x.WayPoints.Select(y => new PointDto { X = y.X, Y = y.Y }).ToList(),
-                }).ToList(),
-                Shapes = res.Result.Shapes.Select(x => new ShapeDto
-                {
-                    Height = x.Height,
-                    Width = x.Width,
-                    X = x.X,
-                    Y = x.Y,
-                    Type = x.Type,
-                    Id = x.ElementId
-                }).ToList(),
-            });
+                    Id = res.Id,
+                    Name = res.Name,
+                    Description = res.Description,
+                    RoomId = res.RoomId,
+                    Connections = res.Connections.Select(x => new ConnectionDto
+                    {
+                        Id = x.ConnectionId,
+                        Source = x.Source,
+                        Target = x.Target,
+                        Type = x.Type,
+                        //WayPoints = x.WayPoints.Select(y => new PointDto { X = y.X, Y = y.Y }).ToList(),
+                    }).ToList(),
+                    Shapes = res.Shapes.Select(x => new ShapeDto
+                    {
+                        Height = x.Height,
+                        Width = x.Width,
+                        X = x.X,
+                        Y = x.Y,
+                        Type = x.Type,
+                        Id = x.ElementId
+                    }).ToList(),
+                });
+
+            }
+            return new ResponseTemplateDto<DocumentCreateDto?>(false, string.Empty);
+
         }
 
         public ResponseTemplateDto<DocumentCreateDto?> CreateDocument(int roomId) {
@@ -141,7 +173,7 @@ namespace ProcessVisualization.Api.Business.Services
                 RoomId = roomId,
                 Name = "New diagram",
                 Description = "Description",
-                Connections = new List<Connection>(),
+                Connections = new List<Data.Models.Connection>(),
                 Shapes = new List<Shape>(),
                 CreatedAt = DateTime.Now,
                 LastUpdatedAt = DateTime.Now,

@@ -12,6 +12,7 @@ namespace ProcessVisualization.Api.Contracts.DataTransferObjects.Documents
     {
         public int? Id { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; } = string.Empty;
         public int RoomId { get; set; }
         public List<ShapeDto> Shapes { get; set; }
         public List<ConnectionDto> Connections { get; set; }

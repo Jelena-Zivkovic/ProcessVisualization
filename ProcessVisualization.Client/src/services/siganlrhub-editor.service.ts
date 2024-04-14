@@ -1,15 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { Constants } from 'src/app/app.constants';
 import { DiagramCreateDto } from 'src/dtos/diagrams/diagram-create.dto';
+import { SharedService } from './shared.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SignalRService {
+export class SignalREditorService {
   private hubConnection!: signalR.HubConnection;
   private hubPath: string = "editorhub";
-  constructor() { }
+  sharedService: SharedService;
+  constructor(injector: Injector) {
+    this.sharedService = injector.get(SharedService);
+  }
   /*
     startConnection = () => {
       this.hubConnection = new signalR.HubConnectionBuilder().withUrl(Constants.BASE_URL + "chatHub", {
@@ -37,7 +41,7 @@ export class SignalRService {
   */
 
 
-  startConnection = (groupName: string) => {
+  startConnection = (groupName: string, sharedService: SharedService = this.sharedService) => {
     console.log(Constants.BASE_URL + this.hubPath)
     this.hubConnection = new signalR.HubConnectionBuilder()
       .configureLogging(signalR.LogLevel.Debug)
@@ -50,6 +54,7 @@ export class SignalRService {
 
     this.hubConnection.on("ReceiveMessage", function (user, message) {
       console.log(`SignalR: ${user} says: `, message);
+      sharedService.broadcast("123456", message);
     });
 
     this.hubConnection
@@ -65,12 +70,12 @@ export class SignalRService {
 
   addReceiveMessageListener = () => {
     this.hubConnection.on('DocumentUpdatedInGroup', (groupName: string, message: string) => {
-      console.log(`Received message from ${groupName}: ${JSON.stringify(message)}`);
+      console.log(`Received message from ${groupName}: ${JSON.stringify(message)}`, message);
     });
   }
 
   addToGroup = (groupName: string) => {
-    this.hubConnection.invoke('AddToGroup', groupName).then(res => console.log(res, this.hubConnection))
+    this.hubConnection.invoke('AddToGroup', groupName)
       .catch(err => console.error(err));
   }
 
@@ -80,7 +85,12 @@ export class SignalRService {
   }
 
   sendMessageToGroup = (groupName: string, user: string, message: DiagramCreateDto) => {
-    this.hubConnection.invoke('SendMessageToGroup', groupName, user, message).then(suc => console.log(suc))
+    this.hubConnection.invoke('SendMessageToGroup', groupName, user, message)
+      .catch(err => console.error(err));
+  }
+
+  ChangeContoleEditorState = (groupName: string, user: string, message: number) => {
+    this.hubConnection.invoke('ReceiveContoleEditorState', groupName, user, message)
       .catch(err => console.error(err));
   }
 }

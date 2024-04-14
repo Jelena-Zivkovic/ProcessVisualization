@@ -4,12 +4,14 @@ import { ShapeDto } from "./shape.dto";
 export class DiagramCreateDto {
   Id?: number;
   Name: string;
+  Description: string;
   RoomId?: number | null;
   Shapes: ShapeDto[] = [];
   Connections: ConnectionDto[] = [];
 
   constructor(roomId: number | null = null) {
     this.Name = "New diagram";
+    this.Description = "";
     this.RoomId = roomId;
   }
 

@@ -9,8 +9,6 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <Folder Include="DataTransferObjects\Diagram\" />
-    <Folder Include="Enum\" />
   </ItemGroup>
 
   <ItemGroup>

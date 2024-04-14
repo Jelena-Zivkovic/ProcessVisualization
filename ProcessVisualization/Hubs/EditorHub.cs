@@ -12,6 +12,13 @@ namespace ProcessVisualization.Api.Host.Hubs
             await Clients.Group(groupName).SendAsync("ReceiveMessage", user, diagram);
         }
 
+
+
+        public async Task GetControl(string groupName, string user, DocumentCreateDto diagram)
+        {
+            await Clients.Group(groupName).SendAsync("ReceiveControl", user, diagram);
+        }
+
         public async Task AddToGroup(string groupName)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
@@ -25,6 +32,11 @@ namespace ProcessVisualization.Api.Host.Hubs
         public async Task DocumentUpdatedInGroup(string groupName, string diagram)
         {
             await Clients.Group(groupName).SendAsync("ReceiveUpdatedDiagram", diagram);
+        }
+
+        public async Task ChangeContoleEditorState(string groupName, string user, int state)
+        {
+            await Clients.Group(groupName).SendAsync("ReceiveContoleEditorState", user, state);
         }
     }
 }

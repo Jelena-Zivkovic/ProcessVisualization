@@ -3,6 +3,10 @@
   font-family: Helvetica;
 }
 
+body {
+  background-color: var(--primary-100);
+}
+
 :enabled:focus {
   box-shadow: 0 0 0 0.2rem var(--primary-100) !important;
   border-color: var(--primary-400) !important;
@@ -72,7 +76,21 @@
 
 //Diagram
 .diagram-container {
-  height: 100vh;
+  height: 90vh;
+  .bjs-container {
+    padding: 0.5rem 0 0.5rem 1rem;
+    .djs-container.djs-parent.djs-palette-shown.djs-palette-open {
+      border-radius: 1rem;
+    }
+  }
+}
+
+.panel {
+  margin: 0.5rem 0.5rem 0.5rem 0;
+  padding: 1rem 0.5rem;
+  height: calc(100% - 1rem);
+  border-radius: 1rem;
+  background-color: var(--surface-b);
 }
 
 .group[data-group="data-store"],
@@ -97,17 +115,60 @@ p-table.p-element.file-explorer {
   .p-datatable.p-component > .p-datatable-wrapper > .p-datatable-table {
     .p-datatable-tbody {
       tr {
-        background-color: red;
+        background-color: var(--primary-color-text);
+        &:hover {
+          background-color: var(--surface-200);
+        }
 
+        td > span {
+          margin: auto;
+        }
         td:first-child::before {
           //font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
           //"Lucida Sans", Arial, sans-serif;
           content: "\1F5CE";
           font-weight: 900;
-          font-size: 18px;
-          background-color: green;
+          font-size: 22px;
+          margin-right: 0.8rem;
+          //background-color: green;
         }
       }
     }
+  }
+}
+
+.editor-dock-zoom {
+  position: absolute;
+  bottom: 80px;
+  left: calc(78vw - 10px);
+  display: flex;
+  width: 52px;
+  flex-wrap: wrap;
+  background-color: var(--primary-color-text);
+  border: 1px solid var(--secondary-color);
+  border-radius: 6px;
+  p-button {
+    margin: 1px auto;
+    button.p-button.p-button-outlined {
+      border: 1px solid transparent;
+      font-weight: 900;
+    }
+    //background-color: var();
+  }
+}
+//.djs-palette-open
+.djs-container.djs-parent.djs-palette-shown {
+  background-image: url("../assets/102624003.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.props-input {
+  border: 1px solid transparent;
+  background-color: transparent;
+  &:focus {
+    background-color: var(--primary-color-text);
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 0.25re 0.25rem var(--text-color-secondary);
   }
 }

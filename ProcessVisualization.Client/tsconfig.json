@@ -2,9 +2,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "typeRoots":[
-      "./typings", "./node_modules/@types"
-    ],
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
@@ -25,7 +22,7 @@
     "useDefineForClassFields": false,
     "lib": [
       "ES2022",
-      "dom"
+      "DOM"
     ]
   },
   "angularCompilerOptions": {

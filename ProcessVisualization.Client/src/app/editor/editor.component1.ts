@@ -40,6 +40,7 @@ const customModdle = {
 })
 export class EditorComponent1 implements OnInit, AfterContentInit {
   private modeler!: any;
+  value3: string = "Element name";
 
   constructor(private http: HttpClient) {
 

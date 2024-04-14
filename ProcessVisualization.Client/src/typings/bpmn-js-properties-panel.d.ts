@@ -1,5 +1,5 @@
 
-declare module "bpmn-js-properties-panel" {
+declare module "bpmn-js-properties-panel123" {
   import * as BpmnPropertiesPanel from "index$3";
   import * as BpmnPropertiesProvider from "index$2";
   import * as CamundaPlatformPropertiesProvider from "index";

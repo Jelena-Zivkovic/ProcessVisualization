@@ -21,8 +21,37 @@
   margin-bottom: 1rem;
 }
 
-:host ::ng-deep .p-card {
-  background-color: var(--surface-50);
+::ng-deep .room {
+  background-color: var(--primary-100);
+}
+
+.room:not(:hover) {
+  .room-hovered {
+    color: var(--white-color);
+  }
+}
+
+.room:hover {
+  .room-hovered {
+    color: var(--primary-200);
+    display: initial;
+  }
+}
+
+:host ::ng-deep p-card {
+  .p-card {
+    background-color: var(--surface-50);
+  }
+
+  &.selected .p-card {
+    background-color: var(--primary-250);
+    border: var(--primary-300) solid 2px;
+    color: var(--primary-50);
+
+    .room-logo {
+      border: var(--primary-250) solid 2px;
+    }
+  }
 }
 
 :host ::ng-deep .p-card-body {
@@ -43,7 +72,9 @@
 .room-logo,
 .room-sm-logo {
   background-color: var(--primary-100);
-  color: #e6f4f1;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: var(--primary-250);
+  color: var(--white-color);
   width: 5rem;
   height: 5rem;
   display: flex;
@@ -51,6 +82,7 @@
   align-items: center;
   margin-left: 1rem;
   border-radius: var(--border-radius);
+  border: 1px solid var(--primary-200);
 }
 
 .room-sm-logo {
@@ -60,22 +92,6 @@
   margin-bottom: 1rem;
   .fa-users {
     font-size: 2rem;
-  }
-}
-
-::ng-deep .room {
-  background-color: var(--primary-100);
-}
-
-.room:not(:hover) {
-  .room-hovered {
-    display: none;
-  }
-}
-.room:hover {
-  .room-hovered {
-    color: var(--primary-200);
-    display: initial;
   }
 }
 
