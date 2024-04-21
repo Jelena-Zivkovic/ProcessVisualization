@@ -14,10 +14,10 @@ namespace ProcessVisualization.Api.Host.Hubs
 
 
 
-        public async Task GetControl(string groupName, string user, DocumentCreateDto diagram)
+       /* public async Task GetControl(string groupName, string user, DocumentCreateDto diagram)
         {
             await Clients.Group(groupName).SendAsync("ReceiveControl", user, diagram);
-        }
+        }*/
 
         public async Task AddToGroup(string groupName)
         {

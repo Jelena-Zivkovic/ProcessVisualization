@@ -48,7 +48,8 @@ namespace ProcessVisualization.Api.Business.Services
                 RoomId = doc.RoomId,
                 Connections = doc.Connections.Select(x => new ConnectionDto
                 {
-                    Id = x.ConnectionId,
+                    Id = x.Id,
+                    ElementId = x.ConnectionId,
                     Source = x.Source,
                     Target = x.Target,
                     Type = x.Type,
@@ -56,19 +57,20 @@ namespace ProcessVisualization.Api.Business.Services
                 }).ToList(),
                 Shapes = doc.Shapes.Select(x => new ShapeDto
                 {
+                    Id = x.Id,
                     Height = x.Height,
                     Width = x.Width,
                     X = x.X,
                     Y = x.Y,
                     Type = x.Type,
-                    Id = x.ElementId
+                    ElementId = x.ElementId
                 }).ToList(),
             });
         }
 
         public ResponseTemplateDto<DocumentCreateDto?> SaveDocument(DocumentCreateDto documentDto, string UserId)
         {
-            var document = new Document
+            /*var document = new Document
             {
                 Name = documentDto.Name,
                 Description = documentDto.Description ?? "",
@@ -76,7 +78,16 @@ namespace ProcessVisualization.Api.Business.Services
                 LastUpdatedBy = UserId,
                 RoomId = documentDto.RoomId
             };
-
+            Document? res;
+            if ( documentDto.Id != null )
+            {
+                document.Id = (int)documentDto.Id;
+                res = _documentRepository.Update(document).Result;
+            }
+            else
+            {
+                res = _documentRepository.Add(document).Result;
+            }
             document.Connections = new Collection<Data.Models.Connection>();
             foreach (var conn in  documentDto.Connections)
             {
@@ -88,6 +99,8 @@ namespace ProcessVisualization.Api.Business.Services
                     ConnectionId = conn.Id,
                 };
 
+
+
                 newConn.WayPoints = new List<Point>();
 
                 foreach (var point in conn.WayPoints) {
@@ -98,27 +111,31 @@ namespace ProcessVisualization.Api.Business.Services
                     };
 
 
-                    newConn.WayPoints.Add(newPoint);
-
+                    //newConn.WayPoints.Add(newPoint);
                 }
-                document.Connections.Add(newConn);
             }
+
             document.Shapes = new Collection<Shape>();
             foreach (var shape in documentDto.Shapes)
             {
                 var newShape = new Data.Models.Shape
                 {
-                    ElementId = shape.Id,
+                    DocumentId = documentDto.Id ?? res.Id,
+                    ElementId = shape.ElementId,
                     Height = shape.Height,
                     Width = shape.Width,
                     X = shape.X,
                     Y = shape.Y,
                     Type = shape.Type,
                 };
-                document.Shapes.Add(newShape);
-            }
+                if (shape.Id.HasValue) {
+                    newShape.Id = shape.Id.Value;
+                }
+                //document.Shapes.Add(newShape);                
+                //_shapeRepository.Update(newShape);
+            }*/
 
-            if (documentDto.Id.HasValue)
+            /*if (documentDto.Id.HasValue)
             {
                 document.Id = documentDto.Id.Value;
                 foreach (var connection in document.Connections)
@@ -131,10 +148,9 @@ namespace ProcessVisualization.Api.Business.Services
                     shape.DocumentId = documentDto.Id.Value;
                 }
 
-            }
+            }*/
 
-            var res  = _documentRepository.UpdateDocument(document);
-            if(res != null)
+            /*if(res != null)
             {
                 return new ResponseTemplateDto<DocumentCreateDto?>(true, new DocumentCreateDto()
                 {
@@ -161,7 +177,7 @@ namespace ProcessVisualization.Api.Business.Services
                     }).ToList(),
                 });
 
-            }
+            }*/
             return new ResponseTemplateDto<DocumentCreateDto?>(false, string.Empty);
 
         }

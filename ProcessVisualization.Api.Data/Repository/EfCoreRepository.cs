@@ -47,11 +47,14 @@ namespace ProcessVisualization.Api.Data.Repository
 
         public async Task<TEntity> Update(TEntity entity)
         {
-            Console.WriteLine(context.Entry(entity).State);
-            var l = context.Entry(entity);
+            if (entity.Id == null)
+            {
+                this.Add(entity);
+                return entity;
+            }
+
             context.Entry(entity).State = EntityState.Modified;
-            Console.WriteLine(context.Entry(entity).State);
-            context.Update(entity);
+            //context.Update(entity);
             await context.SaveChangesAsync();
             return entity;
         }

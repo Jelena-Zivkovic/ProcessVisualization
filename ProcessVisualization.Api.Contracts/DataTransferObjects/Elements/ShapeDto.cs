@@ -8,7 +8,8 @@ namespace ProcessVisualization.Api.Contracts.DataTransferObjects.Shape
 {
     public class ShapeDto
     {
-        public string Id { get; set; }
+        public int? Id { get; set; }
+        public string ElementId { get; set; }
         public string Type { get; set; }
         public decimal X { get; set; }
         public double Y { get; set; }

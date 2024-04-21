@@ -52,26 +52,28 @@ export class SignalREditorService {
       .build();
 
 
-    this.hubConnection.on("ReceiveMessage", function (user, message) {
-      console.log(`SignalR: ${user} says: `, message);
-      sharedService.broadcast("123456", message);
-    });
 
     this.hubConnection
       .start()
       .then(() => {
         console.log('Connection started');
-        //this.addReceiveMessageListener();
+        this.addReceiveMessageListener(this.sharedService);
 
         this.addToGroup(groupName);
       })
       .catch(err => console.log('Error while starting connection: ' + err));
   }
 
-  addReceiveMessageListener = () => {
-    this.hubConnection.on('DocumentUpdatedInGroup', (groupName: string, message: string) => {
+  addReceiveMessageListener = (sharedService: SharedService) => {
+    /*this.hubConnection.on('DocumentUpdatedInGroup', (groupName: string, message: string) => {
       console.log(`Received message from ${groupName}: ${JSON.stringify(message)}`, message);
+    });*/
+
+    this.hubConnection.on("ReceiveMessage", function (user, message) {
+      console.log(`SignalR: ${user} says: `, message);
+      sharedService.broadcast("ReceiveMessage123", message);
     });
+
   }
 
   addToGroup = (groupName: string) => {
@@ -85,8 +87,12 @@ export class SignalREditorService {
   }
 
   sendMessageToGroup = (groupName: string, user: string, message: DiagramCreateDto) => {
+    if (this.hubConnection.state != signalR.HubConnectionState.Connected) {
+      console.log('Connection is not started. Please start the connection first.');
+      return;
+    }
     this.hubConnection.invoke('SendMessageToGroup', groupName, user, message)
-      .catch(err => console.error(err));
+      .catch(err => console.log(err));
   }
 
   ChangeContoleEditorState = (groupName: string, user: string, message: number) => {

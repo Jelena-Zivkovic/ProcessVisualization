@@ -14,6 +14,7 @@ export const InjectionNames = {
   bpmnPropertiesProvider: 'bpmnPropertiesProvider',
   paletteProvider: 'paletteProvider',
   originalPaletteProvider: 'originalPaletteProvider',
+  incomingConnectionNumberRule: 'incomingConnectionNumberRule',
 };
 
 export const Modeler = _Modeler;

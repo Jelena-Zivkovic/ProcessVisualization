@@ -145,8 +145,10 @@ export class CommonService {
 
   getDocument(): DiagramCreateDto {
     var doc = localStorage.getItem("diagram");
+
     if (doc != null) {
-      return <DiagramCreateDto>JSON.parse(doc);
+      const diagram = JSON.parse(doc) as DiagramCreateDto
+      return diagram;
     }
     return new DiagramCreateDto();
   }

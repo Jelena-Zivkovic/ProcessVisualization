@@ -1,4 +1,5 @@
 import { ConnectionDto } from "./connection.dto";
+import { LabelDto } from "./label.dto";
 import { ShapeDto } from "./shape.dto";
 
 export class DiagramCreateDto {
@@ -8,6 +9,8 @@ export class DiagramCreateDto {
   RoomId?: number | null;
   Shapes: ShapeDto[] = [];
   Connections: ConnectionDto[] = [];
+  Labels: any[] = [];
+  Xml: string = "";
 
   constructor(roomId: number | null = null) {
     this.Name = "New diagram";

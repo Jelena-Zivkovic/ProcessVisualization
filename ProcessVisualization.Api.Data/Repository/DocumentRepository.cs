@@ -26,13 +26,13 @@ namespace ProcessVisualization.Api.Data.Repository
                 .Include(x => x.Connections)
                 .Include(x => x.Shapes).FirstOrDefault();
         }
-
+/*
         public Document? UpdateDocument(Document model)
         {
             var existingDocument = context.Documents
                 .Where(p => p.Id == model.Id)
-                .Include(p => p.Connections)
-                .Include(x => x.Shapes)
+                //.Include(p => p.Connections)
+                //.Include(x => x.Shapes)
                 .SingleOrDefault();
 
             if (existingDocument != null)
@@ -111,7 +111,7 @@ namespace ProcessVisualization.Api.Data.Repository
 
             return context.Documents.Where(p => p.Id == model.Id).FirstOrDefault();
         }
-
+*/
         /*public Document? Update(Document doc)
         {
             context.Entry(doc).State = EntityState.Modified;

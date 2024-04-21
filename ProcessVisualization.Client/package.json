@@ -23,6 +23,7 @@
     "bpmn-js": "^16.3.2",
     "bpmn-js-properties-panel": "^5.11.1",
     "bpmn-js-token-simulation": "^0.33.0",
+    "fs": "^0.0.1-security",
     "primeflex": "^3.3.1",
     "primeicons": "^6.0.1",
     "primeng": "^15.4.1",

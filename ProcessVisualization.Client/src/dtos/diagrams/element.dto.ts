@@ -1,5 +1,6 @@
 export class ElementDto {
-  Id: string = "";
+  Id?: number;
+  ElementId: string = "";
   businessObject?: any;
   Type: string = "";
   labelId?: any;//Label
