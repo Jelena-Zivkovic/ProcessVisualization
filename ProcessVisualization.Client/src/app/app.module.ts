@@ -18,10 +18,12 @@ import { AppComponent } from './app.component';
 
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { EditorService } from 'src/services/editor.service';
+import { BasicFunctions } from 'src/functions/basic';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,
@@ -44,6 +46,8 @@ import { MessageService } from 'primeng/api';
     WebapiUsersService,
     WebapiDocumentsService,
     MessageService,
+    EditorService,
+    BasicFunctions,
     provideHttpClient(),
   ],
   bootstrap: [AppComponent]

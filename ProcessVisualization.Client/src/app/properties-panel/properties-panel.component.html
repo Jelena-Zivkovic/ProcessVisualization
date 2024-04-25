@@ -1,17 +1,59 @@
 <div class="col">
-  <div class="row">
-
-    <input pInputText type="text" class="p-inputtext-lg props-input" placeholder="Large" [(ngModel)]="modalData.Name"
-      (blur)="update()" />
-    <textarea rows="5" cols="30" class="props-input" pInputTextarea [(ngModel)]="modalData.Description"
-      (blur)="update()"></textarea>
+  <div class="row file section" *ngIf="isDiagram()">
+    <input pInputText type="text" class="p-inputtext-lg props-header font-bold" placeholder="Large"
+      [(ngModel)]="diagram.Name" />
+    <div class="flex flex-column mt-4">
+      <label htmlFor="functions-group">Functions group</label>
+      <input pInputText type="text" id="functions-group" class="p-inputtext props-input"
+        [(ngModel)]="diagram.ModulePath" />
+    </div>
+    <div class="flex flex-column mt-3">
+      <label htmlFor="description">Description</label>
+      <textarea rows="5" cols="30" id="description" class="props-input" pInputTextarea
+        [(ngModel)]="diagram.Description"></textarea>
+    </div>
   </div>
 
-  <div class="input">
-
+  <div class="elements section" *ngIf="!isDiagram()">
+    <div class="input row">
+      <h3>Input values</h3>
+      <div class="row">
+        <div class="col">
+          <label for="name">Name</label>
+          <input pInputText type="text" class="props-input" placeholder="Name" [(ngModel)]="inputElement.labelId" />
+        </div>
+        <div class="col">
+          <label for="type">Value Type</label>
+          <input pInputText type="text" class="props-input" placeholder="Type" [(ngModel)]="inputElement.ValueType" />
+          <!-- select form the list -->
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="output">
-
+  <div class="task section">
+    <h3>Function</h3>
+    <div class="row">
+      <div class="col">
+        <label for="name">Function</label>
+        <p-dropdown [options]="taskFunctions" class="props-input" (onChange)="OnChangeFunction($event)"></p-dropdown>
+        <!-- select form the list -->
+      </div>
+    </div>
   </div>
-</div>
+  <div class="output section">
+    <div class=" row">
+      <h3>Output value</h3>
+      <div class="row">
+        <div class="col">
+          <label for="name">Name</label>
+          <input pInputText type="text" class="props-input" placeholder="Name" [(ngModel)]="inputElement.labelId" />
+        </div>
+        <div class="col">
+          <label for="type">Value Type</label>
+          <input pInputText type="text" class="props-input" placeholder="Type" [(ngModel)]="inputElement.ValueType" />
+          <!-- select form the list -->
+        </div>
+      </div>
+    </div>
+  </div>

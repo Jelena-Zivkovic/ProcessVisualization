@@ -13,7 +13,7 @@ import EventBus from 'diagram-js/lib/core/EventBus';
 
 import { from, ignoreElements, Observable, of } from 'rxjs';
 import { ElementLike, ShapeLike, Parent } from 'diagram-js/lib/model/Types';
-import { Connection, Element, Label, Moddle } from 'bpmn-js/lib/model/Types';
+import { Connection, Element, Label } from 'bpmn-js/lib/model/Types';
 import { HeaderComponent } from '../header/header.component';
 import { Shape } from 'bpmn-js/lib/model/Types';
 import { ElementDto } from 'src/dtos/diagrams/element.dto';
@@ -39,6 +39,9 @@ import * as signalR from '@microsoft/signalr';
 import { LabelDto } from 'src/dtos/diagrams/label.dto';
 import BpmnFactory from 'bpmn-js/lib/NavigatedViewer';
 import IncomingConnectionNumberRule from './rules/incoming-connection-number.rule';
+import { CustomRenderer } from './props-provider/CustomRender';
+import { getBusinessObject } from 'bpmn-js/lib/util/ModelUtil';
+import { ElementType } from 'src/enum/element-type.enum';
 //declare var propertiesPanel: any;
 //declare var BpmnPropertiesPanelModule: any;
 //declare var BpmnPropertiesProviderModule: any;
@@ -51,15 +54,16 @@ import IncomingConnectionNumberRule from './rules/incoming-connection-number.rul
   styleUrls: ['./editor.component.scss']
 })
 export class EditorComponent extends BaseImports implements OnInit {
-  @ViewChild('propertiesPanel') propertiesPanel: PropertiesPanelComponent = new PropertiesPanelComponent();
+  @ViewChild('propertiesPanel') propertiesPanel!: PropertiesPanelComponent;
   private bpmnJS!: Modeler;
   private zoomScale: number = 1;
   diagram: DiagramCreateDto;
   email: string = "";
   group: string = "";
-  selectedElement: any;
+  selectedElement: ShapeDto | undefined;
 
   documentActions: any;
+
 
   @ViewChild('diagramRef', { static: true }) private diagramRef: ElementRef | undefined;
   @ViewChild('propertiesRef', { static: true }) private propertiesRef: ElementRef | undefined;
@@ -89,6 +93,10 @@ export class EditorComponent extends BaseImports implements OnInit {
         {
           __init__: ['incomingConnectionNumberRule'],
           incomingConnectionNumberRule: ['type', IncomingConnectionNumberRule]
+        },
+        {
+          __init__: ['customRenderer'],
+          customRenderer: ['type', CustomRenderer]
         }
       ]
     });
@@ -118,11 +126,9 @@ export class EditorComponent extends BaseImports implements OnInit {
       });
 
       this.bpmnJS.on('element.click', (event: any) => {
-        console.log('element.click')
-
+        console.log('element.click', event.element.id)
+        this.selectedElement = this.diagram.Shapes.find(x => x.ElementId == event.element.id);
       });
-
-
     });
 
   }
@@ -147,7 +153,6 @@ export class EditorComponent extends BaseImports implements OnInit {
   }
 
   private async initGraph(diagram: DiagramCreateDto) {
-
     const elementFactory: ElementFactory = await this.bpmnJS.get('elementFactory'),
       elementRegistry: ElementRegistry = await this.bpmnJS.get('elementRegistry'),
       modeling: Modeling = await this.bpmnJS.get('modeling');
@@ -288,6 +293,16 @@ export class EditorComponent extends BaseImports implements OnInit {
         label: 'Send mess',
         icon: 'pi pi-fw pi-arrows-alt',
         command: () => { this.signalRService.sendMessageToGroup(this.group, this.email, this.diagram); }
+      },
+      {
+        label: 'Simulate',
+        icon: 'pi pi-fw pi-arrows-alt',
+        command: () => { this.traverseDiagram1(this.diagram); }
+      },
+      {
+        label: 'Execute string function',
+        icon: 'pi pi-fw pi-arrows-alt',
+        command: () => { console.log(this.excuteStringFunction("func: string")) }
       }
     ];
   }
@@ -366,9 +381,6 @@ export class EditorComponent extends BaseImports implements OnInit {
 
 
       // Change the color of the shape
-      const moddle: Moddle = this.bpmnJS.get('moddle');
-      //const color = elementFactory.create('bpmn:Color', { stroke: 'red', fill: 'yellow' });
-      //moddle.setColor(task.businessObject, color);
     });
   }
 
@@ -431,7 +443,7 @@ export class EditorComponent extends BaseImports implements OnInit {
         //parent: (<Element>x).parent,
         //incoming: (<Element>x).incoming,
         //outgoing: (<Element>x).outgoing,
-        Type: (<Element>x).type
+        Type: (<Element>x).type as ElementType
       };
 
       if ((<Shape>x).x != undefined && (<Shape>x).type != 'label') {
@@ -497,6 +509,123 @@ export class EditorComponent extends BaseImports implements OnInit {
 
     // Redraw the element
     //var l = bpmnRenderer.drawShape(element, (<any>this.bpmnJS.get('canvas'))?.getRootElement());
+  }
+
+  traverseDiagram(diagram: DiagramCreateDto) {
+    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
+    //   const startEvents: ElementLike | undefined = elementRegistry.get(diagram.Shapes?.filter(x => x.Type == 'bpmn:StartEvent').map(x => x.ElementId));
+    //const endEvent: ElementLike | undefined = elementRegistry.get(diagram.EndEventId);
+    const startEvents: ElementLike[] = elementRegistry.getAll().filter(x => x['type'] == 'bpmn:StartEvent');
+    startEvents.forEach(element => {
+      //const startEvents: ElementLike | undefined = elementRegistry.get();
+
+      this.processElement(element, element.id);
+    });
+
+    /*if (endEvent) {
+      this.processElement(endEvent);
+    }*/
+  }
+
+  processElement(element: ElementLike, token: string = "1") {
+    // Process the element here
+    console.log("TOKEN: " + token, 'Processing element:', element);
+
+    const outgoingConnections: Array<Connection> = element?.['outgoing'] || [];
+    for (const connection of outgoingConnections) {
+      const targetElement: ElementLike | undefined = connection.target;
+      if (targetElement) {
+        this.processElement(targetElement, token);
+      }
+    }
+  }
+
+  traverseDiagram1(diagram: DiagramCreateDto) {
+    const startEvents: ShapeDto[] = diagram.Shapes.filter(x => x.Type == ElementType.StartEvent);
+    startEvents.forEach(element => {
+      this.processElement1(element, diagram, element.ElementId);
+    });
+  }
+
+  processElement1(element: ShapeDto, diagram: DiagramCreateDto, token: string = "1") {
+    this.resizeElement(element.ElementId, element.Width + 20, element.Height + 20);
+
+    console.log("TOKEN: " + token, 'Processing element:', element);
+    setTimeout(() => {
+      const outgoingConnections: ConnectionDto[] = diagram.Connections.filter(x => x.Source == element.ElementId) || [];
+      for (const connection of outgoingConnections) {
+        const targetElement: ShapeDto | undefined = diagram.Shapes.find(x => x.ElementId == connection.Target) ?? undefined;
+        if (targetElement) {
+          this.processElement1(targetElement, diagram, token);
+        }
+      }
+      this.resizeElement(element.ElementId, element.Width, element.Height);
+
+    }, 1000);
+  }
+
+  resizeElement(elementId: string, width: number, height: number) {
+    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
+    const shape = elementRegistry.get(elementId);
+
+    if (!shape) {
+      return;
+    }
+    const x = width - shape['width'];
+    const y = height - shape['height'];
+    const newBounds = {
+      x: shape['x'] - x / 2,
+      y: shape['y'] - y / 2,
+      width: width,  // new width
+      height: height  // new height
+    };
+
+    // Resize the shape
+    const modeling: any = this.bpmnJS.get('modeling');
+    modeling.resizeShape(shape, newBounds);
+  }
+
+  changeColorOfShapes1() {
+    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
+    const modeling: Modeling = this.bpmnJS.get('modeling');
+
+    elementRegistry.getAll().forEach(x => {
+      //const moddle: Moddle = this.bpmnJS.get('moddle');
+      //const color = moddle.create('bpmn:Color', { stroke: 'red', fill: 'yellow' });
+      //moddle.getPropertyDescriptor(x, { stroke: 'red', fill: 'yellow' });
+      //moddle.setColor(x.businessObject, color);
+    });
+  }
+
+  changeColorOfShapes2(id: string) {
+    const graphicsFactory: any = this.bpmnJS.get('graphicsFactory');
+    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
+
+    // Get the element
+    const element = elementRegistry.get(id);
+    console.log(element);
+
+    // Draw the shape
+    const shape = graphicsFactory?.drawShape(element);
+    console.log(shape);
+
+    // Update the color of the shape
+    graphicsFactory.setFill(shape, 'red');
+    graphicsFactory.setStroke(shape, 'black');
+  }
+
+  excuteStringFunction(func: string) {
+    var x = 100;
+    var theInstructions = "alert('Hello World'); x = x * 2; console.log(x);";
+    try {
+      // Execute the code from the string
+      const result = eval(theInstructions);
+      console.log(result, x);
+    } catch (error) {
+      // Handle the error
+      console.error('An error occurred:', error);
+    }
+    return theInstructions;
   }
 }
 

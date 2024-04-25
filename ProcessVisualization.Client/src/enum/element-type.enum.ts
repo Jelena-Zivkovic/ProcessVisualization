@@ -4,5 +4,8 @@ export enum ElementType {
   IntermediateThrowEvent = 'bpmn:IntermediateThrowEvent',
   EndEvent = 'bpmn:EndEvent',
   ExclusiveGateway = 'bpmn:ExclusiveGateway',
-  Task = 'bpmn:Task'
+  Task = 'bpmn:Task',
+  OutputTask = 'bpmn:ReceiveTask',
+  InputTask = 'bpmn:SendTask',
+  Loop = 'bpmn:ExclusiveGateway',
 }

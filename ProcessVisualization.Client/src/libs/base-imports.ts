@@ -5,6 +5,7 @@ import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute } from "@angular/router";
 import { AuthenticationService } from 'src/services/authentication.service';
 import { CommonService } from 'src/services/common.service';
+import { EditorService } from 'src/services/editor.service';
 import { LoggerService } from 'src/services/logger.service';
 import { RouterService } from 'src/services/router.service';
 import { SharedService } from 'src/services/shared.service';
@@ -21,6 +22,7 @@ export class BaseImports {
   authenticationService: AuthenticationService;
   commonService: CommonService;
   loggerService: LoggerService;
+  editorService: EditorService;
   webapiRoomsService: WebapiRoomsService;
   webapiUsersService: WebapiUsersService;
   webapiDocumentsService: WebapiDocumentsService;
@@ -36,6 +38,7 @@ export class BaseImports {
     this.commonService = injector.get(CommonService);
     this.route = injector.get(ActivatedRoute);
     this.loggerService = injector.get(LoggerService);
+    this.editorService = injector.get(EditorService);
 
     this.webapiRoomsService = injector.get(WebapiRoomsService);
     this.webapiUsersService = injector.get(WebapiUsersService);

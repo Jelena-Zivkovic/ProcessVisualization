@@ -13,9 +13,9 @@ namespace ProcessVisualization.Api.Data.Models
         public int DocumentId { get; set; }
         public virtual Document Document { get; set; }
         public string Type { get; set; } = "bpmn:SequenceFlow";
-        public string Target { get; set; }
-        public string Source { get; set; }
-        public List<Point> WayPoints { get; set; }
+       // public string Target { get; set; }
+        //public string Source { get; set; }
+        //public List<Point> WayPoints { get; set; }
 
     }
 }
