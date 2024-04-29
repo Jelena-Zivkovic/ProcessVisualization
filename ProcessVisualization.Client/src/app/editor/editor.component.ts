@@ -35,12 +35,9 @@ import { SignalREditorService } from 'src/services/siganlrhub-editor.service';
 import { ButtonModule } from 'primeng/button';
 import { PropertiesPanelComponent } from '../properties-panel/properties-panel.component';
 import { SharedDo } from 'src/dos/shared/shared.do';
-import * as signalR from '@microsoft/signalr';
 import { LabelDto } from 'src/dtos/diagrams/label.dto';
-import BpmnFactory from 'bpmn-js/lib/NavigatedViewer';
 import IncomingConnectionNumberRule from './rules/incoming-connection-number.rule';
 import { CustomRenderer } from './props-provider/CustomRender';
-import { getBusinessObject } from 'bpmn-js/lib/util/ModelUtil';
 import { ElementType } from 'src/enum/element-type.enum';
 //declare var propertiesPanel: any;
 //declare var BpmnPropertiesPanelModule: any;
@@ -63,7 +60,6 @@ export class EditorComponent extends BaseImports implements OnInit {
   selectedElement: ShapeDto | undefined;
 
   documentActions: any;
-
 
   @ViewChild('diagramRef', { static: true }) private diagramRef: ElementRef | undefined;
   @ViewChild('propertiesRef', { static: true }) private propertiesRef: ElementRef | undefined;
@@ -105,7 +101,6 @@ export class EditorComponent extends BaseImports implements OnInit {
   }
 
   ngOnInit(): void {
-    const that = this;
 
   }
 
@@ -127,7 +122,8 @@ export class EditorComponent extends BaseImports implements OnInit {
 
       this.bpmnJS.on('element.click', (event: any) => {
         console.log('element.click', event.element.id)
-        this.selectedElement = this.diagram.Shapes.find(x => x.ElementId == event.element.id);
+        this.propertiesPanel.update(event.element.id);
+        //this.selectedElement = this.diagram.Shapes.find(x => x.ElementId == event.element.id);
       });
     });
 
@@ -143,7 +139,6 @@ export class EditorComponent extends BaseImports implements OnInit {
   }
 
   private updateGraph(data: SharedDo) {
-    console.log(data, this.diagram, data?.Data?.id, this.diagram.Id);
     if (data?.Data?.id == this.diagram.Id) {
       this.bpmnJS.importXML(data.Data.xml).then((res) => {
         this.diagram.Xml = data.Data.xml;
@@ -190,7 +185,6 @@ export class EditorComponent extends BaseImports implements OnInit {
         }
       });
     }
-    console.log(diagram.Labels);
   }
 
   private importPalette() {
@@ -294,16 +288,11 @@ export class EditorComponent extends BaseImports implements OnInit {
         icon: 'pi pi-fw pi-arrows-alt',
         command: () => { this.signalRService.sendMessageToGroup(this.group, this.email, this.diagram); }
       },
-      {
-        label: 'Simulate',
-        icon: 'pi pi-fw pi-arrows-alt',
-        command: () => { this.traverseDiagram1(this.diagram); }
-      },
-      {
-        label: 'Execute string function',
-        icon: 'pi pi-fw pi-arrows-alt',
-        command: () => { console.log(this.excuteStringFunction("func: string")) }
-      }
+      // {
+      //   label: 'Simulate',
+      //   icon: 'pi pi-fw pi-arrows-alt',
+      //   command: () => { this.traverseDiagram1(this.diagram); }
+      // }
     ];
   }
 
@@ -483,21 +472,19 @@ export class EditorComponent extends BaseImports implements OnInit {
         };
         this.diagram.Labels.push(<LabelDto>el);
       }
-      console.log(x, this.diagram);
+      console.log(this.diagram)
       return el;
     });
   }
 
-  handleClickEvent(element: any) {
-    // Handle click event here
-    console.log('Element clicked:', element);
-    this.propertiesPanel.update(element);
+  /* handleClickEvent(element: any) {
+     this.propertiesPanel.update(element);
 
-    var selectedElement = (<any>this.bpmnJS.get('selection')).get();
-    console.log('element.changed 2', selectedElement);
+     var selectedElement = (<any>this.bpmnJS.get('selection')).get();
+     console.log('element.changed 2', selectedElement);
 
-    this.redrawElement(selectedElement[0]);
-  }
+     this.redrawElement(selectedElement[0]);
+   }*/
 
   redrawElement(element: any) {
     // Get the renderer
@@ -540,50 +527,6 @@ export class EditorComponent extends BaseImports implements OnInit {
     }
   }
 
-  traverseDiagram1(diagram: DiagramCreateDto) {
-    const startEvents: ShapeDto[] = diagram.Shapes.filter(x => x.Type == ElementType.StartEvent);
-    startEvents.forEach(element => {
-      this.processElement1(element, diagram, element.ElementId);
-    });
-  }
-
-  processElement1(element: ShapeDto, diagram: DiagramCreateDto, token: string = "1") {
-    this.resizeElement(element.ElementId, element.Width + 20, element.Height + 20);
-
-    console.log("TOKEN: " + token, 'Processing element:', element);
-    setTimeout(() => {
-      const outgoingConnections: ConnectionDto[] = diagram.Connections.filter(x => x.Source == element.ElementId) || [];
-      for (const connection of outgoingConnections) {
-        const targetElement: ShapeDto | undefined = diagram.Shapes.find(x => x.ElementId == connection.Target) ?? undefined;
-        if (targetElement) {
-          this.processElement1(targetElement, diagram, token);
-        }
-      }
-      this.resizeElement(element.ElementId, element.Width, element.Height);
-
-    }, 1000);
-  }
-
-  resizeElement(elementId: string, width: number, height: number) {
-    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
-    const shape = elementRegistry.get(elementId);
-
-    if (!shape) {
-      return;
-    }
-    const x = width - shape['width'];
-    const y = height - shape['height'];
-    const newBounds = {
-      x: shape['x'] - x / 2,
-      y: shape['y'] - y / 2,
-      width: width,  // new width
-      height: height  // new height
-    };
-
-    // Resize the shape
-    const modeling: any = this.bpmnJS.get('modeling');
-    modeling.resizeShape(shape, newBounds);
-  }
 
   changeColorOfShapes1() {
     const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
@@ -603,29 +546,13 @@ export class EditorComponent extends BaseImports implements OnInit {
 
     // Get the element
     const element = elementRegistry.get(id);
-    console.log(element);
 
     // Draw the shape
     const shape = graphicsFactory?.drawShape(element);
-    console.log(shape);
 
     // Update the color of the shape
     graphicsFactory.setFill(shape, 'red');
     graphicsFactory.setStroke(shape, 'black');
-  }
-
-  excuteStringFunction(func: string) {
-    var x = 100;
-    var theInstructions = "alert('Hello World'); x = x * 2; console.log(x);";
-    try {
-      // Execute the code from the string
-      const result = eval(theInstructions);
-      console.log(result, x);
-    } catch (error) {
-      // Handle the error
-      console.error('An error occurred:', error);
-    }
-    return theInstructions;
   }
 }
 

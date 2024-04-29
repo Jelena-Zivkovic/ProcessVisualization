@@ -10,7 +10,7 @@ export class DiagramCreateDto {
   Shapes: ShapeDto[] = [];
   Connections: ConnectionDto[] = [];
   Labels: any[] = [];
-  ModulePath: string = "";
+  ModulePath: string = "BasicMath";
   Xml: string = "";
 
   constructor(roomId: number | null = null) {

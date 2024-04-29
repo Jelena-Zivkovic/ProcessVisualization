@@ -97,6 +97,7 @@ body {
 .group[data-group="data-object"],
 .group[data-group="collaboration"],
 .group[data-group="artifact"],
+.group[data-group="event"] div.bpmn-icon-intermediate-event-none,
 .group[data-group="activity"] div.bpmn-icon-subprocess-expanded,
 .djs-context-pad .group[data-group="edit"] [data-action="replace"] {
   display: none;
@@ -158,7 +159,7 @@ p-table.p-element.file-explorer {
 .editor-dock-zoom {
   position: absolute;
   bottom: 80px;
-  left: calc(78vw - 10px);
+  left: calc(70vw - 10px);
   display: flex;
   width: 52px;
   flex-wrap: wrap;
@@ -181,12 +182,17 @@ p-table.p-element.file-explorer {
   background-size: cover;
 }
 
-.props-input {
+.props-input,
+.props-dropdown > .p-dropdown{
     background-color: var(--primary-color-text);
     border: 1px solid var(--primary-color);
-    box-shadow: 0 0 0.25re 0.25rem var(--text-color-secondary);
-
+    width: 100%;
 }
+
+.props-dropdown > .p-dropdown:hover{
+  border: 1px solid var(--primary-color);
+}
+
 
 .props-header{
   border: 1px solid transparent;
@@ -203,5 +209,5 @@ p-table.p-element.file-explorer {
   border-radius: 12px;
   background-color: rgba(var(--gray-300-rgb), 0.5);
   padding: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }

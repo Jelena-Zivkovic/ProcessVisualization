@@ -19,7 +19,11 @@ import { AppComponent } from './app.component';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { EditorService } from 'src/services/editor.service';
+import { BasicMathFunctions } from 'src/functions/basic-math';
+import { ConditionalFunctions } from 'src/functions/conditional';
+import { FunctionsGroup } from 'src/functions/functions';
 import { BasicFunctions } from 'src/functions/basic';
+import { DiagramSimulationComponent } from '../pages/diagram-simulation/diagram-simulation.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +51,9 @@ import { BasicFunctions } from 'src/functions/basic';
     WebapiDocumentsService,
     MessageService,
     EditorService,
+    BasicMathFunctions,
+    FunctionsGroup,
+    ConditionalFunctions,
     BasicFunctions,
     provideHttpClient(),
   ],

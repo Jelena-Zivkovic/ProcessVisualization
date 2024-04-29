@@ -1,0 +1,32 @@
+<p-menubar [model]="documentActions"></p-menubar>
+
+<div class="row">
+  <div class="modeler">
+    <div #diagramRef class="diagram-container"></div>
+  </div>
+  <div class="editor-dock-zoom">
+    <p-button icon="pi pi-fw pi-arrows-alt" styleClass="p-button-outlined" (click)="fitContent()"></p-button>
+    <p-button icon="pi pi-plus" styleClass="p-button-outlined" (click)="zoomIn()"></p-button>
+    <p-button icon="pi pi-minus" styleClass="p-button-outlined" (click)="zoomOut()"></p-button>
+  </div>
+</div>
+<div class="grid">
+  <div class="console col-4">
+    <div class="console-header">
+      <h3>Console</h3>
+      <!-- <p-button icon="pi pi-times" styleClass="p-button-outlined" (click)="clearConsole()"></p-button> -->
+    </div>
+    <div class="console-content">
+      <p *ngFor="let msg of resultConsole"> {{msg}}</p>
+    </div>
+  </div>
+  <div class="logs col-8">
+    <div class="logs-header">
+      <h3>Logs</h3>
+      <!-- <p-button icon="pi pi-times" styleClass="p-button-outlined" (click)="clearLogs()"></p-button> -->
+
+    </div>
+    <div class="logs-content">
+      <p *ngFor="let log of logs">{{log}}</p>
+    </div>
+  </div>

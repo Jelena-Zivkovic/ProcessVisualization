@@ -1,3 +1,4 @@
+import { ParameterDto } from "../parameter.dto";
 import { ElementDto } from "./element.dto";
 import { PointDto } from "./point.dto";
 

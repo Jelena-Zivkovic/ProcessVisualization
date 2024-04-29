@@ -1,7 +1,6 @@
 <div class="col">
   <div class="row file section" *ngIf="isDiagram()">
-    <input pInputText type="text" class="p-inputtext-lg props-header font-bold" placeholder="Large"
-      [(ngModel)]="diagram.Name" />
+    <input pInputText type="text" class="p-inputtext-lg props-header font-bold" [(ngModel)]="diagram.Name" />
     <div class="flex flex-column mt-4">
       <label htmlFor="functions-group">Functions group</label>
       <input pInputText type="text" id="functions-group" class="p-inputtext props-input"
@@ -14,44 +13,51 @@
     </div>
   </div>
 
-  <div class="elements section" *ngIf="!isDiagram()">
-    <div class="input row">
+  <div class="elements section" *ngIf="!isDiagram() && !isOutput()">
+    <div class="input">
       <h3>Input values</h3>
-      <div class="row">
+      <div class="flex justify-content-between flex-column" *ngFor="let varib of element.InputParameters">
         <div class="col">
           <label for="name">Name</label>
-          <input pInputText type="text" class="props-input" placeholder="Name" [(ngModel)]="inputElement.labelId" />
+          <input pInputText type="text" class="props-input w-full" [(ngModel)]="varib.Name" [disabled]="isSignal" />
         </div>
-        <div class="col">
+        <div class="col-12">
           <label for="type">Value Type</label>
-          <input pInputText type="text" class="props-input" placeholder="Type" [(ngModel)]="inputElement.ValueType" />
+          <input pInputText type="text" class="props-input w-full" [(ngModel)]="varib.Type" [disabled]="isSignal" />
+          <!-- select form the list -->
+        </div>
+
+        <div class="col-12" *ngIf="isInput()">
+          <label for="type">Value</label>
+          <input pInputText type="text" class="props-input w-full" [(ngModel)]="varib.Value" [disabled]="isSignal" />
           <!-- select form the list -->
         </div>
       </div>
     </div>
   </div>
 
-  <div class="task section">
+  <div class="task section" *ngIf="!isDiagram() && !(isInput() || isOutput())">
     <h3>Function</h3>
     <div class="row">
       <div class="col">
-        <label for="name">Function</label>
-        <p-dropdown [options]="taskFunctions" class="props-input" (onChange)="OnChangeFunction($event)"></p-dropdown>
+        <label for="function">Function</label>
+        <p-dropdown [options]="functions" id="function" class="props-dropdown" [(ngModel)]="element.FunctionName"
+          (onChange)="OnChangeFunction($event)"></p-dropdown>
         <!-- select form the list -->
       </div>
     </div>
   </div>
-  <div class="output section">
+  <div class="output section" *ngIf="!isDiagram() && !isInput()">
     <div class=" row">
       <h3>Output value</h3>
-      <div class="row">
+      <div class="row" *ngFor="let varib of element.OutputParameters">
         <div class="col">
           <label for="name">Name</label>
-          <input pInputText type="text" class="props-input" placeholder="Name" [(ngModel)]="inputElement.labelId" />
+          <input pInputText type="text" class="props-input w-full" [(ngModel)]="varib.Name" [disabled]="isSignal" />
         </div>
         <div class="col">
           <label for="type">Value Type</label>
-          <input pInputText type="text" class="props-input" placeholder="Type" [(ngModel)]="inputElement.ValueType" />
+          <input pInputText type="text" class="props-input w-full" [(ngModel)]="varib.Type" [disabled]="isSignal" />
           <!-- select form the list -->
         </div>
       </div>

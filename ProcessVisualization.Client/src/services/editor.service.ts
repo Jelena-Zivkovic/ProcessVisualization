@@ -1,22 +1,21 @@
 import { Injectable } from '@angular/core';
 import { FunctionInfo } from 'src/dos/function-info';
-import { BasicFunctions } from 'src/functions/basic';
+import { BasicMathFunctions } from 'src/functions/basic-math';
+import { FunctionsGroup } from 'src/functions/functions';
 
 @Injectable()
 export class EditorService {
-  constructor(private basicFunctions: BasicFunctions) {
+  constructor(private basicFunctions: FunctionsGroup) {
 
   }
 
-  async getFunctionInfo(modulePath: string): Promise<FunctionInfo | undefined> {
+  async getFunctionInfo(modulePath: string): Promise<FunctionInfo | undefined | any> {
     try {
+      const module = this.basicFunctions[modulePath as keyof FunctionsGroup];
 
-      const module = this.basicFunctions;//await import(modulePath);
-
-      console.log(module);
       if (module["functionInfo"]) {
         console.log(module["functionInfo"]);
-        return module["functionInfo"] as FunctionInfo;
+        return module["functionInfo"];
       }
       else {
         console.error('No functionInfo found in the module:', modulePath);
@@ -30,14 +29,14 @@ export class EditorService {
 
   async executeFunction(modulePath: string, functionName: string, ...args: any[]) {
     try {
-      const module = this.basicFunctions;// await import(modulePath);
+      const module = this.basicFunctions[modulePath as keyof typeof this.basicFunctions];// await import(modulePath);
       console.log(module);
       if (module.functionInfo && Object.keys(module.functionInfo).includes(functionName)) {
         if (module["functionInfo"]) {
-          const functionInfo = module.functionInfo;
-          console.log(args)
-          var prams = [2, 3, 4];//args.slice(0, functionInfo[functionName as keyof typeof functionInfo].parameters.length);
-          var func: Function = functionInfo[functionName as keyof typeof functionInfo].execute;
+          const functionInfo = module.functionInfo[functionName as keyof typeof module.functionInfo]; // Add type assertion here
+          console.log(args, functionInfo)
+
+          const func: (...args: ("string" | "number" | "boolean")[]) => any = functionInfo['execute']; // Explicitly define the type of func
           return func(...args);
         }
       } else {
