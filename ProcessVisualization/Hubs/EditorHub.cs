@@ -9,7 +9,7 @@ namespace ProcessVisualization.Api.Host.Hubs
 
         public async Task SendMessageToGroup(string groupName, string user, DocumentCreateDto diagram)
         {
-            await Clients.Group(groupName).SendAsync("ReceiveMessage", user, diagram);
+            await Clients.OthersInGroup(groupName).SendAsync("ReceiveMessage", user, diagram);
         }
 
 

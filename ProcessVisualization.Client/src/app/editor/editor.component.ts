@@ -39,6 +39,7 @@ import { LabelDto } from 'src/dtos/diagrams/label.dto';
 import IncomingConnectionNumberRule from './rules/incoming-connection-number.rule';
 import { CustomRenderer } from './props-provider/CustomRender';
 import { ElementType } from 'src/enum/element-type.enum';
+import { PrimeIcons, MenuItem } from 'primeng/api';
 //declare var propertiesPanel: any;
 //declare var BpmnPropertiesPanelModule: any;
 //declare var BpmnPropertiesProviderModule: any;
@@ -223,9 +224,46 @@ export class EditorComponent extends BaseImports implements OnInit {
 
   }
 
+  copyShape(shape: ShapeDto) {
+    const elementFactory: ElementFactory = this.bpmnJS.get('elementFactory');
+    const modeling: Modeling = this.bpmnJS.get('modeling'),
+      elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
+    const process: ElementLike | undefined = elementRegistry.get('Process');
+
+    const copiedShape = elementFactory.createShape({
+      type: shape.Type,
+      id: Math.random().toString(36).substring(7),
+    });
+
+    modeling.createShape(copiedShape, { x: shape.X + 10, y: shape.Y + 10 }, <Parent>process);
+
+    var copiedShapeDto: ShapeDto = {
+      ElementId: copiedShape.id,
+      Type: shape.Type,
+      X: copiedShape.x,
+      Y: copiedShape.y,
+      Width: copiedShape.width,
+      Height: copiedShape.height,
+      /*Bounds: {
+        X: copiedShape.di.bounds.x,
+        Y: copiedShape.di.bounds.y,
+        Width: copiedShape.di.bounds.width,
+        Height: copiedShape.di.bounds.height
+      },*/
+
+      InputParameters: shape.InputParameters ?? [],
+      FunctionName: shape.FunctionName ?? "",
+      OutputParameters: shape.OutputParameters ?? [],
+      children: [], attachers: [], labelIds: []
+    };
+    this.diagram.Shapes.push(copiedShapeDto);
+
+    return copiedShape;
+  }
+
   undo() {
     const commandStack: any = this.bpmnJS.get('commandStack');
-
+    console.log('commandStack', commandStack, commandStack.canUndo());
     if (commandStack.canUndo()) {
       commandStack.undo();
     }
@@ -253,39 +291,43 @@ export class EditorComponent extends BaseImports implements OnInit {
 
   initDocumentActions() {
     this.documentActions = [
-      {
-        label: 'Export to xml',
-        icon: 'pi pi-fw pi-file-export',
-        command: () => { this.exportToXml() }
-      },
-      {
-        label: 'Export to svg',
-        icon: 'pi pi-fw pi-file-export',
-        command: () => { this.exportToSvg() }
-      },
+
       {
         label: 'Save',
-        icon: 'pi pi-fw pi-plus',
+        icon: PrimeIcons.SAVE,
         command: () => { this.save() }
       },
       {
-        label: 'Zoom in',
-        icon: 'pi pi-fw pi-plus',
-        command: () => { this.zoomIn() }
+        label: 'Undo',
+        icon: PrimeIcons.UNDO,
+        command: () => { this.undo() }
       },
       {
-        label: 'Zoom out',
-        icon: 'pi pi-fw pi-minus',
-        command: () => { this.zoomOut() }
+        label: 'Redo',
+        icon: PrimeIcons.REPLAY,
+        class: 'p-button-danger',
+        command: () => { this.redo() }
       },
       {
-        label: 'Fit content',
-        icon: 'pi pi-fw pi-arrows-alt',
-        command: () => { this.fitContent() }
+        separator: true
+      },
+      {
+        label: 'Export',
+        icon: PrimeIcons.FILE_EXPORT,
+        items: [
+          {
+            label: 'Export to xml',
+            command: () => { this.exportToXml() }
+          },
+          {
+            label: 'Export to svg',
+            command: () => { this.exportToSvg() }
+          }
+        ]
       },
       {
         label: 'Send mess',
-        icon: 'pi pi-fw pi-arrows-alt',
+        icon: PrimeIcons.SEND,
         command: () => { this.signalRService.sendMessageToGroup(this.group, this.email, this.diagram); }
       },
       // {
