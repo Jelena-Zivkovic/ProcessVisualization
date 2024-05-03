@@ -1,3 +1,51 @@
 .djs-palette {
   display: none;
 }
+
+.editor-dock-zoom{
+  position: absolute;
+  bottom: 33%;
+  left: calc(93vw - 10px);
+  right: 0;
+}
+
+.diagram-container {
+  height: 65vh;
+  margin-right: 1rem;
+}
+
+.grid{
+  margin: 0.5rem 1rem;
+
+  .console, .logs{
+  border-radius: 20px;
+  background-color: var(--primary-500);
+  height: calc(35vh - 5.5rem);
+  padding: 0px;
+
+  .console-header,
+  .logs-header{
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-700);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+
+    .console-title,
+    .logs-title{
+      color: var(--primary-100);
+      font-size: 20px ;
+    }
+
+    .console-content
+    .logs-content{
+      padding: 0.5rem 1rem;
+      overflow-y: auto;
+  }
+}
+}
+.console{
+  margin-right: 1rem;
+}
+}

@@ -44,7 +44,7 @@
         <div class="text-2xl mt-1 font-semibold">{{selectedRoom.Name}}
           <p-menu #menu [model]="items1" [popup]="true"></p-menu>
           <p-button type="button" (click)="openRoomDetailsAction($event)" icon="pi pi-angle-down"
-            class="room-details-buttons" styleClass="p-button-text"></p-button>
+            class="room-details-buttons" styleClass="p-button-text" style="color:aqua"></p-button>
         </div>
         <div class="font-italic mt-2"> {{ (selectedRoom == undefined || selectedRoom == null ? 0 :
           selectedRoom.Users.length)
@@ -55,21 +55,18 @@
       <p-button label="Add new" icon="pi pi-plus" styleClass="p-button-outlined" class="ml-auto mr-4 my-auto"
         (click)="addNewDiagram()"> </p-button>
     </div>
-    <p-table class="file-explorer" [columns]="cols" [value]="selectedRoom.Documents"
-      [tableStyle]="{ 'min-width': '50rem' }">
-      <ng-template pTemplate="header" let-columns>
+    <p-table class="file-explorer" [value]="selectedRoom.Documents" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header" let-data>
         <tr>
-          <th *ngFor="let col of columns">
-            {{ col.header }}
-          </th>
+          <th>Name</th>
+          <th>Modified At</th>
           <th></th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr>
-          <td *ngFor="let col of columns" class="w-max">
-            <span> {{ rowData[col.field] }}</span>
-          </td>
+          <td>{{ rowData.Name }}</td>
+          <td>{{ rowData.UpdatedAt | date: "dd.MM.yyyy. HH:mm" }}</td>
           <td class="flex justify-content-end p-2 px-5">
             <button type="button" pButton icon="pi pi-file-edit" (click)="openDocument(rowData.Id)"></button>
           </td>
@@ -97,5 +94,48 @@
     <p-button label="Cancel" (click)="isJoinRoomDialogOpen = false" class="mx-2" styleClass="p-button-outlined w-full">
     </p-button>
     <p-button label="Join" (click)="joinRoom()"></p-button>
+  </div>
+</p-dialog>
+
+<p-dialog [(visible)]="isRoomSettingsDialogOpen" header="Room settings" [modal]="true">
+  <div class="flex flex-column mb-3">
+    <label for="name" class="mb-1">Room name:</label>
+    <input pInputText id="name" aria-describedby="name-help" [(ngModel)]="selectedRoom.Name" />
+  </div>
+  <div class="flex flex-column mb-3">
+    <label for="name" class="mb-1">Room code:</label>
+    <input pInputText id="name" aria-describedby="name-help" disabled="true" [(ngModel)]="selectedRoom.RoomCode" />
+  </div>
+  <div class="flex flex-column mb-3">
+    <label for="name" class="mb-1">Room members:</label>
+    <p-table class="file-explorer" [value]="selectedRoom.Users" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header" let-data>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td>{{ rowData.Name }}</td>
+          <td>{{ rowData.Email }}</td>
+          <td class="flex justify-content-end p-2 px-5">
+            <button type="button" pButton icon="pi pi-trash" (click)="removeUser(rowData.Id)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <div class="flex flex-column mb-3">
+    <label for="name" class="mb-1">Add new member:</label>
+    <input pInputText id="name" aria-describedby="name-help" />
+  </div>
+
+  <div class="flex justify-content-end">
+    <p-button label="Cancel" (click)="isRoomSettingsDialogOpen = false" class="mx-2"
+      styleClass="p-button-outlined w-full">
+    </p-button>
+    <p-button label="Save" (click)="saveRoomSettings()"></p-button>
   </div>
 </p-dialog>

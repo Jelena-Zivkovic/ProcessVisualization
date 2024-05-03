@@ -108,3 +108,7 @@
     padding: 0.3rem 0;
   }
 }
+
+:host ::ng-deep .pi-angle-down:before{
+  color: var(--primary-500);
+}

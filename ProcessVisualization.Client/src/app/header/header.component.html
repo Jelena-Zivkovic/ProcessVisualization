@@ -5,7 +5,8 @@
     </div>
   </ng-template>
   <ng-template pTemplate="end">
-    <p-avatar icon="pi pi-user" styleClass="mr-2"></p-avatar>
+    <p-avatar icon="pi pi-user" (click)="userMenu.toggle($event)" styleClass="mr-2"></p-avatar>
+    <p-menu #userMenu [model]="userItems" [popup]="true"></p-menu>
   </ng-template>
 </p-menubar>
 <!-- <p-menubar [model]="items"></p-menubar> -->

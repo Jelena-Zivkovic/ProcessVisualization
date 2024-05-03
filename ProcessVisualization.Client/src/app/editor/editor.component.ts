@@ -330,11 +330,11 @@ export class EditorComponent extends BaseImports implements OnInit {
         icon: PrimeIcons.SEND,
         command: () => { this.signalRService.sendMessageToGroup(this.group, this.email, this.diagram); }
       },
-      // {
-      //   label: 'Simulate',
-      //   icon: 'pi pi-fw pi-arrows-alt',
-      //   command: () => { this.traverseDiagram1(this.diagram); }
-      // }
+      {
+        label: 'Simulate',
+        icon: PrimeIcons.PLAY,
+        command: () => { this.routerService.navigate("diagram-simulation"); }
+      }
     ];
   }
 

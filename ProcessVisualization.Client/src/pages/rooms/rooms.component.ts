@@ -42,8 +42,8 @@ export class RoomsComponent extends BaseImports {
 
   isRoomDialogOpen: boolean = false;
   isJoinRoomDialogOpen: boolean = false;
+  isRoomSettingsDialogOpen: boolean = false;
 
-  cols: any[] = [];
   roomCode: string = "";
 
   constructor(injector: Injector, private messageService: MessageService) {
@@ -53,40 +53,24 @@ export class RoomsComponent extends BaseImports {
   ngOnInit() {
     this.loadAllRooms();
 
-    this.cols = [
-      { field: 'Name', header: 'Name' },
-      { field: 'UpdatedAt', header: 'Modifed At' }
-    ];
 
     this.items1 = [
       {
-        label: "Option",
         items: [
           {
-            label: 'Manage members',
-            icon: 'pi pi-refresh',
+            label: 'Room settings',
+            icon: 'pi pi-cog',
             command: () => {
               alert("dd");
             }
           },
-          {
-            label: 'Room settings',
-            icon: 'pi pi-times',
-            command: () => {
-              alert("dd");
-            }
-          }
-        ]
-      },
-      {
-        items: [
           {
             label: 'Leave',
             icon: 'pi pi-external-link',
             command: () => {
               this.leaveRoom()
             }
-          },
+          }
         ]
       }
     ];
@@ -119,7 +103,6 @@ export class RoomsComponent extends BaseImports {
   }
 
   joinRoom() {
-    console.log(this.roomCode)
     const loginUser = this.authenticationService.getLoginData();
     var data: RoomJoinDto = {
       RoomCode: this.roomCode,
@@ -149,6 +132,23 @@ export class RoomsComponent extends BaseImports {
     this.webapiRoomsService.leaveRoom(data).subscribe((res: any) => {
       this.messageService.add({ severity: 'success', summary: 'Success', detail: "Room " + this.selectedRoom.Name + " was successfully leaved" });
       this.loadAllRooms();
+    });
+  }
+
+  removeUser(userId: number) {
+    this.selectedRoom.Users = this.selectedRoom.Users.filter(x => x.Id !== userId);
+  }
+
+  saveRoomSettings() {
+    this.webapiRoomsService.updateRoom(this.selectedRoom).subscribe((res: { IsSuccess: any; Message: any; }) => {
+      if (res.IsSuccess) {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: "Room " + this.selectedRoom.Name + " was successfully updated" });
+        this.isRoomSettingsDialogOpen = false;
+        this.loadAllRooms();
+      }
+      else {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: res.Message ?? "" });
+      }
     });
   }
 

@@ -122,14 +122,7 @@ export class AuthenticationService {
   }
 
   logout(): Observable<boolean> {
-    //This should be replaced with real api call to invalidate tokens
     return new Observable((observer) => {
-      let url = `${Constants.API_ENDPOINT}Authentication/Logout`;
-      var _headers = this.generateRequestHeaders();
-      this.httpService.get<void>(url, { headers: _headers }).subscribe({
-        next: (res: any) => { },
-        error: (err) => { },
-      });
       localStorage.removeItem(this.key);
       observer.next(true);
     });

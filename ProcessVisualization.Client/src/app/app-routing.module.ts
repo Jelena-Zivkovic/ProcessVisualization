@@ -12,8 +12,8 @@ const routes: Routes = [
   { component: SignUpComponent, path: "sign-up" },
   { component: RoomsComponent, path: "rooms", canActivate: [AuthGuard] },
   { component: EditorComponent, path: "editor" },
-  { component: DiagramSimulationComponent, path: "diagram-simulation" },
-  { path: '', redirectTo: '/sign-in', pathMatch: 'full' },
+  { component: DiagramSimulationComponent, path: "diagram-simulation", canActivate: [AuthGuard] },
+  { path: '**', redirectTo: '/rooms' },
 ];
 
 @NgModule({

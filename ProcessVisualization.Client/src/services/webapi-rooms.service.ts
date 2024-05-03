@@ -62,4 +62,12 @@ export class WebapiRoomsService extends BaseApiService {
       this.getHttpParams(showLoader, null, data)
     );
   }
+
+  updateRoom(room: any, showLoader = true) {
+    return this.http.put<ResponseTemplateDto<RoomViewDto>>(
+      this.baseUrl,
+      room,
+      this.getHttpParams(showLoader, null, room)
+    );
+  }
 }
