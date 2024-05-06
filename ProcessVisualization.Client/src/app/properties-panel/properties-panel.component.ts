@@ -116,7 +116,6 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
     }
 
     return this.getTaskFunctions(module).then((res) => {
-      console.log("InitFunction", res, this.selectedFunctionInfo, this.functions)
       if (this.element) {
         if (this.element.FunctionName == undefined || this.element.FunctionName == '') {
           this.element.FunctionName = this.functions[0];
@@ -152,7 +151,6 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
   }
 
   InitInputs(isFunctionChange: boolean = true) {
-    console.log("InitInputs");
     if (this.element == undefined) {
       return;
     }
@@ -206,7 +204,6 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
   }
 
   InitOutputs(isFunctionChange: boolean = true) {
-    console.log("InitOutputs");
     if (this.element == undefined || !isFunctionChange) {
       return;
     }

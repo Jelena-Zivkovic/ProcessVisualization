@@ -6,11 +6,11 @@ export class ShapeDto extends ElementDto {
   Y: number;
   Width: number;
   Height: number;
-  isImplicit?: boolean;
-  isFrame?: boolean;
-  children: ElementDto[] = [];
-  host?: ShapeDto;
-  attachers: ShapeDto[] = [];
+  //isImplicit?: boolean;
+  //isFrame?: boolean;
+  //children: ElementDto[] = [];
+  //host?: ShapeDto;
+  //attachers: ShapeDto[] = [];
 
   InputParameters: ParameterDto[] = [];
   FunctionName: string = "";

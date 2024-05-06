@@ -66,6 +66,7 @@ export class CustomContextPadProvider extends ContextPadProvider {
       Y: copiedShape.y,
       Width: newShape.width,
       Height: newShape.height,
+      Label: shape?.Label ?? "",
       /*Bounds: {
         X: copiedShape.di.bounds.x,
         Y: copiedShape.di.bounds.y,
@@ -75,8 +76,7 @@ export class CustomContextPadProvider extends ContextPadProvider {
 
       InputParameters: shape?.InputParameters ?? [],
       FunctionName: shape?.FunctionName ?? "",
-      OutputParameters: shape?.OutputParameters ?? [],
-      children: [], attachers: [], labelIds: []
+      OutputParameters: shape?.OutputParameters ?? []
     };
     diagram.Shapes.push(copiedShapeDto);
     this.setDocument(diagram);

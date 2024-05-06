@@ -9,7 +9,6 @@ export class DiagramCreateDto {
   RoomId?: number | null;
   Shapes: ShapeDto[] = [];
   Connections: ConnectionDto[] = [];
-  Labels: any[] = [];
   FuncGroup: string = "BasicMath";
   Xml: string = "";
 

@@ -16,7 +16,6 @@ export class LabelDto extends ElementDto {
     Height: number;
   };
 
-  Label?: LabelDto | undefined;
   Labels: LabelDto[] = [];
   //incoming: ConnectionDto[] = [];
   //outgoing: ConnectionDto[] = [];

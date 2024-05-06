@@ -120,14 +120,17 @@ export class EditorComponent extends BaseImports implements OnInit {
       this.bpmnJS.on('element.changed', function (event: any) {
         that.bpmnJS.saveXML().then((value: SaveXMLResult) => {
           that.diagram.Xml = value.xml ?? that.diagram.Xml;
+          that.commonService.setDocument(that.diagram);
           that.signalRService.sendMessageToGroup(that.group, that.email, that.diagram);
         });
       });
 
+      this.bpmnJS.on('element.create', (event: any) => {
+        that.updateLocal();
+      });
+
       this.bpmnJS.on('element.click', (event: any) => {
-        console.log('element.click', event.element.id)
         this.propertiesPanel.update(event.element.id);
-        //this.selectedElement = this.diagram.Shapes.find(x => x.ElementId == event.element.id);
       });
     });
 
@@ -146,7 +149,8 @@ export class EditorComponent extends BaseImports implements OnInit {
     if (data?.Data?.id == this.diagram.Id) {
       this.bpmnJS.importXML(data.Data.xml).then((res) => {
         this.diagram.Xml = data.Data.xml;
-        this.commonService.setDocument(this.diagram);
+        this.updateLocal();
+        // this.commonService.setDocument(this.diagram);
       });
     }
   }
@@ -160,34 +164,40 @@ export class EditorComponent extends BaseImports implements OnInit {
       startEvent: ElementLike | undefined = await elementRegistry.get('StartEvent');
 
     if (diagram.Shapes?.length > 0) {
-      diagram.Shapes.forEach((element: { Type: any; ElementId: any; X: number; Y: number; }) => {
-
-
+      diagram.Shapes.forEach((element: ShapeDto) => {
         const task = elementFactory.createShape({
           type: element.Type,
-          id: element.ElementId,
-          /* name: 'Task Name',
-
-           businessObject: {
-             name: 'Task Name' // This is the label text
-           }*/
+          id: element.ElementId
         });
 
-        const created = modeling.createShape(task, { x: <number>element.X, y: <number>element.Y }, <Parent>process);
+        task.businessObject.name = element.Label ?? "dafdsa";
 
+        const created = modeling.createShape(task, { x: <number>element.X, y: <number>element.Y }, <Parent>process);
       });
     }
 
     if (diagram.Connections?.length > 0) {
       diagram.Connections.forEach((element: ConnectionDto) => {
-        if (element && (<ConnectionDto>element)?.Source && (<ConnectionDto>element)?.Target) {
-          var source = <Element>elementRegistry.find(x => x.id == element.Source);
-          var target = <Element>elementRegistry.find(x => x.id == element.Target);
+        if (element && element.Source && element.Target) {
+          const source = elementRegistry.get(element.Source) as Element;
+          const target = elementRegistry.get(element.Target) as Element;
           if (source && target) {
-            modeling.connect(source, target);
+            var conn = modeling.connect(source, target);
+            conn.businessObject.name = "da";
           }
         }
       });
+    }
+  }
+
+  private updateAndRedrawShape(elementId: string) {
+    const modeling: Modeling = this.bpmnJS.get('modeling');
+    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
+
+    const element = elementRegistry.get(elementId) as Shape;
+    if (element) {
+      element.businessObject.name = "jelena";
+      modeling.moveShape(element, { x: 0, y: 0 });
     }
   }
 
@@ -227,46 +237,8 @@ export class EditorComponent extends BaseImports implements OnInit {
 
   }
 
-  copyShape(shape: ShapeDto) {
-    const elementFactory: ElementFactory = this.bpmnJS.get('elementFactory');
-    const modeling: Modeling = this.bpmnJS.get('modeling'),
-      elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
-    const process: ElementLike | undefined = elementRegistry.get('Process');
-
-    const copiedShape = elementFactory.createShape({
-      type: shape.Type,
-      id: Math.random().toString(36).substring(7),
-    });
-
-    modeling.createShape(copiedShape, { x: shape.X + 10, y: shape.Y + 10 }, <Parent>process);
-
-    var copiedShapeDto: ShapeDto = {
-      ElementId: copiedShape.id,
-      Type: shape.Type,
-      X: copiedShape.x,
-      Y: copiedShape.y,
-      Width: copiedShape.width,
-      Height: copiedShape.height,
-      /*Bounds: {
-        X: copiedShape.di.bounds.x,
-        Y: copiedShape.di.bounds.y,
-        Width: copiedShape.di.bounds.width,
-        Height: copiedShape.di.bounds.height
-      },*/
-
-      InputParameters: shape.InputParameters ?? [],
-      FunctionName: shape.FunctionName ?? "",
-      OutputParameters: shape.OutputParameters ?? [],
-      children: [], attachers: [], labelIds: []
-    };
-    this.diagram.Shapes.push(copiedShapeDto);
-
-    return copiedShape;
-  }
-
   undo() {
     const commandStack: any = this.bpmnJS.get('commandStack');
-    console.log('commandStack', commandStack, commandStack.canUndo());
     if (commandStack.canUndo()) {
       commandStack.undo();
     }
@@ -428,7 +400,7 @@ export class EditorComponent extends BaseImports implements OnInit {
 
     setInterval(() => {
       if (autoSave) {
-        this.save();
+        // this.save();
         autoSave = false;
       }
     }, 20000);
@@ -466,18 +438,18 @@ export class EditorComponent extends BaseImports implements OnInit {
 
     this.diagram.Shapes = [];
     this.diagram.Connections = [];
-    this.diagram.Labels = []
     var defaultElements = Object.values(DefaultElement);
     elementRegistry.getAll().filter(y => !defaultElements.find(z => z == y.id)).forEach(x => {
       var el: ElementDto = {
         ElementId: x.id,
         businessObject: undefined,//x.businessObject,
-        labelId: (<Element>x).label?.id,
-        labelIds: (<Element>x).labels.map(x => x.id),
+        //labelId: (<Element>x).label?.id,
+        //labelIds: (<Element>x).labels.map(x => x.id),
         //parent: (<Element>x).parent,
         //incoming: (<Element>x).incoming,
         //outgoing: (<Element>x).outgoing,
-        Type: (<Element>x).type as ElementType
+        Type: (<Element>x).type as ElementType,
+        Label: (<Element>x).businessObject?.name ?? ""
       };
 
       if ((<Shape>x).x != undefined && (<Shape>x).type != 'label') {
@@ -501,46 +473,10 @@ export class EditorComponent extends BaseImports implements OnInit {
         this.diagram.Connections.push(<ConnectionDto>el);
       }
 
-      if ((<Shape>x).type == 'label') {
-        const label = x as Label;
-        (<LabelDto>el).X = (<Label>x).x;
-        (<LabelDto>el).Y = (<Label>x).y;
-        (<LabelDto>el).Width = (<Label>x).width;
-        (<LabelDto>el).Height = (<Label>x).height;
-        (<LabelDto>el).Text = (<Label>x).businessObject?.name;
-        (<LabelDto>el).Anchor = (<Label>x).businessObject?.anchor;
-        (<LabelDto>el).Bounds = {
-          X: (<Label>x).di.bounds.x,
-          Y: (<Label>x).di.bounds.y,
-          Width: (<Label>x).di.bounds.width,
-          Height: (<Label>x).di.bounds.height
-        };
-        this.diagram.Labels.push(<LabelDto>el);
-      }
-      console.log(this.diagram)
       return el;
     });
-  }
 
-  /* handleClickEvent(element: any) {
-     this.propertiesPanel.update(element);
-
-     var selectedElement = (<any>this.bpmnJS.get('selection')).get();
-     console.log('element.changed 2', selectedElement);
-
-     this.redrawElement(selectedElement[0]);
-   }*/
-
-  redrawElement(element: any) {
-    // Get the renderer
-    const elementRegistry = this.bpmnJS.get('elementRegistry');
-    const elementRegistryEntry = (<any>elementRegistry).get(element.id);
-    // Get the BpmnRenderer
-    const bpmnRenderer: any = this.bpmnJS.get('bpmnRenderer');
-
-
-    // Redraw the element
-    //var l = bpmnRenderer.drawShape(element, (<any>this.bpmnJS.get('canvas'))?.getRootElement());
+    this.commonService.setDocument(this.diagram);
   }
 
   traverseDiagram(diagram: DiagramCreateDto) {

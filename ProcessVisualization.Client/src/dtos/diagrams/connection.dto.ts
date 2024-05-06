@@ -6,6 +6,7 @@ export class ConnectionDto extends ElementDto {
   WayPoints: PointDto[] = [];
   Source?: string = "";
   Target?: string = "";
+  Value: string = "true"
 
   constructor() {
     super();

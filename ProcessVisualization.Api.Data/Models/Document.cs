@@ -13,6 +13,7 @@ namespace ProcessVisualization.Api.Data.Models
         public int RoomId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string FuncGroup { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
         public string LastUpdatedBy { get; set; }

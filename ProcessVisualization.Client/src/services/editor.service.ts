@@ -120,6 +120,7 @@ export class EditorService {
       Y: copiedShape.y,
       Width: copiedShape.width,
       Height: copiedShape.height,
+      Label: shape.Label,
       /*Bounds: {
         X: copiedShape.di.bounds.x,
         Y: copiedShape.di.bounds.y,
@@ -129,8 +130,7 @@ export class EditorService {
 
       InputParameters: shape.InputParameters ?? [],
       FunctionName: shape.FunctionName ?? "",
-      OutputParameters: shape.OutputParameters ?? [],
-      children: [], attachers: [], labelIds: []
+      OutputParameters: shape.OutputParameters ?? []
     };
     diagram.Shapes.push(copiedShapeDto);
 

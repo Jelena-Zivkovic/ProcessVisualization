@@ -14,6 +14,7 @@ namespace ProcessVisualization.Api.Data.Models
         public virtual Document Document { get; set; }
         public string ElementId { get; set; }
         public string Type { get; set; }
+        public string Label { get; set; }
 
         [Column(TypeName = "decimal(18,4)")]
         public decimal X { get; set; }
@@ -26,5 +27,10 @@ namespace ProcessVisualization.Api.Data.Models
 
         [Column(TypeName = "decimal(18,4)")]
         public decimal Height { get; set; }
+
+        public string FunctionName { get; set; } = "";
+        public virtual ICollection<InputParameter> InputParameters { get; set; }
+        public virtual ICollection<OutputParameter> OutputParameters { get; set; }
+
     }
 }

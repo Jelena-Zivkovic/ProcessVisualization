@@ -68,116 +68,125 @@ namespace ProcessVisualization.Api.Business.Services
             });
         }
 
-        public ResponseTemplateDto<DocumentCreateDto?> SaveDocument(DocumentCreateDto documentDto, string UserId)
+        public ResponseTemplateDto<DocumentCreateDto?> UpdateDocument(DocumentCreateDto documentDto, string UserId)
         {
-            /*var document = new Document
-            {
-                Name = documentDto.Name,
-                Description = documentDto.Description ?? "",
-                LastUpdatedAt = DateTime.Now,
-                LastUpdatedBy = UserId,
-                RoomId = documentDto.RoomId
-            };
-            Document? res;
-            if ( documentDto.Id != null )
-            {
-                document.Id = (int)documentDto.Id;
-                res = _documentRepository.Update(document).Result;
-            }
-            else
-            {
-                res = _documentRepository.Add(document).Result;
-            }
-            document.Connections = new Collection<Data.Models.Connection>();
-            foreach (var conn in  documentDto.Connections)
-            {
-                var newConn = new Data.Models.Connection
-                {
-                    Target = conn.Target,
-                    Source = conn.Source,
-                    Type = conn.Type,
-                    ConnectionId = conn.Id,
-                };
+            //var document = new Document
+            //{
+            //    Name = documentDto.Name,
+            //    Description = documentDto.Description ?? "",
+            //    LastUpdatedAt = DateTime.Now,
+            //    LastUpdatedBy = UserId,
+            //    RoomId = documentDto.RoomId
+            //};
+            
+            //document.Connections = new Collection<Data.Models.Connection>();
+            //document.Connections = documentDto.Connections.Select(x => new Data.Models.Connection
+            //{
+            //    ConnectionId = x.ElementId,
+            //    Source = x.Source,
+            //    Target = x.Target,
+            //    Type = x.Type
+            //}).ToList();
+            //foreach (var conn in  documentDto.Connections)
+            //{
+            //    var newConn = new Data.Models.Connection
+            //    {
+            //        Target = conn.Target,
+            //        Source = conn.Source,
+            //        Type = conn.Type,
+            //        ConnectionId = conn.Id,
+            //    };
 
 
 
-                newConn.WayPoints = new List<Point>();
+            //    newConn.WayPoints = new List<Point>();
 
-                foreach (var point in conn.WayPoints) {
-                    var newPoint = new Point
-                    {
-                        X = point.X,
-                        Y = point.Y
-                    };
+            //    foreach (var point in conn.WayPoints) {
+            //        var newPoint = new Point
+            //        {
+            //            X = point.X,
+            //            Y = point.Y
+            //        };
 
 
-                    //newConn.WayPoints.Add(newPoint);
-                }
-            }
+            //        //newConn.WayPoints.Add(newPoint);
+            //    }
+            //}
 
-            document.Shapes = new Collection<Shape>();
-            foreach (var shape in documentDto.Shapes)
-            {
-                var newShape = new Data.Models.Shape
-                {
-                    DocumentId = documentDto.Id ?? res.Id,
-                    ElementId = shape.ElementId,
-                    Height = shape.Height,
-                    Width = shape.Width,
-                    X = shape.X,
-                    Y = shape.Y,
-                    Type = shape.Type,
-                };
-                if (shape.Id.HasValue) {
-                    newShape.Id = shape.Id.Value;
-                }
-                //document.Shapes.Add(newShape);                
-                //_shapeRepository.Update(newShape);
-            }*/
+            //document.Shapes = new Collection<Shape>();
+            //foreach (var shape in documentDto.Shapes)
+            //{
+            //    var newShape = new Data.Models.Shape
+            //    {
+            //        DocumentId = documentDto.Id ?? res.Id,
+            //        ElementId = shape.ElementId,
+            //        Height = shape.Height,
+            //        Width = shape.Width,
+            //        X = shape.X,
+            //        Y = shape.Y,
+            //        Type = shape.Type,
+            //    };
+            //    if (shape.Id.HasValue) {
+            //        newShape.Id = shape.Id.Value;
+            //    }
+            //    //document.Shapes.Add(newShape);                
+            //    //_shapeRepository.Update(newShape);
+            //}
 
-            /*if (documentDto.Id.HasValue)
-            {
-                document.Id = documentDto.Id.Value;
-                foreach (var connection in document.Connections)
-                {
-                    connection.DocumentId = documentDto.Id.Value;
-                }
+            //if (documentDto.Id.HasValue)
+            //{
+            //    document.Id = documentDto.Id.Value;
+            //    foreach (var connection in document.Connections)
+            //    {
+            //        connection.DocumentId = documentDto.Id.Value;
+            //    }
 
-                foreach (var shape in document.Shapes)
-                {
-                    shape.DocumentId = documentDto.Id.Value;
-                }
+            //    foreach (var shape in document.Shapes)
+            //    {
+            //        shape.DocumentId = documentDto.Id.Value;
+            //    }
 
-            }*/
+            //}
 
-            /*if(res != null)
-            {
-                return new ResponseTemplateDto<DocumentCreateDto?>(true, new DocumentCreateDto()
-                {
-                    Id = res.Id,
-                    Name = res.Name,
-                    Description = res.Description,
-                    RoomId = res.RoomId,
-                    Connections = res.Connections.Select(x => new ConnectionDto
-                    {
-                        Id = x.ConnectionId,
-                        Source = x.Source,
-                        Target = x.Target,
-                        Type = x.Type,
-                        //WayPoints = x.WayPoints.Select(y => new PointDto { X = y.X, Y = y.Y }).ToList(),
-                    }).ToList(),
-                    Shapes = res.Shapes.Select(x => new ShapeDto
-                    {
-                        Height = x.Height,
-                        Width = x.Width,
-                        X = x.X,
-                        Y = x.Y,
-                        Type = x.Type,
-                        Id = x.ElementId
-                    }).ToList(),
-                });
+            //Document? res;
+            //if (documentDto.Id != null)
+            //{
+            //    document.Id = (int)documentDto.Id;
+            //    res = _documentRepository.Update(document).Result;
+            //}
+            //else
+            //{
+            //    res = _documentRepository.Add(document).Result;
+            //}
 
-            }*/
+            //if (res != null)
+            //{
+            //    return new ResponseTemplateDto<DocumentCreateDto?>(true, new DocumentCreateDto()
+            //    {
+            //        Id = res.Id,
+            //        Name = res.Name,
+            //        Description = res.Description,
+            //        RoomId = res.RoomId,
+            //        Connections = res.Connections.Select(x => new ConnectionDto
+            //        {
+            //            Id = x.ConnectionId,
+            //            Source = x.Source,
+            //            Target = x.Target,
+            //            Type = x.Type,
+            //            //WayPoints = x.WayPoints.Select(y => new PointDto { X = y.X, Y = y.Y }).ToList(),
+            //        }).ToList(),
+            //        Shapes = res.Shapes.Select(x => new ShapeDto
+            //        {
+            //            Height = x.Height,
+            //            Width = x.Width,
+            //            X = x.X,
+            //            Y = x.Y,
+            //            Type = x.Type,
+            //            Id = x.ElementId
+            //        }).ToList(),
+            //    });
+
+            //}
             return new ResponseTemplateDto<DocumentCreateDto?>(false, string.Empty);
 
         }
@@ -205,6 +214,119 @@ namespace ProcessVisualization.Api.Business.Services
                 Connections = new List<ConnectionDto>(),
                 Shapes = new List<ShapeDto>()
             });
+        }
+
+
+        public ResponseTemplateDto<DocumentCreateDto?> SaveDocument(DocumentCreateDto documentDto, string UserId)
+        {
+
+            var document = new Document
+            {
+                Name = documentDto.Name,
+                Description = documentDto.Description ?? "",
+                LastUpdatedAt = DateTime.Now,
+                LastUpdatedBy = UserId,
+                RoomId = documentDto.RoomId
+            };
+            Document? res;
+            if (documentDto.Id != null)
+            {
+                document.Id = (int)documentDto.Id;
+                ///res = _documentRepository.Update(document).Result;
+            }
+            else
+            {
+                ///res = _documentRepository.Add(document).Result;
+            }
+            document.Connections = new Collection<Data.Models.Connection>();
+            foreach (var conn in documentDto.Connections)
+            {
+                var newConn = new Data.Models.Connection
+                {
+                    Target = conn.Target,
+                    Source = conn.Source,
+                    Type = conn.Type,
+                    ConnectionId = conn.ElementId,
+                };
+                if (conn.Id.HasValue)
+                {
+                    newConn.Id = conn.Id.Value;
+                }
+
+                if(documentDto.Id.HasValue)
+                {
+                    newConn.Id = documentDto.Id.Value;
+                }
+                foreach (var point in conn.WayPoints)
+                {
+                    var newPoint = new Point
+                    {
+                        X = point.X,
+                        Y = point.Y
+                    };
+
+                    newConn.WayPoints.Add(newPoint);
+                }
+
+                document.Connections.Add(newConn);
+            }
+
+            document.Shapes = new Collection<Shape>();
+            foreach (var shape in documentDto.Shapes)
+            {
+                var newShape = new Data.Models.Shape
+                {
+                    ElementId = shape.ElementId,
+                    Height = shape.Height,
+                    Width = shape.Width,
+                    X = shape.X,
+                    Y = shape.Y,
+                    Type = shape.Type,
+                };
+                if (shape.Id.HasValue)
+                {
+                    newShape.Id = shape.Id.Value;
+                }
+                if (documentDto.Id.HasValue)
+                {
+                    newShape.DocumentId = documentDto.Id.Value;
+                }
+                document.Shapes.Add(newShape);
+            }
+            
+            res = this._documentRepository.SaveDocument(document).Result;
+
+            if (res != null)
+            {
+                return new ResponseTemplateDto<DocumentCreateDto?>(true, new DocumentCreateDto()
+                {
+                    Id = res.Id,
+                    Name = res.Name,
+                    Description = res.Description,
+                    RoomId = res.RoomId,
+                    Connections = res.Connections.Select(x => new ConnectionDto
+                    {
+                        Id = x.Id,
+                        ElementId = x.ConnectionId,
+                        Source = x.Source,
+                        Target = x.Target,
+                        Type = x.Type,
+                        WayPoints = x.WayPoints.Select(y => new PointDto { X = y.X, Y = y.Y }).ToList(),
+                    }).ToList(),
+                    Shapes = res.Shapes.Select(x => new ShapeDto
+                    {
+                        Height = x.Height,
+                        Width = x.Width,
+                        X = x.X,
+                        Y = x.Y,
+                        Type = x.Type,
+                        ElementId = x.ElementId,
+                        Id = x.Id
+                    }).ToList(),
+                });
+            }
+
+            return new ResponseTemplateDto<DocumentCreateDto?>(false, string.Empty);
         }
     }
 }

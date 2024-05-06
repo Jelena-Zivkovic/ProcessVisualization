@@ -15,7 +15,10 @@ namespace ProcessVisualization.Api.Data.Models
         public string Type { get; set; } = "bpmn:SequenceFlow";
         public string Target { get; set; }
         public string Source { get; set; }
-        //public List<Point> WayPoints { get; set; }
+        public string Label { get; set; }
+        public virtual ICollection<Point> WayPoints { get; set; }
+
+        public string Value { get; set; } = "true";
 
     }
 }

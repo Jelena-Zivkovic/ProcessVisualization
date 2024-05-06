@@ -41,13 +41,30 @@ export class CustomRenderer extends BaseRenderer {
 
     // Create the trapezoid
     const trapezoid = svgCreate('polygon');
+    // Create the label for the trapezoid
+    const label = svgCreate('text');
+
+
     svgAttr(trapezoid, {
       points: points,
+      stroke: 'rgb(34, 36, 42)',
+      fillOpacity: 0.95,
       fill: 'white',  // Fill color
-      stroke: 'black',  // Border color
+      //stroke: 'black',  // Border color
       strokeWidth: 2  // Border width
     });
+
     svgAppend(parentNode, trapezoid);
+    svgAttr(label, {
+      x: element.width / 2,
+      y: element.height / 2,
+      textAnchor: 'middle',
+      alignmentBaseline: 'middle',
+      fill: 'black',
+      fontSize: '12px'
+    });
+    label.textContent = element.businessObject.name || '';
+    svgAppend(parentNode, label);
     return trapezoid;
   }
 }

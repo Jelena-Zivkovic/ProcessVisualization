@@ -5,9 +5,10 @@ export class ElementDto {
   ElementId: string = "";
   businessObject?: any;
   Type: ElementType = ElementType.Process;
-  labelId?: any;//Label
-  labelIds: string[] = [];//Label
+  //labelId?: any;//Label
+  //labelIds: string[] = [];//Label
   parent?: string;
+  Label: string = "";
   //incoming: any[] = [];//Connection
   //outgoing: any[] = [];//Connection
 
