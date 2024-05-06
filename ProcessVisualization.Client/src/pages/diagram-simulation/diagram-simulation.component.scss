@@ -1,5 +1,5 @@
-.djs-palette {
-  display: none;
+:host ::ng-deep .djs-palette {
+  border: 0;
 }
 
 .editor-dock-zoom{

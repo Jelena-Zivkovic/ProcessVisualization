@@ -28,6 +28,7 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
 
   functions: string[] = [];
   module: FunctionInfo | undefined = undefined;
+  funcGroups: string[] = [];
 
   selectedFunctionInfo?: any;
   variables: ParameterDto[] = [];
@@ -35,10 +36,13 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
 
   constructor(injector: Injector) {
     super(injector);
+
+    this.funcGroups = this.editorService.getAllFunctionGroups();
     this.init();
 
-    if (this.diagram.ModulePath == '' || this.diagram.ModulePath == undefined) {
-      this.diagram.ModulePath = 'BasicMath';
+
+    if (this.diagram.FuncGroup == '' || this.diagram.FuncGroup == undefined) {
+      this.diagram.FuncGroup = 'BasicMath';
     }
     /*
         this.editorService.executeFunction(this.diagram.ModulePath, 'increment', 1).then((res) => {
@@ -101,7 +105,7 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
     var module = "BasicMath";
     switch (this.element?.Type) {
       case ElementType.Task:
-        module = this.diagram.ModulePath ?? 'BasicMath';
+        module = this.diagram.FuncGroup ?? 'BasicMath';
         break;
       case ElementType.Loop:
         module = 'Conditional';

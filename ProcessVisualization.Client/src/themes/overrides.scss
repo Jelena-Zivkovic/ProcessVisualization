@@ -120,6 +120,15 @@ body {
   background-image: url("../assets/trapezoid\ -\ 180deg.svg");
 }
 
+.djs-context-pad .entry.bpmn-icon-copy,
+.djs-context-pad .entry.bpmn-icon-copy:hover{
+
+  background-image: url("../assets/icons/copy-icon.svg");
+
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 
 .p-dialog {
   min-width: 500px;
@@ -195,6 +204,7 @@ p-table.p-element.file-explorer {
 
 
 .props-header{
+  width: 100%;
   border: 1px solid transparent;
   background-color: transparent;
   &:focus {

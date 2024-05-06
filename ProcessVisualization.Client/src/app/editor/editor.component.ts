@@ -40,6 +40,7 @@ import IncomingConnectionNumberRule from './rules/incoming-connection-number.rul
 import { CustomRenderer } from './props-provider/CustomRender';
 import { ElementType } from 'src/enum/element-type.enum';
 import { PrimeIcons, MenuItem } from 'primeng/api';
+import { CustomContextPadProvider } from './props-provider/custom-context-pad.provider';
 //declare var propertiesPanel: any;
 //declare var BpmnPropertiesPanelModule: any;
 //declare var BpmnPropertiesProviderModule: any;
@@ -76,6 +77,7 @@ export class EditorComponent extends BaseImports implements OnInit {
       });
     }
     this.group = `${roomId}.${this.diagram.Id}`;
+
     this.bpmnJS = new Modeler({
       container: this.diagramRef?.nativeElement,
       height: "100%",
@@ -87,6 +89,7 @@ export class EditorComponent extends BaseImports implements OnInit {
       additionalModules: [
         { [InjectionNames.originalPaletteProvider]: ['type', OriginalPaletteProvider] },
         { [InjectionNames.paletteProvider]: ['type', CustomPaletteProvider] },
+        { [InjectionNames.contextPadProvider]: ['type', CustomContextPadProvider] },
         {
           __init__: ['incomingConnectionNumberRule'],
           incomingConnectionNumberRule: ['type', IncomingConnectionNumberRule]

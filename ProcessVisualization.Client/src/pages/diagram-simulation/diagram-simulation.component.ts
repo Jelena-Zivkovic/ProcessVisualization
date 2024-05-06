@@ -19,6 +19,7 @@ import { ElementType } from 'src/enum/element-type.enum';
 import { InjectionNames } from 'src/app/editor/bpmn-js/bpmn-js';
 import { CustomRenderer } from 'src/app/editor/props-provider/CustomRender';
 import { ParameterDto } from 'src/dtos/parameter.dto';
+import EventBus from 'diagram-js/lib/core/EventBus';
 
 @Component({
   selector: 'app-diagram-simulation',
@@ -51,6 +52,10 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
     this.bpmnJS = new Modeler({
       container: this.diagramRef?.nativeElement,
       height: "100%",
+
+      keyboard: {
+        bindTo: window
+      },
       propertiesPanel: {
 
       },
@@ -63,10 +68,13 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
     });
     this.initDocumentActions();
   }
+
   ngAfterContentInit(): void {
     this.bpmnJS.attachTo(this.diagramRef?.nativeElement);
     this.importDiagram(this.initConfigEditor());
     this.initGraph(this.diagram);
+
+    this.editorService.disableDiagram(this.bpmnJS);
   }
 
   private async initGraph(diagram: DiagramCreateDto) {
@@ -213,7 +221,7 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
     var module = "BasicMath";
     switch (element?.Type) {
       case ElementType.Task:
-        module = this.diagram.ModulePath ?? 'BasicMath';
+        module = this.diagram.FuncGroup ?? 'BasicMath';
         break;
       case ElementType.Loop:
         module = 'Conditional';

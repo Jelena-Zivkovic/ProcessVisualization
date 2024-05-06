@@ -38,7 +38,7 @@ export class RoomsComponent extends BaseImports {
   products: any[] = [];
   items: MegaMenuItem[] = [];
   items1: MenuItem[] = [];
-  selectedRoom!: RoomDetailsViewDto;
+  selectedRoom: RoomDetailsViewDto = new RoomDetailsViewDto();
 
   isRoomDialogOpen: boolean = false;
   isJoinRoomDialogOpen: boolean = false;
@@ -154,8 +154,9 @@ export class RoomsComponent extends BaseImports {
 
   openDocument(roomId: number) {
     this.commonService.clearDocument();
+    console.log(roomId, this.selectedRoom)
     this.commonService.setRoomId(this.selectedRoom.Id);
-    this.webapiDocumentsService.getDocument(roomId).subscribe((res) => {
+    this.webapiDocumentsService.getDocument(this.selectedRoom.Id).subscribe((res) => {
       if (res.IsSuccess) {
         this.commonService.setDocument(res.Data);
         this.routerService.navigate("editor");

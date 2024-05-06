@@ -1,12 +1,38 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { FunctionInfo } from 'src/dos/function-info';
 import { BasicMathFunctions } from 'src/functions/basic-math';
 import { FunctionsGroup } from 'src/functions/functions';
+import Modeler from 'bpmn-js/lib/Modeler';
+import Modeling from 'bpmn-js/lib/features/modeling/Modeling';
+import { ElementFactory } from 'bpmn-js/lib/features/palette/PaletteProvider';
+import { Parent } from 'bpmn-js/lib/model/Types';
+import { ShapeDto } from 'src/dtos/diagrams/shape.dto';
+import { CommonService } from './common.service';
+import ElementRegistry from 'diagram-js/lib/core/ElementRegistry';
+import { ElementLike } from 'diagram-js/lib/model/Types';
 
 @Injectable()
 export class EditorService {
-  constructor(private basicFunctions: FunctionsGroup) {
+  commonService: CommonService;
+  constructor(private basicFunctions: FunctionsGroup,
+    private injector: Injector) {
+    this.commonService = injector.get(CommonService);
 
+  }
+
+  getAllFunctionGroups(): string[] {
+    const functionGroups: string[] = [];
+
+    // Iterate over all properties of the basicFunctions object
+    return Object.keys(this.basicFunctions);
+    // for (const key in this.basicFunctions) {
+    //   if (this.basicFunctions.hasOwnProperty(key)) {
+    //     const functionGroup: any = this.basicFunctions[key]; // Change the type to 'any'
+    //     functionGroups.push(functionGroup);
+    //   }
+    // }
+
+    // return functionGroups;
   }
 
   async getFunctionInfo(modulePath: string): Promise<FunctionInfo | undefined | any> {
@@ -46,6 +72,69 @@ export class EditorService {
       console.error('An error occurred while executing the function:', error);
     }
     return undefined;
+  }
+
+
+  disableDiagram(bpmnJS: Modeler) {
+    // Disable editing features
+    let eventBus: any = bpmnJS.get('eventBus');
+
+    // Disable modeling
+    let modeling: any = bpmnJS.get('modeling');
+    eventBus.on('element.click', (e: Event) => {
+      e.stopPropagation();
+    });
+
+    // Disable context pad
+    let contextPad: any = bpmnJS.get('contextPad');
+    contextPad.registerProvider({
+      getContextPadEntries: function () {
+        return function () { };
+      }
+    });
+
+    // Disable palette
+    let palette: any = bpmnJS.get('palette');
+    palette.registerProvider({
+      getPaletteEntries: function () {
+        return function () { };
+      }
+    });
+  }
+
+  copyShape(shape: ShapeDto, elementFactory: ElementFactory, modeling: Modeling, elementRegistry: ElementRegistry) {
+    const process: ElementLike | undefined = elementRegistry.get('Process');
+    const diagram = this.commonService.getDocument();
+
+    const copiedShape = elementFactory.createShape({
+      type: shape.Type,
+      id: Math.random().toString(36).substring(7),
+    });
+
+    modeling.createShape(copiedShape, { x: shape.X + 10, y: shape.Y + 10 }, <Parent>process);
+
+    var copiedShapeDto: ShapeDto = {
+      ElementId: copiedShape.id,
+      Type: shape.Type,
+      X: copiedShape.x,
+      Y: copiedShape.y,
+      Width: copiedShape.width,
+      Height: copiedShape.height,
+      /*Bounds: {
+        X: copiedShape.di.bounds.x,
+        Y: copiedShape.di.bounds.y,
+        Width: copiedShape.di.bounds.width,
+        Height: copiedShape.di.bounds.height
+      },*/
+
+      InputParameters: shape.InputParameters ?? [],
+      FunctionName: shape.FunctionName ?? "",
+      OutputParameters: shape.OutputParameters ?? [],
+      children: [], attachers: [], labelIds: []
+    };
+    diagram.Shapes.push(copiedShapeDto);
+
+    return copiedShape;
   }
 
 }

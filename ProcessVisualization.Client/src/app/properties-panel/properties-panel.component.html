@@ -1,10 +1,10 @@
 <div class="col">
-  <div class="row file section" *ngIf="isDiagram()">
+  <div class="row file section" *ngIf="isDiagram() || isEndOrStart()">
     <input pInputText type="text" class="p-inputtext-lg props-header font-bold" [(ngModel)]="diagram.Name" />
     <div class="flex flex-column mt-4">
       <label htmlFor="functions-group">Functions group</label>
-      <input pInputText type="text" id="functions-group" class="p-inputtext props-input"
-        [(ngModel)]="diagram.ModulePath" />
+      <p-dropdown [options]="funcGroups" id="function" class="props-dropdown"
+        [(ngModel)]="diagram.FuncGroup"></p-dropdown>
     </div>
     <div class="flex flex-column mt-3">
       <label htmlFor="description">Description</label>
@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <div class="elements section" *ngIf="!isDiagram() && !isOutput()">
+  <div class="elements section" *ngIf="!(isDiagram() || isEndOrStart()) && !isOutput()">
     <div class="input">
       <h3>Input values</h3>
       <div class="flex justify-content-between flex-column" *ngFor="let varib of element.InputParameters">
@@ -36,7 +36,7 @@
     </div>
   </div>
 
-  <div class="task section" *ngIf="!isDiagram() && !(isInput() || isOutput())">
+  <div class="task section" *ngIf="!(isDiagram() || isEndOrStart()) && !(isInput() || isOutput())">
     <h3>Function</h3>
     <div class="row">
       <div class="col">
@@ -47,7 +47,7 @@
       </div>
     </div>
   </div>
-  <div class="output section" *ngIf="!isDiagram() && !isInput()">
+  <div class="output section" *ngIf="!(isDiagram() || isEndOrStart()) && !isInput()">
     <div class=" row">
       <h3>Output value</h3>
       <div class="row" *ngFor="let varib of element.OutputParameters">
