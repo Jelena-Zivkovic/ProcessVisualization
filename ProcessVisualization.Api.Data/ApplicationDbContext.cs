@@ -17,6 +17,8 @@ namespace ProcessVisualization.Api.Data
         public DbSet<Element> Elements { get; set; }
         public DbSet<Shape> Shapes { get; set; }
         public DbSet<Point> Points { get; set; }
+        public DbSet<InputParameter> InputParameters { get; set; }
+        public DbSet<OutputParameter> OutputParameter { get; set; }
 
         public ApplicationDbContext() { }
         
@@ -36,6 +38,10 @@ namespace ProcessVisualization.Api.Data
 
             builder.ApplyConfiguration(new ShapeConfig());
             builder.ApplyConfiguration(new ConnectionConfig());
+            builder.ApplyConfiguration(new InputParameterConfig());
+            builder.ApplyConfiguration(new OutputParameterConfig());
+            builder.ApplyConfiguration(new RoomConfig());
+            builder.ApplyConfiguration(new RoomUserConfig());
             // builder.ApplyConfiguration(new DocumentConfig());
         }
         }

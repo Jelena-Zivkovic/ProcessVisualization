@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProcessVisualization.Api.Data;
 
@@ -11,9 +12,10 @@ using ProcessVisualization.Api.Data;
 namespace ProcessVisualization.Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240507204836_CodeUpdate")]
+    partial class CodeUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,6 +173,7 @@ namespace ProcessVisualization.Api.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Label")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Source")
@@ -276,15 +279,8 @@ namespace ProcessVisualization.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SerialNumber")
-                        .HasColumnType("int");
-
                     b.Property<int>("ShapeId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -294,7 +290,7 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     b.HasIndex("ShapeId");
 
-                    b.ToTable("InputParameters");
+                    b.ToTable("InputParameter");
                 });
 
             modelBuilder.Entity("ProcessVisualization.Api.Data.Models.OutputParameter", b =>
@@ -309,20 +305,12 @@ namespace ProcessVisualization.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SerialNumber")
-                        .HasColumnType("int");
-
                     b.Property<int>("ShapeId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ShapeId", "SerialNumber")
-                        .IsUnique();
+                    b.HasIndex("ShapeId");
 
                     b.ToTable("OutputParameter");
                 });
@@ -382,15 +370,9 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     b.Property<string>("RoomCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex("RoomCode")
-                        .IsUnique();
 
                     b.ToTable("Rooms");
                 });
@@ -420,8 +402,7 @@ namespace ProcessVisualization.Api.Data.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.HasIndex("UserId", "RoomId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("RoomUsers");
                 });

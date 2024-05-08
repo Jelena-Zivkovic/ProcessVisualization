@@ -9,12 +9,11 @@ using System.Threading.Tasks;
 
 namespace ProcessVisualization.Api.Data.Config
 {
-    public class ConnectionConfig : IEntityTypeConfiguration<Connection>
+    public class OutputParameterConfig : IEntityTypeConfiguration<OutputParameter>
     {
-        public void Configure(EntityTypeBuilder<Connection> builder)
+        public void Configure(EntityTypeBuilder<OutputParameter> builder)
         {
-            builder.Property(x =>x.Id).ValueGeneratedOnAdd();
-            builder.HasIndex(x => new { x.ConnectionId, x.DocumentId }).IsUnique();
+            builder.HasIndex(x => new { x.ShapeId, x.SerialNumber }).IsUnique();
         }
     }
 }

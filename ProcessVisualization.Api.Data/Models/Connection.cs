@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +10,7 @@ namespace ProcessVisualization.Api.Data.Models
 {
     public class Connection : IEntity<int>
     {
+        [Key]
         public int Id { get; set; }
         public string ConnectionId { get; set; }
         public int DocumentId { get; set; }
@@ -15,7 +18,7 @@ namespace ProcessVisualization.Api.Data.Models
         public string Type { get; set; } = "bpmn:SequenceFlow";
         public string Target { get; set; }
         public string Source { get; set; }
-        public string Label { get; set; }
+        public string? Label { get; set; }
         public virtual ICollection<Point> WayPoints { get; set; }
 
         public string Value { get; set; } = "true";

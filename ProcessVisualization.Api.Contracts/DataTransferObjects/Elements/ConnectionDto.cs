@@ -13,6 +13,8 @@ namespace ProcessVisualization.Api.Contracts.DataTransferObjects.Elements
         public string Type { get; set; } = "bpmn:SequenceFlow";
         public string Target { get; set; }
         public string Source { get; set; }
+        public string Label { get; set; }
+        public string Value { get; set; }
         public List<PointDto> WayPoints { get; set; } = new List<PointDto>();
     }
 }

@@ -203,6 +203,7 @@ namespace ProcessVisualization.Api.Business.Services
                 CreatedAt = DateTime.Now,
                 LastUpdatedAt = DateTime.Now,
                 LastUpdatedBy = string.Empty,
+                FuncGroup = ""
             };
             var res = _documentRepository.Add(document);
 
@@ -226,7 +227,8 @@ namespace ProcessVisualization.Api.Business.Services
                 Description = documentDto.Description ?? "",
                 LastUpdatedAt = DateTime.Now,
                 LastUpdatedBy = UserId,
-                RoomId = documentDto.RoomId
+                RoomId = documentDto.RoomId,
+                FuncGroup = documentDto.FuncGroup
             };
             Document? res;
             if (documentDto.Id != null)
@@ -236,8 +238,10 @@ namespace ProcessVisualization.Api.Business.Services
             }
             else
             {
+                document.CreatedAt = DateTime.Now;
                 ///res = _documentRepository.Add(document).Result;
             }
+
             document.Connections = new Collection<Data.Models.Connection>();
             foreach (var conn in documentDto.Connections)
             {
@@ -247,6 +251,8 @@ namespace ProcessVisualization.Api.Business.Services
                     Source = conn.Source,
                     Type = conn.Type,
                     ConnectionId = conn.ElementId,
+                    Label = conn.Label ?? "",
+                    Value = conn.Value ?? "",
                 };
                 if (conn.Id.HasValue)
                 {
@@ -255,12 +261,14 @@ namespace ProcessVisualization.Api.Business.Services
 
                 if(documentDto.Id.HasValue)
                 {
-                    newConn.Id = documentDto.Id.Value;
+                    newConn.DocumentId = documentDto.Id.Value;
                 }
+                newConn.WayPoints = new List<Point>();
                 foreach (var point in conn.WayPoints)
                 {
                     var newPoint = new Point
                     {
+                        ConnectionId = newConn.Id,
                         X = point.X,
                         Y = point.Y
                     };
@@ -282,7 +290,10 @@ namespace ProcessVisualization.Api.Business.Services
                     X = shape.X,
                     Y = shape.Y,
                     Type = shape.Type,
+                    Label =shape.Label,
+                    FunctionName = shape.FunctionName,
                 };
+
                 if (shape.Id.HasValue)
                 {
                     newShape.Id = shape.Id.Value;
@@ -292,6 +303,34 @@ namespace ProcessVisualization.Api.Business.Services
                     newShape.DocumentId = documentDto.Id.Value;
                 }
                 document.Shapes.Add(newShape);
+                newShape.InputParameters  = new List<InputParameter>();
+                newShape.OutputParameters = new List<OutputParameter>();
+                foreach (var point in shape.InputParameters)
+                {
+                    var inputParameter = new InputParameter
+                    {
+                        Type =point.Type,
+                        Value = point.Value,
+                        Name = point.Name,
+                        ShapeId = newShape.Id,
+                        SerialNumber = point.SerialNumber
+                    };
+
+                    newShape.InputParameters.Add(inputParameter);
+                }
+                foreach (var point in shape.OutputParameters)
+                {
+                    var parameter = new OutputParameter
+                    {
+                        Type =point.Type,
+                        Name = point.Name,
+                        ShapeId = newShape.Id,
+                        SerialNumber = point.SerialNumber
+                    };
+
+                    newShape.OutputParameters.Add(parameter);
+                }
+
             }
             
             res = this._documentRepository.SaveDocument(document).Result;
@@ -306,7 +345,6 @@ namespace ProcessVisualization.Api.Business.Services
                     RoomId = res.RoomId,
                     Connections = res.Connections.Select(x => new ConnectionDto
                     {
-                        Id = x.Id,
                         ElementId = x.ConnectionId,
                         Source = x.Source,
                         Target = x.Target,

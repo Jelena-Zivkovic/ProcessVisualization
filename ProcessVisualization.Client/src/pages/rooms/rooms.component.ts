@@ -152,11 +152,11 @@ export class RoomsComponent extends BaseImports {
     });
   }
 
-  openDocument(roomId: number) {
+  openDocument(docId: number) {
     this.commonService.clearDocument();
-    console.log(roomId, this.selectedRoom)
+    console.log(docId, this.selectedRoom)
     this.commonService.setRoomId(this.selectedRoom.Id);
-    this.webapiDocumentsService.getDocument(this.selectedRoom.Id).subscribe((res) => {
+    this.webapiDocumentsService.getDocument(docId).subscribe((res) => {
       if (res.IsSuccess) {
         this.commonService.setDocument(res.Data);
         this.routerService.navigate("editor");

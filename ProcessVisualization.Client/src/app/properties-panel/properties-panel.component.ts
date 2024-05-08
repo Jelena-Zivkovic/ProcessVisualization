@@ -174,8 +174,10 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
         }
       }
 
+      var num: number = 0;
       while (this.selectedFunctionInfo?.parameters.length > this.variables.length) {
-        this.element.InputParameters.push({ Type: "boolean", Name: '' });
+        this.element.InputParameters.push({ Type: "boolean", Name: '', SerialNumber: num });
+        num = num + 1;
       }
 
       if (this.variables.length > this.selectedFunctionInfo?.parameters.length) {
@@ -197,7 +199,11 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
               return;
             }
           }
-          this.element.InputParameters.push({ Type: paramTypes[0], Name: '' });
+          const maxSerialNumber = this.element.InputParameters.reduce((max, param) => {
+            return param.SerialNumber > max ? param.SerialNumber : max;
+          }, 0);
+
+          this.element.InputParameters.push({ Type: paramTypes[0], Name: '', SerialNumber: maxSerialNumber + 1 });
         });
       return;
     }
@@ -210,12 +216,16 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
 
     this.element.OutputParameters = [];
     if (this.element) {
+      const maxSerialNumber = this.element.OutputParameters.reduce((max, param) => {
+        return param.SerialNumber > max ? param.SerialNumber : max;
+      }, 0);
+
       if (this.isSignal) {
-        this.element.OutputParameters.push(this.variables.find(x => x.Type == this.selectedFunctionInfo?.returnType) ?? { Type: this.selectedFunctionInfo?.returnType, Name: '' });
+        this.element.OutputParameters.push(this.variables.find(x => x.Type == this.selectedFunctionInfo?.returnType) ?? { Type: this.selectedFunctionInfo?.returnType, Name: '', SerialNumber: maxSerialNumber });
         return;
       }
 
-      this.element.OutputParameters.push({ Type: this.selectedFunctionInfo?.returnType, Name: '' });
+      this.element.OutputParameters.push({ Type: this.selectedFunctionInfo?.returnType, Name: '', SerialNumber: maxSerialNumber });
       return;
     }
   }

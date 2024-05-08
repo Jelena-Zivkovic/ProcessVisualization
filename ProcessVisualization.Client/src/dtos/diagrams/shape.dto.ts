@@ -11,7 +11,6 @@ export class ShapeDto extends ElementDto {
   //children: ElementDto[] = [];
   //host?: ShapeDto;
   //attachers: ShapeDto[] = [];
-
   InputParameters: ParameterDto[] = [];
   FunctionName: string = "";
   OutputParameters: ParameterDto[] = [];

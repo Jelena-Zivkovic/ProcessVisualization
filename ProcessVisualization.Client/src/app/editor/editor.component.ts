@@ -150,7 +150,7 @@ export class EditorComponent extends BaseImports implements OnInit {
       this.bpmnJS.importXML(data.Data.xml).then((res) => {
         this.diagram.Xml = data.Data.xml;
         this.updateLocal();
-        // this.commonService.setDocument(this.diagram);
+        // this.commonService.setDocument(this.diagram);+
       });
     }
   }
@@ -436,21 +436,40 @@ export class EditorComponent extends BaseImports implements OnInit {
     const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
     const modeling: Modeling = this.bpmnJS.get('modeling');
 
-    this.diagram.Shapes = [];
+    //this.diagram.Shapes = [];
     this.diagram.Connections = [];
     var defaultElements = Object.values(DefaultElement);
+    console.log(this.diagram)
+    if (!this.diagram.Xml) {
+      this.diagram.Xml = "";
+    }
+
     elementRegistry.getAll().filter(y => !defaultElements.find(z => z == y.id)).forEach(x => {
-      var el: ElementDto = {
-        ElementId: x.id,
-        businessObject: undefined,//x.businessObject,
-        //labelId: (<Element>x).label?.id,
-        //labelIds: (<Element>x).labels.map(x => x.id),
-        //parent: (<Element>x).parent,
-        //incoming: (<Element>x).incoming,
-        //outgoing: (<Element>x).outgoing,
-        Type: (<Element>x).type as ElementType,
-        Label: (<Element>x).businessObject?.name ?? ""
-      };
+      var el: ShapeDto | ElementDto | ConnectionDto | undefined = this.diagram.Shapes.find(y => y.ElementId == x.id);
+      if (el) {
+        el.Label = (<Element>x).businessObject?.name ?? "";
+        el.Type = (<Element>x).type as ElementType;
+      }
+      else {
+        el = {
+          ElementId: x.id,
+          //businessObject: undefined,//x.businessObject,
+          //labelId: (<Element>x).label?.id,
+          //labelIds: (<Element>x).labels.map(x => x.id),
+          //parent: (<Element>x).parent,
+          //incoming: (<Element>x).incoming,
+          //outgoing: (<Element>x).outgoing,
+          Type: (<Element>x).type as ElementType,
+          Label: (<Element>x).businessObject?.name ?? ""
+        } as ElementDto;
+        if ((<Shape>x).x != undefined && (<Shape>x).type != 'label') {
+
+          this.diagram.Shapes.push(<ShapeDto>el);
+        }
+        else {
+          this.diagram.Connections.push(<ConnectionDto>el);
+        }
+      }
 
       if ((<Shape>x).x != undefined && (<Shape>x).type != 'label') {
         (<ShapeDto>el).X = (<Shape>x).x;
@@ -458,7 +477,20 @@ export class EditorComponent extends BaseImports implements OnInit {
         (<ShapeDto>el).Width = (<Shape>x).width;
         (<ShapeDto>el).Height = (<Shape>x).height;
 
-        this.diagram.Shapes.push(<ShapeDto>el);
+        if (!(<ShapeDto>el).InputParameters) {
+          (<ShapeDto>el).InputParameters = [];
+        }
+        else {
+          (<ShapeDto>el).InputParameters.map(x => {
+            if (!x.Value) {
+              x.Value = "";
+            }
+          })
+        }
+
+        if (!(<ShapeDto>el).OutputParameters) {
+          (<ShapeDto>el).OutputParameters = [];
+        }
       }
 
       if ((<Connection>x).target) {
@@ -470,12 +502,15 @@ export class EditorComponent extends BaseImports implements OnInit {
             y: y.y
           }
         });
-        this.diagram.Connections.push(<ConnectionDto>el);
-      }
 
+        // this.diagram.Connections.push(<ConnectionDto>el);
+      }
+      if (!(<ConnectionDto>el).Value) {
+        (<ConnectionDto>el).Value = "";
+      }
       return el;
     });
-
+    console.log(this.diagram)
     this.commonService.setDocument(this.diagram);
   }
 

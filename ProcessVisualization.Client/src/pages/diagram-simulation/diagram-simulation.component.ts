@@ -235,7 +235,7 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
       if (element.Type == ElementType.OutputTask) {
         if (element.OutputParameters.length > 0) {
           if (element.InputParameters.length == 0) {
-            element.InputParameters.push({ Name: element.OutputParameters[0].Name, Type: element.OutputParameters[0].Type, Value: element.OutputParameters[0].Value });
+            element.InputParameters.push({ Name: element.OutputParameters[0].Name, Type: element.OutputParameters[0].Type, Value: element.OutputParameters[0].Value, SerialNumber: element.OutputParameters[0].SerialNumber });
           }
           else {
             element.InputParameters[0].Name = element.OutputParameters[0].Name;
@@ -262,7 +262,7 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
           if (element.Type == ElementType.OutputTask || element.Type == ElementType.InputTask) {
             name = element.InputParameters[0].Name;
           }
-          this.varibales.push({ Name: name, Type: output.Type, Value: res });
+          this.varibales.push({ Name: name, Type: output.Type, Value: res, SerialNumber: output.SerialNumber });
         }
 
         this.log(element, this.diagram, token);

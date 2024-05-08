@@ -33,6 +33,10 @@ namespace ProcessVisualization.Api.Data.Repository
                         .Where(p => p.Id == document.Id)
                         .Include(p => p.Connections)
                         .Include(x => x.Shapes)
+                            .ThenInclude(x => x.InputParameters)
+
+                        .Include(x => x.Shapes)
+                            .ThenInclude(x => x.OutputParameters)
                         .SingleOrDefault();
 
             if (existingDocument != null)
@@ -88,9 +92,18 @@ namespace ProcessVisualization.Api.Data.Repository
                             // Add new shape
                             await context.Shapes.AddAsync(shape);
                         }
+
+
                     }
 
                     await context.SaveChangesAsync();
+                    foreach (var shape in document.Shapes)
+                    {
+
+                        var existingShape = context.Shapes.FirstOrDefault(s => s.ElementId == shape.ElementId && s.DocumentId == document.Id);
+                        shape.Id = existingShape.Id;
+                        this._shapeRepository.SaveParameters(shape);
+                    }
                     transaction.Commit();
                 }
                 catch (Exception)
@@ -99,7 +112,52 @@ namespace ProcessVisualization.Api.Data.Repository
                     throw;
                 }
             }
+            
+            //using (var transaction = context.Database.BeginTransaction())
+            //{
+            //    try
+            //    {
+            //        foreach (var shape in document.Shapes)
+            //        {
+            //            var existingShape = context.Shapes.FirstOrDefault(s => s.ElementId == shape.ElementId && s.DocumentId == document.Id);
 
+            //            if (existingShape != null)
+            //            {
+            //                var existingInputParams = context.InputParameters.Where(s => s.ShapeId == shape.Id).ToList();
+            //                var existingOutputParams = context.OutputParameter.Where(s => s.ShapeId == shape.Id).ToList();
+
+            //                foreach (var parms in existingInputParams)
+            //                {
+            //                    context.InputParameters.Remove(parms);
+            //                }
+
+            //                foreach (var parms in existingOutputParams)
+            //                {
+            //                    context.OutputParameter.Remove(parms);
+            //                }
+            //            }
+
+            //            foreach(var parmas in shape.InputParameters)
+            //            {
+
+            //                await context.InputParameters.AddAsync(parmas);
+            //            }
+
+            //            foreach (var parmas in shape.OutputParameters)
+            //            {
+            //                await context.OutputParameter.AddAsync(parmas);
+            //            }
+            //        }
+
+            //        await context.SaveChangesAsync();
+            //        transaction.Commit();
+            //    }
+            //    catch (Exception)
+            //    {
+            //        transaction.Rollback();
+            //        throw;
+            //    }
+            //}
 
             // Update connections
             using (var transaction = context.Database.BeginTransaction())
@@ -114,8 +172,8 @@ namespace ProcessVisualization.Api.Data.Repository
                         context.Connections.Remove(connection);
                     }
 
-                    await context.SaveChangesAsync();
-                    transaction.Commit();
+                        await context.SaveChangesAsync();
+                                        transaction.Commit();
                 }
                 catch (Exception)
                 {
@@ -131,7 +189,7 @@ namespace ProcessVisualization.Api.Data.Repository
                     foreach (var shape in document.Connections)
                     {
                         var existingConnection = context.Connections.FirstOrDefault(s => s.ConnectionId == shape.ConnectionId && s.DocumentId == document.Id);
-
+                        
                         if (existingConnection != null)
                         {
                             shape.Id = existingConnection.Id;
@@ -148,7 +206,7 @@ namespace ProcessVisualization.Api.Data.Repository
                     await context.SaveChangesAsync();
                     transaction.Commit();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     transaction.Rollback();
                     throw;

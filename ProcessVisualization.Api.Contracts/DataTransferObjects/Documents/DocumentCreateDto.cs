@@ -14,6 +14,7 @@ namespace ProcessVisualization.Api.Contracts.DataTransferObjects.Documents
         public string Name { get; set; }
         public string Description { get; set; } = string.Empty;
         public int RoomId { get; set; }
+        public string FuncGroup { get; set; }
         public List<ShapeDto> Shapes { get; set; }
         public List<ConnectionDto> Connections { get; set; }
         public string Xml { get; set; }
