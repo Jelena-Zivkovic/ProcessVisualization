@@ -1,4 +1,4 @@
-import { Component, ElementRef, Injector, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Injector, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
@@ -13,7 +13,9 @@ import EventBus from 'diagram-js/lib/core/EventBus';
 
 import { from, ignoreElements, Observable, of } from 'rxjs';
 import { ElementLike, ShapeLike, Parent } from 'diagram-js/lib/model/Types';
-import { Connection, Element, Label } from 'bpmn-js/lib/model/Types';
+import { Connection, Element } from 'bpmn-js/lib/model/Types';
+
+import { Label } from 'diagram-js/lib/model/Types';
 import { HeaderComponent } from '../header/header.component';
 import { Shape } from 'bpmn-js/lib/model/Types';
 import { ElementDto } from 'src/dtos/diagrams/element.dto';
@@ -22,7 +24,7 @@ import { ConnectionDto } from 'src/dtos/diagrams/connection.dto';
 import { DefaultElement } from 'src/enum/default-element.enum';
 import { DiagramCreateDto } from 'src/dtos/diagrams/diagram-create.dto';
 import { MenubarModule } from 'primeng/menubar';
-import { SaveSVGResult, SaveXMLResult } from 'bpmn-js/lib/BaseViewer';
+import { BaseViewerOptions, SaveSVGResult, SaveXMLResult } from 'bpmn-js/lib/BaseViewer';
 import { InjectionNames, OriginalPaletteProvider } from './bpmn-js/bpmn-js';
 import { CustomPaletteProvider } from './props-provider/CustomPaletteProvider';
 import { CustomPropsProvider } from './props-provider/CustomPropsProvider';
@@ -54,6 +56,9 @@ import { CustomContextPadProvider } from './props-provider/custom-context-pad.pr
 })
 export class EditorComponent extends BaseImports implements OnInit {
   @ViewChild('propertiesPanel') propertiesPanel!: PropertiesPanelComponent;
+  private enableBpmnJS!: Modeler;
+  private disebleBpmnJS!: Modeler;
+  disable: boolean = false;
   private bpmnJS!: Modeler;
   private zoomScale: number = 1;
   diagram: DiagramCreateDto;
@@ -62,9 +67,12 @@ export class EditorComponent extends BaseImports implements OnInit {
   selectedElement: ShapeDto | undefined;
 
   documentActions: any;
+  disabledImg: string = "";
 
   @ViewChild('diagramRef', { static: true }) private diagramRef: ElementRef | undefined;
+  @ViewChild('diagramRefDisable', { static: true }) private diagramRefDisable: ElementRef | undefined;
   @ViewChild('propertiesRef', { static: true }) private propertiesRef: ElementRef | undefined;
+  @ViewChild('propertiesRefDisable', { static: true }) private propertiesRefDisable: ElementRef | undefined;
   constructor(injector: Injector, private signalRService: SignalREditorService) {
     super(injector);
     this.diagram = this.commonService.getDocument();
@@ -78,7 +86,7 @@ export class EditorComponent extends BaseImports implements OnInit {
     }
     this.group = `${roomId}.${this.diagram.Id}`;
 
-    this.bpmnJS = new Modeler({
+    this.enableBpmnJS = new Modeler({
       container: this.diagramRef?.nativeElement,
       height: "100%",
       propertiesPanel: {
@@ -100,6 +108,26 @@ export class EditorComponent extends BaseImports implements OnInit {
         }
       ]
     });
+    this.disebleBpmnJS = new Modeler({
+      container: this.diagramRefDisable?.nativeElement,
+      height: "100%",
+      propertiesPanel: {
+        parent: this.propertiesRefDisable?.nativeElement
+      },
+      moddleExtensions: {
+      },
+      additionalModules: [
+        {
+          __init__: ['customRenderer'],
+          customRenderer: ['type', CustomRenderer]
+        }
+      ]
+    });
+    this.editorService.disableDiagram(this.disebleBpmnJS);
+    this.bpmnJS = this.disebleBpmnJS;
+    this.disable = true;
+    console.log(this.enableBpmnJS, this.enableBpmnJS)
+
     this.initDocumentActions();
     this.sharedService.on("ReceiveMessage123", this.updateGraph.bind(this))
   }
@@ -109,7 +137,8 @@ export class EditorComponent extends BaseImports implements OnInit {
   }
 
   ngAfterContentInit(): void {
-    this.bpmnJS.attachTo(this.diagramRef?.nativeElement);
+    this.enableBpmnJS.attachTo(this.diagramRef?.nativeElement);
+    this.disebleBpmnJS.attachTo(this.diagramRefDisable?.nativeElement);
     this.importDiagram(this.initConfigEditor());
     this.initGraph(this.diagram).then(() => {
       this.onChange();
@@ -120,17 +149,18 @@ export class EditorComponent extends BaseImports implements OnInit {
       this.bpmnJS.on('element.changed', function (event: any) {
         that.bpmnJS.saveXML().then((value: SaveXMLResult) => {
           that.diagram.Xml = value.xml ?? that.diagram.Xml;
-          that.commonService.setDocument(that.diagram);
+          that.updateLocal(false);
+          //that.commonService.setDocument(that.diagram);
           that.signalRService.sendMessageToGroup(that.group, that.email, that.diagram);
         });
       });
 
       this.bpmnJS.on('element.create', (event: any) => {
-        that.updateLocal();
       });
 
       this.bpmnJS.on('element.click', (event: any) => {
         this.propertiesPanel.update(event.element.id);
+        console.log(event, this.bpmnJS)
       });
     });
 
@@ -151,6 +181,7 @@ export class EditorComponent extends BaseImports implements OnInit {
         this.diagram.Xml = data.Data.xml;
         this.updateLocal();
         // this.commonService.setDocument(this.diagram);+
+        this.saveSvgAsImage();
       });
     }
   }
@@ -170,7 +201,7 @@ export class EditorComponent extends BaseImports implements OnInit {
           id: element.ElementId
         });
 
-        task.businessObject.name = element.Label ?? "dafdsa";
+        task.businessObject.name = element.Label ?? "";
 
         const created = modeling.createShape(task, { x: <number>element.X, y: <number>element.Y }, <Parent>process);
       });
@@ -181,9 +212,20 @@ export class EditorComponent extends BaseImports implements OnInit {
         if (element && element.Source && element.Target) {
           const source = elementRegistry.get(element.Source) as Element;
           const target = elementRegistry.get(element.Target) as Element;
-          if (source && target) {
-            var conn = modeling.connect(source, target);
-            conn.businessObject.name = "da";
+
+          if (source && target && parent) {
+            var connection = elementFactory.createConnection({
+              type: 'bpmn:SequenceFlow',
+              source: source,
+              target: target,
+              // waypoints: [
+              //   { x: 100, y: 100 },
+              //   { x: 200, y: 200 }
+              // ],
+            });
+            connection.businessObject.name = element.Label;
+
+            modeling.createConnection(source, target, connection, <Parent>process);
           }
         }
       });
@@ -196,7 +238,6 @@ export class EditorComponent extends BaseImports implements OnInit {
 
     const element = elementRegistry.get(elementId) as Shape;
     if (element) {
-      element.businessObject.name = "jelena";
       modeling.moveShape(element, { x: 0, y: 0 });
     }
   }
@@ -237,6 +278,25 @@ export class EditorComponent extends BaseImports implements OnInit {
 
   }
 
+  private saveSvgAsImage() {
+    this.bpmnJS.saveSVG().then((value: SaveSVGResult) => {
+      const img = new Image();
+      img.src = 'data:image/svg+xml;base64,' + btoa(value.svg);
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        context?.drawImage(img, 0, 0);
+
+        this.disabledImg = canvas.toDataURL('image/png');
+      };
+    });
+
+  }
+
   undo() {
     const commandStack: any = this.bpmnJS.get('commandStack');
     if (commandStack.canUndo()) {
@@ -271,6 +331,16 @@ export class EditorComponent extends BaseImports implements OnInit {
         label: 'Save',
         icon: PrimeIcons.SAVE,
         command: () => { this.save() }
+      },
+      {
+        label: 'Disable',
+        icon: PrimeIcons.SAVE,
+        command: () => { this.enableModule(false); }
+      },
+      {
+        label: 'Enable',
+        icon: PrimeIcons.SAVE,
+        command: () => { this.enableModule(true); }
       },
       {
         label: 'Undo',
@@ -426,12 +496,14 @@ export class EditorComponent extends BaseImports implements OnInit {
     return task;
   }
 
-  private updateLocal() {
-    this.bpmnJS.saveXML().then((value: SaveXMLResult) => {
-      if (value.xml) {
-        this.diagram.Xml = value.xml;
-      }
-    });
+  private updateLocal(updateXml: boolean = true) {
+    if (updateXml) {
+      this.bpmnJS.saveXML().then((value: SaveXMLResult) => {
+        if (value.xml) {
+          this.diagram.Xml = value.xml;
+        }
+      });
+    }
 
     const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
     const modeling: Modeling = this.bpmnJS.get('modeling');
@@ -439,7 +511,6 @@ export class EditorComponent extends BaseImports implements OnInit {
     //this.diagram.Shapes = [];
     this.diagram.Connections = [];
     var defaultElements = Object.values(DefaultElement);
-    console.log(this.diagram)
     if (!this.diagram.Xml) {
       this.diagram.Xml = "";
     }
@@ -510,7 +581,7 @@ export class EditorComponent extends BaseImports implements OnInit {
       }
       return el;
     });
-    console.log(this.diagram)
+
     this.commonService.setDocument(this.diagram);
   }
 
@@ -569,6 +640,35 @@ export class EditorComponent extends BaseImports implements OnInit {
     // Update the color of the shape
     graphicsFactory.setFill(shape, 'red');
     graphicsFactory.setStroke(shape, 'black');
+  }
+
+  onClick(event: any) {
+    console.log(this.diagram, event)
+  }
+
+  enableModule(enable: boolean) {
+    console.log(enable)
+    this.disable = !enable;
+
+
+    if (enable) {
+      console.log("enable")
+      this.bpmnJS = this.enableBpmnJS
+    }
+    else {
+      console.log("disable")
+      this.bpmnJS = this.disebleBpmnJS;
+    }
+    this.importDiagram(this.diagram.Xml).subscribe(() => {
+      console.log("dsa")
+    })
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any) {
+    console.log("window:beforeunload", $event)
+    $event.returnValue = false;
+    return false;
   }
 }
 

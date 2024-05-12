@@ -112,45 +112,22 @@ namespace ProcessVisualization.Api.Data.Repository
                     throw;
                 }
             }
-            
+
+            // Update connections
             //using (var transaction = context.Database.BeginTransaction())
             //{
             //    try
             //    {
-            //        foreach (var shape in document.Shapes)
+            //        var elemetIds = document.Connections.Select(x => x.ConnectionId).ToList();
+            //        var removedConnections = context.Connections.Where(x => x.DocumentId == document.Id && !elemetIds.Contains(x.ConnectionId));
+
+            //        foreach (var connection in removedConnections)
             //        {
-            //            var existingShape = context.Shapes.FirstOrDefault(s => s.ElementId == shape.ElementId && s.DocumentId == document.Id);
-
-            //            if (existingShape != null)
-            //            {
-            //                var existingInputParams = context.InputParameters.Where(s => s.ShapeId == shape.Id).ToList();
-            //                var existingOutputParams = context.OutputParameter.Where(s => s.ShapeId == shape.Id).ToList();
-
-            //                foreach (var parms in existingInputParams)
-            //                {
-            //                    context.InputParameters.Remove(parms);
-            //                }
-
-            //                foreach (var parms in existingOutputParams)
-            //                {
-            //                    context.OutputParameter.Remove(parms);
-            //                }
-            //            }
-
-            //            foreach(var parmas in shape.InputParameters)
-            //            {
-
-            //                await context.InputParameters.AddAsync(parmas);
-            //            }
-
-            //            foreach (var parmas in shape.OutputParameters)
-            //            {
-            //                await context.OutputParameter.AddAsync(parmas);
-            //            }
+            //            context.Connections.Remove(connection);
             //        }
 
-            //        await context.SaveChangesAsync();
-            //        transaction.Commit();
+            //            await context.SaveChangesAsync();
+            //                            transaction.Commit();
             //    }
             //    catch (Exception)
             //    {
@@ -158,29 +135,6 @@ namespace ProcessVisualization.Api.Data.Repository
             //        throw;
             //    }
             //}
-
-            // Update connections
-            using (var transaction = context.Database.BeginTransaction())
-            {
-                try
-                {
-                    var elemetIds = document.Connections.Select(x => x.ConnectionId).ToList();
-                    var removedConnections = context.Connections.Where(x => x.DocumentId == document.Id && !elemetIds.Contains(x.ConnectionId));
-
-                    foreach (var connection in removedConnections)
-                    {
-                        context.Connections.Remove(connection);
-                    }
-
-                        await context.SaveChangesAsync();
-                                        transaction.Commit();
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
 
             using (var transaction = context.Database.BeginTransaction())
             {

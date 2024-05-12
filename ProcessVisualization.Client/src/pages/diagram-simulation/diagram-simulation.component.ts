@@ -20,6 +20,7 @@ import { InjectionNames } from 'src/app/editor/bpmn-js/bpmn-js';
 import { CustomRenderer } from 'src/app/editor/props-provider/CustomRender';
 import { ParameterDto } from 'src/dtos/parameter.dto';
 import EventBus from 'diagram-js/lib/core/EventBus';
+import { EventBusEventCallback } from 'bpmn-js/lib/BaseViewer';
 
 @Component({
   selector: 'app-diagram-simulation',
@@ -66,6 +67,7 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
         }
       ]
     });
+
     this.initDocumentActions();
   }
 
@@ -73,7 +75,6 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
     this.bpmnJS.attachTo(this.diagramRef?.nativeElement);
     this.importDiagram(this.initConfigEditor());
     this.initGraph(this.diagram);
-
     this.editorService.disableDiagram(this.bpmnJS);
   }
 

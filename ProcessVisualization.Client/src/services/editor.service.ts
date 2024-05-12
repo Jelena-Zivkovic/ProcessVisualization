@@ -10,10 +10,12 @@ import { ShapeDto } from 'src/dtos/diagrams/shape.dto';
 import { CommonService } from './common.service';
 import ElementRegistry from 'diagram-js/lib/core/ElementRegistry';
 import { ElementLike } from 'diagram-js/lib/model/Types';
+import { DiagramCreateDto } from 'src/dtos/diagrams/diagram-create.dto';
 
 @Injectable()
 export class EditorService {
   commonService: CommonService;
+  _enabledModelar?: any;
   constructor(private basicFunctions: FunctionsGroup,
     private injector: Injector) {
     this.commonService = injector.get(CommonService);
@@ -75,15 +77,21 @@ export class EditorService {
   }
 
 
-  disableDiagram(bpmnJS: Modeler) {
+  disableDiagram1(bpmnJS: Modeler) {
     // Disable editing features
     let eventBus: any = bpmnJS.get('eventBus');
-
+    console.log(eventBus)
     // Disable modeling
     let modeling: any = bpmnJS.get('modeling');
-    eventBus.on('element.click', (e: Event) => {
-      e.stopPropagation();
+    eventBus.on('element.dblclick', (e: Event) => {
+      //e.stopPropagation();
+      // e.preventDefault();
     });
+
+    // Disable editing labels
+    let directEditing: any = bpmnJS.get('directEditing');
+    directEditing.cancel();
+    directEditing.activate = function () { };
 
     // Disable context pad
     let contextPad: any = bpmnJS.get('contextPad');
@@ -100,6 +108,81 @@ export class EditorService {
         return function () { };
       }
     });
+  }
+
+  disableDiagram(bpmnJS: Modeler) {
+    // Disable editing features
+    let eventBus: any = bpmnJS.get('eventBus');
+    console.log(eventBus)
+
+    // Disable context pad
+    let contextPad: any = bpmnJS.get('contextPad');
+    contextPad.registerProvider({
+      getContextPadEntries: function () {
+        return function () { };
+      }
+    });
+
+    // Disable palette
+    let palette: any = bpmnJS.get('palette');
+    palette.registerProvider({
+      getPaletteEntries: function () {
+        return function () { };
+      }
+    });
+
+    setTimeout(() => {
+      eventBus.on('drag.start', (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      // Disable editing labels
+      let directEditing: any = bpmnJS.get('directEditing');
+      directEditing.cancel();
+      directEditing.activate = function () { };
+    }, 500);
+  }
+
+  enableEditingFeatures(bpmnJS: Modeler) {
+    // Enable editing features
+    let eventBus: any = bpmnJS.get('eventBus');
+    eventBus.on('element.dblclick', (e: Event) => {
+      // Handle double click event
+    });
+
+    // Enable editing labels
+    let directEditing: any = bpmnJS.get('directEditing');
+    directEditing.activate = function () { };
+
+    // Enable context pad
+    let contextPad: any = bpmnJS.get('contextPad');
+    contextPad.registerProvider({
+      getContextPadEntries: function () {
+
+        // Return context pad entries
+      }
+    });
+
+    // Enable palette
+    let palette: any = bpmnJS.get('palette');
+    palette.registerProvider({
+      getPaletteEntries: function () {
+        // Return palette entries
+      }
+    });
+  }
+
+  disableModelar(bpmnJS: Modeler) {
+    this._enabledModelar = JSON.parse(JSON.stringify(bpmnJS));
+    console.log(this._enabledModelar, bpmnJS)
+    this.disableDiagram(bpmnJS);
+  }
+
+  enableModelar(bpmnJS: Modeler, xml: string) {
+    bpmnJS = this._enabledModelar;
+    console.log(bpmnJS)
+    //bpmnJS.importXML(xml);
   }
 
   copyShape(shape: ShapeDto, elementFactory: ElementFactory, modeling: Modeling, elementRegistry: ElementRegistry) {

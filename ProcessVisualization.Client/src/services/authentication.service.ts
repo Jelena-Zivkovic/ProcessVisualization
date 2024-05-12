@@ -71,7 +71,7 @@ export class AuthenticationService {
     this.commonService.hideLoader();
 
     //regex solution
-    alert(msg.replace(/_/g, ' '));
+    alert(msg?.replace(/_/g, ' '));
     return {};
   }
 

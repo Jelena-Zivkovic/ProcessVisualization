@@ -2,16 +2,19 @@
 
 <div class="grid">
   <div class="col-9">
-    <div class="modeler">
+    <div class="modeler" [hidden]="disable">
       <div #diagramRef class="diagram-container"></div>
       <div #propertiesRef></div>
+    </div>
+    <div class="modeler" [hidden]="!disable">
+      <div #diagramRefDisable class="diagram-container"></div>
+      <div #propertiesRefDisable></div>
     </div>
     <div class="editor-dock-zoom">
       <p-button icon="pi pi-fw pi-arrows-alt" styleClass="p-button-outlined" (click)="fitContent()"></p-button>
       <p-button icon="pi pi-plus" styleClass="p-button-outlined" (click)="zoomIn()"></p-button>
       <p-button icon="pi pi-minus" styleClass="p-button-outlined" (click)="zoomOut()"></p-button>
     </div>
-
   </div>
 
   <div class="col-3">
@@ -20,3 +23,5 @@
     </div>
   </div>
 </div>
+
+<img src="{{disabledImg}}" alt="BPMN Diagram" (click)="onClick($event)">

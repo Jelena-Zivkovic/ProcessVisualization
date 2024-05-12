@@ -38,12 +38,10 @@ export class CustomRenderer extends BaseRenderer {
         { x: 0, y: element.height },
       ].map(p => `${p.x},${p.y}`).join(' ');
     }
-
     // Create the trapezoid
     const trapezoid = svgCreate('polygon');
     // Create the label for the trapezoid
     const label = svgCreate('text');
-
 
     svgAttr(trapezoid, {
       points: points,

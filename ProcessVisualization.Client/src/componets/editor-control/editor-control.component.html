@@ -1,0 +1,6 @@
+<div class="editor-contorl">
+  <p-button styleClass="p-button-outlined" *ngIf="disable" (click)="fitContent()">Take control</p-button>
+  <p-button styleClass="p-button-outlined" *ngIf="disable" (click)="zoomIn()">Control request</p-button>
+  <p-button styleClass="p-button-outlined" *ngIf="disable" (click)="zoomOut()">Cancel request</p-button>
+  <p-button styleClass="p-button-outlined" *ngIf="!disable" (click)="zoomOut()">Cancel control</p-button>
+</div>

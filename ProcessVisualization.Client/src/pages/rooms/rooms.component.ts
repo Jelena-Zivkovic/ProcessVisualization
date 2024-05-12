@@ -17,7 +17,7 @@ import { BaseImports } from 'src/libs/base-imports';
 import { RouterModule } from '@angular/router';
 import { RoomViewDto } from 'src/dtos/rooms/room-view.dto';
 import { RoomDetailsViewDto } from 'src/dtos/rooms/room-details-view.dto';
-import { RoomDialogComponent } from '../../app/room-dialog/room-dialog.component';
+import { RoomDialogComponent } from '../../componets/room-dialog/room-dialog.component';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';

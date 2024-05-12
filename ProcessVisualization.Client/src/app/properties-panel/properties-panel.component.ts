@@ -44,27 +44,8 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
     if (this.diagram.FuncGroup == '' || this.diagram.FuncGroup == undefined) {
       this.diagram.FuncGroup = 'BasicMath';
     }
-    /*
-        this.editorService.executeFunction(this.diagram.ModulePath, 'increment', 1).then((res) => {
-          console.log('increment', res);
-        });
-
-
-        this.editorService.executeFunction(this.diagram.ModulePath, 'sum', 1, 2, 3).then((res) => {
-          console.log('sum', res);
-        });
-
-
-        this.editorService.executeFunction(this.diagram.ModulePath, 'divide', 8, 4).then((res) => {
-          console.log('divide', res);
-        });
-
-
-        this.editorService.executeFunction(this.diagram.ModulePath, 'add', 1, 2).then((res) => {
-          console.log('add', res);
-        });*/
-
   }
+
   ngAfterContentInit(): void {
   }
 
