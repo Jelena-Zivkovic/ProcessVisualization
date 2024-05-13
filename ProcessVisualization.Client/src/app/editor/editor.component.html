@@ -23,5 +23,4 @@
     </div>
   </div>
 </div>
-
-<img src="{{disabledImg}}" alt="BPMN Diagram" (click)="onClick($event)">
+<cmp-editor-control [groupName]="group" (changeContorol)="saveSvgAsImage()"></cmp-editor-control>

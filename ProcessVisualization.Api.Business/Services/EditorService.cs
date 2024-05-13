@@ -30,6 +30,7 @@ namespace ProcessVisualization.Api.Business.Services
             List<UserControleStateDto> states = null;
             if (roomControleStates.TryGetValue(roomName, out states))
             {
+
                 if (newState == ControleEditorStateEnum.HaveContole && states.Exists(x => x.State == ControleEditorStateEnum.HaveContole))
                 {
                     newState = ControleEditorStateEnum.RequestForContole;
@@ -37,20 +38,21 @@ namespace ProcessVisualization.Api.Business.Services
 
                 if (newState == ControleEditorStateEnum.NoContole)
                 {
-                    if(states.Exists(x => x.State == ControleEditorStateEnum.RequestForContole))
+                    if (states.Exists(x => x.State == ControleEditorStateEnum.RequestForContole))
                     {
-                       var stateReq = states.Where(x => x.State == ControleEditorStateEnum.RequestForContole).FirstOrDefault();
+                        var stateReq = states.Where(x => x.State == ControleEditorStateEnum.RequestForContole).FirstOrDefault();
                         stateReq.State = ControleEditorStateEnum.HaveContole;
                     }
                 }
 
-                var currentUser = states.Where(x => x.UserEmail  == email).FirstOrDefault();
+                var currentUser = states.Where(x => x.UserEmail == email).FirstOrDefault();
 
                 if (currentUser == null)
                 {
                     states.Add(new UserControleStateDto { UserEmail = email, State = newState });
                 }
-                else { 
+                else
+                {
                     currentUser.State = newState;
                 }
             }

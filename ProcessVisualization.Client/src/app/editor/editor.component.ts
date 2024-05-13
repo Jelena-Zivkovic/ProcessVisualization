@@ -43,6 +43,7 @@ import { CustomRenderer } from './props-provider/CustomRender';
 import { ElementType } from 'src/enum/element-type.enum';
 import { PrimeIcons, MenuItem } from 'primeng/api';
 import { CustomContextPadProvider } from './props-provider/custom-context-pad.provider';
+import { EditorControlComponent } from 'src/componets/editor-control/editor-control.component';
 //declare var propertiesPanel: any;
 //declare var BpmnPropertiesPanelModule: any;
 //declare var BpmnPropertiesProviderModule: any;
@@ -50,7 +51,7 @@ import { CustomContextPadProvider } from './props-provider/custom-context-pad.pr
 @Component({
   selector: 'app-editor',
   standalone: true,
-  imports: [HeaderComponent, CommonModule, MenubarModule, ButtonModule, PropertiesPanelComponent],
+  imports: [HeaderComponent, CommonModule, MenubarModule, ButtonModule, PropertiesPanelComponent, EditorControlComponent],
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss']
 })
@@ -124,8 +125,8 @@ export class EditorComponent extends BaseImports implements OnInit {
       ]
     });
     this.editorService.disableDiagram(this.disebleBpmnJS);
-    this.bpmnJS = this.disebleBpmnJS;
-    this.disable = true;
+    this.bpmnJS = this.enableBpmnJS;
+    this.disable = false;
     console.log(this.enableBpmnJS, this.enableBpmnJS)
 
     this.initDocumentActions();
@@ -278,7 +279,7 @@ export class EditorComponent extends BaseImports implements OnInit {
 
   }
 
-  private saveSvgAsImage() {
+  saveSvgAsImage() {
     this.bpmnJS.saveSVG().then((value: SaveSVGResult) => {
       const img = new Image();
       img.src = 'data:image/svg+xml;base64,' + btoa(value.svg);
@@ -664,11 +665,11 @@ export class EditorComponent extends BaseImports implements OnInit {
     })
   }
 
-  @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
-    console.log("window:beforeunload", $event)
-    $event.returnValue = false;
-    return false;
-  }
+  // @HostListener('window:beforeunload', ['$event'])
+  // unloadNotification($event: any) {
+  //   console.log("window:beforeunload", $event)
+  //   $event.returnValue = false;
+  //   return false;
+  // }
 }
 

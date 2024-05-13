@@ -29,7 +29,8 @@ builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddIdentity<User, IdentityRole>(options => {
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
@@ -42,7 +43,8 @@ builder.Services.AddAuthentication(auth =>
 {
     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options => {
+}).AddJwtBearer(options =>
+{
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -59,7 +61,8 @@ builder.Services.AddAuthentication(auth =>
 builder.Services.RegisterApiServices(configuration, environment);
 
 
-builder.Services.AddCors(options => {
+builder.Services.AddCors(options =>
+{
     options.AddPolicy(CorsPolicy, corsOptions =>
     {
         corsOptions.AllowAnyHeader();
@@ -79,6 +82,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(CorsPolicy);
+app.MapHub<EditorHub>("editorhub");
+app.MapHub<ChatHub>("/chatHub");
+//app.UseWebSockets(new WebSocketOptions()
+//{
+//    KeepAliveInterval = TimeSpan.FromSeconds(120),
+//    ReceiveBufferSize = 4 * 1024
+//});
 
 app.UseHttpsRedirection();
 
@@ -86,8 +96,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<EditorHub>("editorhub");
-app.MapHub<ChatHub>("/chatHub");
 
 app.MapControllers();
 

@@ -45,23 +45,53 @@ export class SignalREditorService {
     console.log(Constants.BASE_URL + this.hubPath)
     this.hubConnection = new signalR.HubConnectionBuilder()
       .configureLogging(signalR.LogLevel.Debug)
-      .withUrl(Constants.BASE_URL + this.hubPath, {
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets
-      })
+      .withUrl(Constants.BASE_URL + this.hubPath)
       .build();
+    // , {
+    //   skipNegotiation: false,
+    //   transport: signalR.HttpTransportType.WebSockets
+    // }
 
+    // this.hubConnection
+    //   .start()
+    //   .then(() => {
+    //     console.log('Connection started');
+    //     this.addReceiveMessageListener(this.sharedService);
+    //     //this.addChangeContoleEditorStateListener(this.sharedService);
 
+    //     this.addToGroup(groupName);
+    //   })
+    //   .catch(err => console.log('Error while starting connection: ' + err));
 
-    this.hubConnection
-      .start()
-      .then(() => {
+    this.hubConnection.onclose(() => {
+      this.start().then(() => {
         console.log('Connection started');
-        this.addReceiveMessageListener(this.sharedService);
+        this.registerOnServerEvents(groupName);
+      });
 
-        this.addToGroup(groupName);
-      })
-      .catch(err => console.log('Error while starting connection: ' + err));
+      console.log('Connection closed');
+    });
+
+    this.start().then(() => {
+      console.log('Connection started');
+      this.registerOnServerEvents(groupName);
+    });
+  }
+
+  async start() {
+    try {
+      await this.hubConnection.start();
+      console.log('connected');
+    } catch (err) {
+      console.log(err);
+      // setTimeout(() => this.start(), 5000);
+    }
+  }
+
+  registerOnServerEvents = (groupName: string) => {
+    this.addReceiveMessageListener(this.sharedService);
+    //this.addChangeContoleEditorStateListener(this.sharedService);
+    this.addToGroup(groupName);
   }
 
   addReceiveMessageListener = (sharedService: SharedService) => {
@@ -73,7 +103,13 @@ export class SignalREditorService {
       console.log(`SignalR: ${user} says: `, message);
       sharedService.broadcast("ReceiveMessage123", message);
     });
+  }
 
+  addChangeContoleEditorStateListener = (sharedService: SharedService) => {
+    this.hubConnection.on("ReceiveContoleEditorState", function (user, message) {
+      console.log(`ChangeContoleEditorState - SignalR: ${user} says: `, message);
+      sharedService.broadcast("ChangeContoleEditorState123", message);
+    });
   }
 
   addToGroup = (groupName: string) => {
@@ -96,7 +132,12 @@ export class SignalREditorService {
   }
 
   ChangeContoleEditorState = (groupName: string, user: string, message: number) => {
-    this.hubConnection.invoke('ReceiveContoleEditorState', groupName, user, message)
+    if (this.hubConnection.state != signalR.HubConnectionState.Connected) {
+      console.log('Connection is not started. Please start the connection first.');
+      return;
+    }
+    this.hubConnection.invoke('ChangeContoleEditorState', groupName, user, message)
       .catch(err => console.error(err));
   }
+
 }
