@@ -24,10 +24,11 @@ var connectionString = builder.Configuration.GetConnectionString("SqlConnection"
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(x => x.EnableDetailedErrors = true) ;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
@@ -65,10 +66,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(CorsPolicy, corsOptions =>
     {
-        corsOptions.AllowAnyHeader();
-        corsOptions.AllowAnyMethod();
-        corsOptions.AllowAnyOrigin();
-        corsOptions.SetIsOriginAllowed((hosts) => true);
+        corsOptions.WithOrigins("http://localhost:4200", "http://example.com") // replace with your actual client's URLs
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
     });
 });
 
@@ -82,8 +83,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(CorsPolicy);
-app.MapHub<EditorHub>("editorhub");
-app.MapHub<ChatHub>("/chatHub");
 //app.UseWebSockets(new WebSocketOptions()
 //{
 //    KeepAliveInterval = TimeSpan.FromSeconds(120),
@@ -91,13 +90,19 @@ app.MapHub<ChatHub>("/chatHub");
 //});
 
 app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+//app.MapHub<EditorHub>("editorhub");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<EditorHub>("editorhub");
+});
 
-app.MapControllers();
+//app.MapControllers();
 
 app.ConfigureBusinessServices(app.Environment);
 

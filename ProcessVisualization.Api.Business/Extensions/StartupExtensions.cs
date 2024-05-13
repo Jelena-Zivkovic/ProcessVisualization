@@ -32,6 +32,7 @@ namespace ProcessVisualization.Api.Business.Extensions
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IDocumentService, DocumentService>();
+            services.AddScoped<IEditorService, EditorService>();
             #endregion
 
             #region Quartz jobs

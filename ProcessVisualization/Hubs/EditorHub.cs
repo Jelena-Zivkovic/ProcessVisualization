@@ -44,7 +44,7 @@ namespace ProcessVisualization.Api.Host.Hubs
         public async Task ChangeContoleEditorState(string groupName, string user, int state)
         {
             var controlStack = _editorService.GetUserControleStates(groupName, user, (ControleEditorStateEnum)state);
-            await Clients.Group(groupName).SendAsync("ReceiveContoleEditorState", user, null);//controlStack
+            await Clients.Group(groupName).SendAsync("ReceiveContoleEditorState", user, controlStack);//controlStack
         }
     }
 }

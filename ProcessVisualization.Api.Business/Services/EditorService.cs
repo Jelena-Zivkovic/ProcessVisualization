@@ -10,59 +10,74 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ProcessVisualization.Api.Business.Services
 {
     public class EditorService : IEditorService
     {
-        private MemoryCache _stateCache = null;
-        private MemoryCache _editorCache = null;
+        //private MemoryCache _stateCache = null;
+        //private MemoryCache _editorCache = null;
         private string _stateCacheKey = "EditorContoleState";
         private string _editorCacheKey = "Editor";
-        public EditorService() {
-            _stateCache = new MemoryCache(_stateCacheKey);
-            _editorCache = new MemoryCache(_editorCacheKey);
+        private readonly IMemoryCache _stateCache;
+        public EditorService(IMemoryCache cache) {
+            _stateCache = cache;
         }
 
         public List<UserControleStateDto> GetUserControleStates(string roomName, string email, ControleEditorStateEnum newState)
         {
-            IDictionary<string, List<UserControleStateDto>>? roomControleStates = (IDictionary<string, List<UserControleStateDto>>?)_stateCache.GetValues(_stateCacheKey, roomName);
-            List<UserControleStateDto> states = null;
-            if (roomControleStates.TryGetValue(roomName, out states))
+            if (!_stateCache.TryGetValue(roomName, out List<UserControleStateDto> states))
             {
-
-                if (newState == ControleEditorStateEnum.HaveContole && states.Exists(x => x.State == ControleEditorStateEnum.HaveContole))
-                {
-                    newState = ControleEditorStateEnum.RequestForContole;
+                // Key not in cache, so get data.
+                states = new List<UserControleStateDto> { new UserControleStateDto{
+                    UserEmail = email,
+                    State = newState,
                 }
+            };
 
-                if (newState == ControleEditorStateEnum.NoContole)
-                {
-                    if (states.Exists(x => x.State == ControleEditorStateEnum.RequestForContole))
-                    {
-                        var stateReq = states.Where(x => x.State == ControleEditorStateEnum.RequestForContole).FirstOrDefault();
-                        stateReq.State = ControleEditorStateEnum.HaveContole;
-                    }
-                }
+                // Set cache options.
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(5)); // Cache for 5 minutes
 
-                var currentUser = states.Where(x => x.UserEmail == email).FirstOrDefault();
+                // Save data in cache.
+                _stateCache.Set(roomName, states, cacheEntryOptions);
+                return states;
+            }
 
-                if (currentUser == null)
+            if (newState == ControleEditorStateEnum.HaveContole && states.Exists(x => x.State == ControleEditorStateEnum.HaveContole))
+            {
+                newState = ControleEditorStateEnum.RequestForContole;
+            }
+
+            if (newState == ControleEditorStateEnum.NoContole)
+            {
+                if (states.Exists(x => x.State == ControleEditorStateEnum.RequestForContole))
                 {
-                    states.Add(new UserControleStateDto { UserEmail = email, State = newState });
+                    var stateReq = states.Where(x => x.State == ControleEditorStateEnum.RequestForContole).FirstOrDefault();
+                    stateReq.State = ControleEditorStateEnum.HaveContole;
                 }
-                else
-                {
-                    currentUser.State = newState;
-                }
+            }
+
+            var currentUser = states.Where(x => x.UserEmail == email).FirstOrDefault();
+
+            if (currentUser == null)
+            {
+                states.Add(new UserControleStateDto { UserEmail = email, State = newState });
+            }
+            else
+            {
+                currentUser.State = newState;
             }
             return states;
         }
 
         public DocumentCreateDto SaveDocumnetInCache(DocumentCreateDto documnet, string roomName)
         {
-            _editorCache.Add(roomName, documnet, new CacheItemPolicy());
+            //_editorCache.Add(roomName, documnet, new CacheItemPolicy());
             return documnet;
         }
     }
 }
+
