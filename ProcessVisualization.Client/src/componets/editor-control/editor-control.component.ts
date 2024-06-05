@@ -34,10 +34,8 @@ export class EditorControlComponent extends BaseImports implements OnInit {
 
   updateControlStack(data: SharedDo) {
     this.controlStack = data.Data;
-    console.log(this.controlStack);
 
     this.controlState = this.controlStack.find(x => x.userEmail == this.userData.Email)?.state;
-    console.log(this.controlState, this.userData.Email);
     this.changeContorol.emit(this.controlState == ControleEditorState.HaveControle);
   }
 

@@ -185,8 +185,8 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
 
   traverseDiagram1(diagram: DiagramCreateDto) {
     const startEvents: ShapeDto[] = diagram.Shapes.filter(x => x.Type == ElementType.StartEvent);
-    startEvents.forEach(element => {
-      this.processElement1(element, diagram, element.ElementId);
+    startEvents.forEach((element, inx, arr) => {
+      this.processElement1(element, diagram, inx.toString());
     });
   }
 
@@ -194,10 +194,12 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
   processElement1(element: ShapeDto, diagram: DiagramCreateDto, token: string = "1") {
     this.resizeElement(element.ElementId, element.Width + 20, element.Height + 20);
     setTimeout(() => {
+      var result;
       if (element.Type != ElementType.EndEvent && element.Type != ElementType.StartEvent) {
         this.executeFunction(element, diagram, token);
       }
-      console.log("TOKEN: " + token, 'Processing element:', element);
+      console.log("TOKEN: " + token, 'Processing element:', element, 'Diagram:', diagram, 'Result:', result);
+      this.log(element, diagram, token);
       const outgoingConnections: ConnectionDto[] = diagram.Connections.filter(x => x.Source == element.ElementId) || [];
       if (element.Type != ElementType.Loop) {
         for (const connection of outgoingConnections) {
@@ -208,10 +210,7 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
         }
       }
       else {
-        const targetElement: ShapeDto | undefined = diagram.Shapes.find(x => x.ElementId == element.OutputParameters[0].Value) ?? undefined;
-        if (targetElement) {
-          this.processElement1(targetElement, diagram, token);
-        }
+        this.handleIf(element, diagram, token);
       }
       this.resizeElement(element.ElementId, element.Width, element.Height);
 
@@ -252,6 +251,7 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
     }
 
     return this.editorService.executeFunction(module, element.FunctionName, ...(element.InputParameters.map(x => this.cast(x.Value, x)))).then((res) => {
+      console.log("TOKEN: " + token, 'Executing function:', element.FunctionName, 'Result:', res);
       element.OutputParameters.forEach((output, index) => {
         output.Value = res;
         var variable = this.varibales.find(x => x.Name == output.Name);
@@ -266,8 +266,27 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
           this.varibales.push({ Name: name, Type: output.Type, Value: res, SerialNumber: output.SerialNumber });
         }
 
-        this.log(element, this.diagram, token);
+        console.log(this.varibales, element)
+        //this.log(element, this.diagram, token);
       });
+      return res;
+    });
+  }
+
+  handleIf(element: ShapeDto, diagram: DiagramCreateDto, token: string = "1") {
+    var connections = diagram.Connections.filter(x => x.Source == element.ElementId);
+    this.executeFunction(element, diagram, token).then((res) => {
+      var connection: ConnectionDto | undefined = undefined;
+      if (res == true) {
+        connection = connections.find(x => x.Label == "true");
+
+      }
+      else {
+        connection = connections.find(x => x.Label == "false");
+      }
+      if (connection && connection.Target != undefined) {
+        this.processElement1(diagram.Shapes.find(x => x.ElementId == connection?.Target) ?? new ShapeDto(), diagram, token);
+      }
     });
   }
 
@@ -283,7 +302,7 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
   }
 
   log(element: ShapeDto, diagram: DiagramCreateDto, token: string = "1") {
-    var message = token + " - " + element.ElementId + " - ";
+    var message = token + " - ";
     switch (element.Type) {
       case ElementType.StartEvent:
         message += "Start Event";
@@ -292,17 +311,17 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
         message += "End Event";
         break;
       case ElementType.InputTask:
-        message += "Input - " + "variable" + element.InputParameters[0].Name + ", value: " + element.InputParameters[0].Value;
+        message += "Input - " + "variable: " + element.InputParameters[0].Name + ", value: " + element.InputParameters[0].Value;
         break;
       case ElementType.OutputTask:
-        message += "Output - " + "variable" + element.OutputParameters[0].Name + ", value: " + element.OutputParameters[0].Value;
+        message += "Output - " + "variable: " + element.OutputParameters[0].Name + ", value: " + element.OutputParameters[0].Value;
         this.resultConsole.push((element.OutputParameters[0].Value ?? "").toString());
         break;
       case ElementType.Task:
         message += "Task - function: " + element.FunctionName + ",input: " + element.InputParameters[0].Name + ", value: " + element.InputParameters[0].Value + ", output: " + element.OutputParameters[0].Name + ", value: " + element.OutputParameters[0].Value;
         break;
       case ElementType.Loop:
-        message += "Loop - " + "variable" + element.InputParameters[0].Name + ", value: " + element.InputParameters[0].Value + ", " + "variable" + element.OutputParameters[0].Name + ", value: " + element.OutputParameters[0].Value;
+        message += "Loop - " + "variable: " + element.InputParameters[0].Name + ", value: " + element.InputParameters[0].Value + ", " + "variable" + element.OutputParameters[0].Name + ", value: " + element.OutputParameters[0].Value;
         break;
       default:
         message += "Unknown Element";
@@ -310,6 +329,6 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
 
     }
 
-    this.logs.push((new Date()).toString() + " " + message);
+    this.logs.push((new Date()).toLocaleString("sr") + " ->   " + message);
   }
 }

@@ -37,6 +37,18 @@ body {
   border-color: var(--primary-400) !important;
 }
 
+.editor-control-button.p-button.p-button-outlined {
+  color: var(--primary-color);
+  font-weight: bolder;
+  background-color: white;
+
+  &:hover {
+    color:  var(--primary-color);
+    background-color: var(--gray-200);
+  }
+  //background-color: green;
+}
+
 ///-----------------------------------
 .screen {
   background-image: url("../assets/background\ \(3\).jpg");
@@ -221,3 +233,26 @@ p-table.p-element.file-explorer {
   padding: 1rem;
   margin-bottom: 1rem;
 }
+
+.logs-content{
+  overflow: auto;
+    height: calc(35vh - 5.5rem - 2.5rem);
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-300) transparent;//var(--primary-400);
+    scroll-margin-block-end: 3rem;
+
+      &::-webkit-scrollbar-button {
+        display: none !important;
+      }
+  .log-row {
+  padding: 0.5rem 1rem 0.1rem 1rem;
+    color: var(--primary-100);
+     border-top-left-radius: 20px;
+     &::before{
+      content: ">" ; //"\1F4DD"
+      font-size: 20px;
+      margin-right: 0.8rem;
+     }
+    }
+}
+

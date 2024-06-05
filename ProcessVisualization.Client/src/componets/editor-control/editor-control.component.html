@@ -1,5 +1,8 @@
 <div class="editor-contorl">
-  <p-button styleClass="p-button-outlined" *ngIf="controlState == 1" (click)="contoleRequest()">Control request</p-button>
-  <p-button styleClass="p-button-outlined" *ngIf="controlState == 2" (click)="cancelRequest()">Cancel request</p-button>
-  <p-button styleClass="p-button-outlined" *ngIf="controlState == 0" (click)="cancelRequest()">Cancel control</p-button>
+  <p-button styleClass="p-button-outlined editor-control-button" *ngIf="controlState == 1"
+    (click)="contoleRequest()">Control request</p-button>
+  <p-button styleClass="p-button-outlined editor-control-button" *ngIf="controlState == 2"
+    (click)="cancelRequest()">Cancel request</p-button>
+  <p-button styleClass="p-button-outlined editor-control-button" *ngIf="controlState == 0"
+    (click)="cancelRequest()">Cancel control</p-button>
 </div>

@@ -9,13 +9,14 @@ export default class IncomingConnectionNumberRule extends RuleProvider {
   static override $inject = ['eventBus'];
   constructor(eventBus: any) {
     super(eventBus);
-    console.log(eventBus._listeners);
+    console.log(eventBus._listeners, eventBus);
   }
 
   override init() {
     this.addRule('connection.create', 1001, (context: any) => {
       const source = context.source;
       const target = context.target;
+      console.log(context);
 
       if (!source || !source.type || !target || !target.type || source.type === 'bpmn:Process' || target.type === 'bpmn:Process') {
         return;
@@ -30,11 +31,8 @@ export default class IncomingConnectionNumberRule extends RuleProvider {
       if (source.outgoing && ((source.outgoing.length >= 1 && source.type !== 'bpmn:ExclusiveGateway') || (source.type === 'bpmn:ExclusiveGateway' && source.outgoing.length >= 2))) {
         return false;
       }
-      return;
-    });
 
-    this.addRule('shape.create', 1001, (context: any) => {
-      console.log(context);
+      return;
     });
   }
 }

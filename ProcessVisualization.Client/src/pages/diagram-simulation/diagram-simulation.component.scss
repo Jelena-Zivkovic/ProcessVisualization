@@ -40,8 +40,15 @@
 
     .console-content
     .logs-content{
+      color: var(--primary-100) !important;
       padding: 0.5rem 1rem;
-      overflow-y: auto;
+      //overflow-y: auto;
+      background-color: darkblue !important;
+
+      // p {
+      //   color: var(--primary-100);
+
+      // }
   }
 }
 }

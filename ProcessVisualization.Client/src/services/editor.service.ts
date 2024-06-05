@@ -58,12 +58,9 @@ export class EditorService {
   async executeFunction(modulePath: string, functionName: string, ...args: any[]) {
     try {
       const module = this.basicFunctions[modulePath as keyof typeof this.basicFunctions];// await import(modulePath);
-      console.log(module);
       if (module.functionInfo && Object.keys(module.functionInfo).includes(functionName)) {
         if (module["functionInfo"]) {
           const functionInfo = module.functionInfo[functionName as keyof typeof module.functionInfo]; // Add type assertion here
-          console.log(args, functionInfo)
-
           const func: (...args: ("string" | "number" | "boolean")[]) => any = functionInfo['execute']; // Explicitly define the type of func
           return func(...args);
         }
@@ -196,25 +193,33 @@ export class EditorService {
 
     modeling.createShape(copiedShape, { x: shape.X + 10, y: shape.Y + 10 }, <Parent>process);
 
-    var copiedShapeDto: ShapeDto = {
-      ElementId: copiedShape.id,
-      Type: shape.Type,
-      X: copiedShape.x,
-      Y: copiedShape.y,
-      Width: copiedShape.width,
-      Height: copiedShape.height,
-      Label: shape.Label,
-      /*Bounds: {
-        X: copiedShape.di.bounds.x,
-        Y: copiedShape.di.bounds.y,
-        Width: copiedShape.di.bounds.width,
-        Height: copiedShape.di.bounds.height
-      },*/
+    var copiedShapeDto: ShapeDto = new ShapeDto();
+    copiedShapeDto.copy(copiedShape);
+    copiedShapeDto.Label = shape.Label;
+    copiedShapeDto.InputParameters = shape.InputParameters ?? [];
+    copiedShapeDto.FunctionName = shape.FunctionName ?? "";
+    copiedShapeDto.OutputParameters = shape.OutputParameters ?? [];
 
-      InputParameters: shape.InputParameters ?? [],
-      FunctionName: shape.FunctionName ?? "",
-      OutputParameters: shape.OutputParameters ?? []
-    };
+
+    // {
+    //   ElementId: copiedShape.id,
+    //   Type: shape.Type,
+    //   X: copiedShape.x,
+    //   Y: copiedShape.y,
+    //   Width: copiedShape.width,
+    //   Height: copiedShape.height,
+    //   Label: shape.Label,
+    //   /*Bounds: {
+    //     X: copiedShape.di.bounds.x,
+    //     Y: copiedShape.di.bounds.y,
+    //     Width: copiedShape.di.bounds.width,
+    //     Height: copiedShape.di.bounds.height
+    //   },*/
+    //   InputParameters: shape.InputParameters ?? [],
+    //   FunctionName: shape.FunctionName ?? "",
+    //   OutputParameters: shape.OutputParameters ?? []
+    // };
+
     diagram.Shapes.push(copiedShapeDto);
 
     return copiedShape;

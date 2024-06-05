@@ -59,25 +59,34 @@ export class CustomContextPadProvider extends ContextPadProvider {
     // Create the new shape
     var newShape = this._modeling.createShape(copiedShape, { x: copiedShape.x, y: copiedShape.y }, element.parent);
 
-    var copiedShapeDto: ShapeDto = {
-      ElementId: newShape.id,
-      Type: <ElementType>newShape.type,
-      X: copiedShape.x,
-      Y: copiedShape.y,
-      Width: newShape.width,
-      Height: newShape.height,
-      Label: shape?.Label ?? "",
-      /*Bounds: {
-        X: copiedShape.di.bounds.x,
-        Y: copiedShape.di.bounds.y,
-        Width: copiedShape.di.bounds.width,
-        Height: copiedShape.di.bounds.height
-      },*/
+    var copiedShapeDto: ShapeDto = new ShapeDto();
+    copiedShapeDto.copy(newShape);
+    copiedShapeDto.Label = shape?.Label ?? "";
+    copiedShapeDto.InputParameters = shape?.InputParameters ?? [];
+    copiedShapeDto.FunctionName = shape?.FunctionName ?? "";
+    copiedShapeDto.OutputParameters = shape?.OutputParameters ?? [];
+    copiedShapeDto.X = copiedShape?.x ?? 0;
+    copiedShapeDto.Y = copiedShape?.y ?? 0;
 
-      InputParameters: shape?.InputParameters ?? [],
-      FunctionName: shape?.FunctionName ?? "",
-      OutputParameters: shape?.OutputParameters ?? []
-    };
+    // {
+    //   ElementId: newShape.id,
+    //   Type: <ElementType>newShape.type,
+    //   X: copiedShape.x,
+    //   Y: copiedShape.y,
+    //   Width: newShape.width,
+    //   Height: newShape.height,
+    //   Label: shape?.Label ?? "",
+    //   /*Bounds: {
+    //     X: copiedShape.di.bounds.x,
+    //     Y: copiedShape.di.bounds.y,
+    //     Width: copiedShape.di.bounds.width,
+    //     Height: copiedShape.di.bounds.height
+    //   },*/
+
+    //   InputParameters: shape?.InputParameters ?? [],
+    //   FunctionName: shape?.FunctionName ?? "",
+    //   OutputParameters: shape?.OutputParameters ?? []
+    // };
     diagram.Shapes.push(copiedShapeDto);
     this.setDocument(diagram);
 

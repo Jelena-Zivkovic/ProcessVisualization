@@ -44,6 +44,7 @@ import { ElementType } from 'src/enum/element-type.enum';
 import { PrimeIcons, MenuItem } from 'primeng/api';
 import { CustomContextPadProvider } from './props-provider/custom-context-pad.provider';
 import { EditorControlComponent } from 'src/componets/editor-control/editor-control.component';
+import CustomConnectionRenderer from './props-provider/custom-connection-render';
 //declare var propertiesPanel: any;
 //declare var BpmnPropertiesPanelModule: any;
 //declare var BpmnPropertiesProviderModule: any;
@@ -106,7 +107,11 @@ export class EditorComponent extends BaseImports implements OnInit {
         {
           __init__: ['customRenderer'],
           customRenderer: ['type', CustomRenderer]
-        }
+        },
+        // {
+        //   __init__: ['customConnectionRenderer'],
+        //   customConnectionRenderer: ['type', CustomConnectionRenderer]
+        // }
       ]
     });
     this.disebleBpmnJS = new Modeler({
@@ -134,7 +139,7 @@ export class EditorComponent extends BaseImports implements OnInit {
   }
 
   ngOnInit(): void {
-
+    this.onCreateConnection();
   }
 
   ngAfterContentInit(): void {
@@ -157,6 +162,7 @@ export class EditorComponent extends BaseImports implements OnInit {
       });
 
       this.bpmnJS.on('element.create', (event: any) => {
+        console.log("element.create", event);
       });
 
       this.bpmnJS.on('element.click', (event: any) => {
@@ -334,16 +340,6 @@ export class EditorComponent extends BaseImports implements OnInit {
         command: () => { this.save() }
       },
       {
-        label: 'Disable',
-        icon: PrimeIcons.SAVE,
-        command: () => { this.enableModule(false); }
-      },
-      {
-        label: 'Enable',
-        icon: PrimeIcons.SAVE,
-        command: () => { this.enableModule(true); }
-      },
-      {
         label: 'Undo',
         icon: PrimeIcons.UNDO,
         command: () => { this.undo() }
@@ -371,11 +367,11 @@ export class EditorComponent extends BaseImports implements OnInit {
           }
         ]
       },
-      {
-        label: 'Send mess',
-        icon: PrimeIcons.SEND,
-        command: () => { this.signalRService.sendMessageToGroup(this.group, this.email, this.diagram); }
-      },
+      // {
+      //   label: 'Send mess',
+      //   icon: PrimeIcons.SEND,
+      //   command: () => { this.signalRService.sendMessageToGroup(this.group, this.email, this.diagram); }
+      // },
       {
         label: 'Simulate',
         icon: PrimeIcons.PLAY,
@@ -431,6 +427,33 @@ export class EditorComponent extends BaseImports implements OnInit {
     this.zoomScale = 1;
     (<Canvas>this.bpmnJS.get('canvas')).zoom('fit-viewport');
   }
+
+  onCreateConnection() {
+    this.bpmnJS.on('commandStack.connection.create.preExecute', (event: any) => {
+      const connection = event.context.connection;
+      const source = event.context.source;
+
+      var connectionDto: ConnectionDto = new ConnectionDto();
+      if (source.type === ElementType.Loop && source.outgoing) {
+        var text = source.outgoing.filter((item: any) => item.businessObject.name === "true");
+        if (text.length == 0) {
+          connection.businessObject.name = "true";
+          connectionDto.Value = "true";
+        }
+        else {
+          connection.businessObject.name = "false";
+          connectionDto.Value = "false";
+        }
+      }
+
+      connectionDto.mapConnection(connection);
+      this.diagram.Connections.push(connectionDto);
+
+    });
+  }
+
+
+
 
   changeColorOfShapes() {
     const elementFactory: ElementFactory = this.bpmnJS.get('elementFactory'),
@@ -643,12 +666,7 @@ export class EditorComponent extends BaseImports implements OnInit {
     graphicsFactory.setStroke(shape, 'black');
   }
 
-  onClick(event: any) {
-    console.log(this.diagram, event)
-  }
-
   enableModule(enable: boolean) {
-    console.log(enable)
     this.disable = !enable;
 
 
@@ -661,7 +679,6 @@ export class EditorComponent extends BaseImports implements OnInit {
       this.bpmnJS = this.disebleBpmnJS;
     }
     this.importDiagram(this.diagram.Xml).subscribe(() => {
-      console.log("dsa")
     })
   }
 

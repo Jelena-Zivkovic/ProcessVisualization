@@ -23,4 +23,5 @@
     </div>
   </div>
 </div>
-<cmp-editor-control [groupName]="group" (changeContorol)="saveSvgAsImage()"></cmp-editor-control>
+<cmp-editor-control class="editor-control" [groupName]="group"
+  (changeContorol)="this.enableModule($event)"></cmp-editor-control>

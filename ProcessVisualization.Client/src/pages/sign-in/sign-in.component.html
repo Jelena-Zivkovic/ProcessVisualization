@@ -22,8 +22,8 @@
       <div class="flex align-items-center justify-content-center mt-5">
         <div class="flex flex-column w-full">
           <label for="password" class="ml-2">Password</label>
-          <p-password id="password" class="w-full" formControlName="Password" [toggleMask]="true"></p-password>
-          <small id="password-help" class="ml-2">Enter your username to reset your password.</small>
+          <input pInputText id="password" formControlName="Password" type="password" class="w-full" />
+          <!-- <small id="password-help" class="ml-2">Enter your username to reset your password.</small> -->
         </div>
       </div>
       <p-button label="Sign in" styleClass="p-button-rounded w-full mt-6" (click)="signIn()"></p-button>
