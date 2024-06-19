@@ -59,6 +59,15 @@ namespace ProcessVisualization.Api.Data.Repository
 
                     foreach (var shape in removedShapes)
                     {
+                        foreach (var parm in shape.InputParameters) { 
+                            context.InputParameters.Remove(parm);
+                        }
+
+                        foreach (var parm in shape.OutputParameters)
+                        {
+                            context.OutputParameter.Remove(parm);
+                        }
+
                         context.Shapes.Remove(shape);
                     }
 

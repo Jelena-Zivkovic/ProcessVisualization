@@ -66,7 +66,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(CorsPolicy, corsOptions =>
     {
-        corsOptions.WithOrigins("http://localhost:4200", "http://example.com") // replace with your actual client's URLs
+        corsOptions.WithOrigins("http://localhost:4200", "http://example.com", "*") // replace with your actual client's URLs
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials();

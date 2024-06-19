@@ -80,10 +80,6 @@ export class EditorService {
     console.log(eventBus)
     // Disable modeling
     let modeling: any = bpmnJS.get('modeling');
-    eventBus.on('element.dblclick', (e: Event) => {
-      //e.stopPropagation();
-      // e.preventDefault();
-    });
 
     // Disable editing labels
     let directEditing: any = bpmnJS.get('directEditing');
@@ -110,7 +106,6 @@ export class EditorService {
   disableDiagram(bpmnJS: Modeler) {
     // Disable editing features
     let eventBus: any = bpmnJS.get('eventBus');
-    console.log(eventBus)
 
     // Disable context pad
     let contextPad: any = bpmnJS.get('contextPad');
@@ -178,7 +173,6 @@ export class EditorService {
 
   enableModelar(bpmnJS: Modeler, xml: string) {
     bpmnJS = this._enabledModelar;
-    console.log(bpmnJS)
     //bpmnJS.importXML(xml);
   }
 

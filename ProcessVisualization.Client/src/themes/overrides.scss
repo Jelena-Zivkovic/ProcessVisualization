@@ -234,7 +234,8 @@ p-table.p-element.file-explorer {
   margin-bottom: 1rem;
 }
 
-.logs-content{
+.logs-content,
+.console-content {
   overflow: auto;
     height: calc(35vh - 5.5rem - 2.5rem);
     scrollbar-width: thin;

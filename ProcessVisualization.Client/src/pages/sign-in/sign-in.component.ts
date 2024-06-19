@@ -36,7 +36,6 @@ export class SignInComponent extends BaseImports {
       Email: this.form.value.Email ?? "",
       Password: this.form.value.Password ?? ""
     }
-    console.log(signInDto, this.form.value)
     this.authenticationService.login(signInDto).subscribe(res => {
       this.routerService.navigate("rooms");
     });

@@ -196,10 +196,14 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
     setTimeout(() => {
       var result;
       if (element.Type != ElementType.EndEvent && element.Type != ElementType.StartEvent) {
-        this.executeFunction(element, diagram, token);
+        this.executeFunction(element, diagram, token).then((res) => {
+          this.log(element, diagram, token);
+        });
       }
-      console.log("TOKEN: " + token, 'Processing element:', element, 'Diagram:', diagram, 'Result:', result);
-      this.log(element, diagram, token);
+      else {
+        this.log(element, diagram, token);
+      }
+
       const outgoingConnections: ConnectionDto[] = diagram.Connections.filter(x => x.Source == element.ElementId) || [];
       if (element.Type != ElementType.Loop) {
         for (const connection of outgoingConnections) {
@@ -251,7 +255,6 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
     }
 
     return this.editorService.executeFunction(module, element.FunctionName, ...(element.InputParameters.map(x => this.cast(x.Value, x)))).then((res) => {
-      console.log("TOKEN: " + token, 'Executing function:', element.FunctionName, 'Result:', res);
       element.OutputParameters.forEach((output, index) => {
         output.Value = res;
         var variable = this.varibales.find(x => x.Name == output.Name);
@@ -265,9 +268,6 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
           }
           this.varibales.push({ Name: name, Type: output.Type, Value: res, SerialNumber: output.SerialNumber });
         }
-
-        console.log(this.varibales, element)
-        //this.log(element, this.diagram, token);
       });
       return res;
     });

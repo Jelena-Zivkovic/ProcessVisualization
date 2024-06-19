@@ -154,7 +154,6 @@ export class RoomsComponent extends BaseImports {
 
   openDocument(docId: number) {
     this.commonService.clearDocument();
-    console.log(docId, this.selectedRoom)
     this.commonService.setRoomId(this.selectedRoom.Id);
     this.webapiDocumentsService.getDocument(docId).subscribe((res) => {
       if (res.IsSuccess) {

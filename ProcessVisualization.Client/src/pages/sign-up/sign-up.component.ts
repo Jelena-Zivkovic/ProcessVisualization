@@ -29,10 +29,8 @@ export class SignUpComponent extends BaseImports {
       Email: this.form.controls["Email"].value ?? "",
       Password: this.form.controls["Password"].value ?? ""
     }
-    console.log(user);
 
     this.webapiUsersService.signUp(user).subscribe(res => {
-      console.log(res);
       this.routerService.navigate("/");
     })
   }

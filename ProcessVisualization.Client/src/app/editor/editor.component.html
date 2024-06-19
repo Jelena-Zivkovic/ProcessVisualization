@@ -11,17 +11,35 @@
       <div #propertiesRefDisable></div>
     </div>
     <div class="editor-dock-zoom">
-      <p-button icon="pi pi-fw pi-arrows-alt" styleClass="p-button-outlined" (click)="fitContent()"></p-button>
-      <p-button icon="pi pi-plus" styleClass="p-button-outlined" (click)="zoomIn()"></p-button>
-      <p-button icon="pi pi-minus" styleClass="p-button-outlined" (click)="zoomOut()"></p-button>
+      <p-button
+        icon="pi pi-fw pi-arrows-alt"
+        styleClass="p-button-outlined"
+        (click)="fitContent()"
+      ></p-button>
+      <p-button
+        icon="pi pi-plus"
+        styleClass="p-button-outlined"
+        (click)="zoomIn()"
+      ></p-button>
+      <p-button
+        icon="pi pi-minus"
+        styleClass="p-button-outlined"
+        (click)="zoomOut()"
+      ></p-button>
     </div>
   </div>
 
   <div class="col-3">
     <div class="panel">
-      <cmp-properties-panel #propertiesPanel [diagram]="diagram"></cmp-properties-panel>
+      <cmp-properties-panel
+        #propertiesPanel
+        [diagram]="diagram"
+      ></cmp-properties-panel>
     </div>
   </div>
 </div>
-<cmp-editor-control class="editor-control" [groupName]="group"
-  (changeContorol)="this.enableModule($event)"></cmp-editor-control>
+<cmp-editor-control
+  class="editor-control"
+  [groupName]="group"
+  (changeContorol)="enableModule($event)"
+></cmp-editor-control>

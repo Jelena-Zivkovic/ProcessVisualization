@@ -41,8 +41,6 @@ export class CustomContextPadProvider extends ContextPadProvider {
     // Add the copy action to the contextpad
     const newAction: any = this.createCopyAction(element);
     var newEntries = { ...entries, newAction };
-    // entries.push(this.createCopyAction(element));
-    console.log(newEntries);
     return newEntries;
   }
 

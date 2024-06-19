@@ -42,7 +42,6 @@ export default class CustomConnectionRenderer extends BaseRenderer {
         y: midWayPoint.y - 10,
         alignmentBaseline: 'middle',
       });
-      //console.log(element.source.outgoing, this.bpmnRenderer);
 
       if (element.source.outgoing.length > 1) {
         label.textContent = "false";
@@ -57,7 +56,6 @@ export default class CustomConnectionRenderer extends BaseRenderer {
   }
 
   getMidWayPoint(waypoints: any[]) {
-    console.log(waypoints);
     if (!waypoints || waypoints.length === 0) {
       return null;
     }

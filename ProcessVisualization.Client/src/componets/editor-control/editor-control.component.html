@@ -1,8 +1,41 @@
-<div class="editor-contorl">
-  <p-button styleClass="p-button-outlined editor-control-button" *ngIf="controlState == 1"
-    (click)="contoleRequest()">Control request</p-button>
-  <p-button styleClass="p-button-outlined editor-control-button" *ngIf="controlState == 2"
-    (click)="cancelRequest()">Cancel request</p-button>
-  <p-button styleClass="p-button-outlined editor-control-button" *ngIf="controlState == 0"
-    (click)="cancelRequest()">Cancel control</p-button>
+<div class="editor-control">
+  <p-button
+    styleClass="p-button-outlined editor-control-button"
+    *ngIf="controlState == 1"
+    (click)="contoleRequest()"
+    >Control request</p-button
+  >
+  <p-button
+    styleClass="p-button-outlined editor-control-button"
+    *ngIf="controlState == 2"
+    (click)="cancelRequest()"
+    >Cancel request</p-button
+  >
+  <p-button
+    styleClass="p-button-outlined editor-control-button"
+    *ngIf="controlState == 0"
+    (click)="cancelRequest()"
+    >Cancel control</p-button
+  >
+  <div class="requests">
+    <div
+      *ngIf="requestStack.length > 0"
+      class="details-toggle"
+      (click)="toggleRequestPart()"
+    >
+      <div *ngIf="!showRequest" class="pi pi-chevron-down mr-2"></div>
+      <div *ngIf="showRequest" class="pi pi-chevron-up mr-2"></div>
+      <div class="fw-bold mx-auto text-center text"></div>
+      {{ requestStack.length }} requests
+    </div>
+    <div class="request-stack" *ngIf="showRequest">
+      <div *ngFor="let request of requestStack">
+        <div class="request-item">
+          <div class="request-item-header">
+            <span class="pi pi-user ml-1"></span> {{ request.userEmail }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

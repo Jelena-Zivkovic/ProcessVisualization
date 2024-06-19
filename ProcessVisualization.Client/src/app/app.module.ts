@@ -17,7 +17,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { EditorService } from 'src/services/editor.service';
 import { BasicMathFunctions } from 'src/functions/basic-math';
 import { ConditionalFunctions } from 'src/functions/conditional';
@@ -50,6 +50,7 @@ import { DiagramSimulationComponent } from '../pages/diagram-simulation/diagram-
     WebapiUsersService,
     WebapiDocumentsService,
     MessageService,
+    ConfirmationService,
     EditorService,
     BasicMathFunctions,
     FunctionsGroup,

@@ -9,14 +9,12 @@ export default class IncomingConnectionNumberRule extends RuleProvider {
   static override $inject = ['eventBus'];
   constructor(eventBus: any) {
     super(eventBus);
-    console.log(eventBus._listeners, eventBus);
   }
 
   override init() {
     this.addRule('connection.create', 1001, (context: any) => {
       const source = context.source;
       const target = context.target;
-      console.log(context);
 
       if (!source || !source.type || !target || !target.type || source.type === 'bpmn:Process' || target.type === 'bpmn:Process') {
         return;

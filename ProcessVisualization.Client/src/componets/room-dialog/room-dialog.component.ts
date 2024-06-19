@@ -39,7 +39,6 @@ export class RoomDialogComponent extends BaseImports implements OnInit {
     }
 
     this.webapiRoomsService.createRoom(room).subscribe(res => {
-      console.log(res)
       if (res.IsSuccess) {
         this.closeDialog.emit(true);
         this.messageService.add({ severity: 'success', summary: 'Success', detail: "The room " + res.Data?.Name + " has been created" });
@@ -47,7 +46,6 @@ export class RoomDialogComponent extends BaseImports implements OnInit {
       else {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: res.Message ?? "" });
       }
-      console.log(res);
     })
   }
 }

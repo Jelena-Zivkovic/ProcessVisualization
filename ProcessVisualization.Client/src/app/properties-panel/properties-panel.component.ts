@@ -12,13 +12,16 @@ import { BaseImports } from 'src/libs/base-imports';
 import { DropdownModule } from 'primeng/dropdown';
 import { ParameterDto } from 'src/dtos/parameter.dto';
 import { ConnectionDto } from 'src/dtos/diagrams/connection.dto';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmEventType, Confirmation, ConfirmationService, MessageService, PrimeIcons } from 'primeng/api';
 
 @Component({
   selector: 'cmp-properties-panel',
   standalone: true,
-  imports: [InputTextModule, CommonModule, FormsModule, InputTextareaModule, DropdownModule],
+  imports: [InputTextModule, CommonModule, FormsModule, InputTextareaModule, DropdownModule, ConfirmDialogModule],
   templateUrl: './properties-panel.component.html',
-  styleUrls: ['./properties-panel.component.scss']
+  styleUrls: ['./properties-panel.component.scss'],
+  providers: [ConfirmationService]
 })
 export class PropertiesPanelComponent extends BaseImports implements AfterContentInit {
   @Input() diagram: DiagramCreateDto = new DiagramCreateDto();
@@ -34,7 +37,9 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
   variables: ParameterDto[] = [];
   isSignal: boolean = false;
 
-  constructor(injector: Injector) {
+  funcGroup: string = '';
+
+  constructor(injector: Injector, private confirmationService: ConfirmationService, private messageService: MessageService) {
     super(injector);
 
     this.funcGroups = this.editorService.getAllFunctionGroups();
@@ -54,7 +59,9 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
       this.element = new ShapeDto();
       return;
     }
-    this.element = this.diagram.Shapes.find(e => e.ElementId === elementId) || new ShapeDto();
+    const element = this.diagram.Shapes.find(e => e.ElementId === elementId);
+    this.element = element ? Object.assign({}, element) : new ShapeDto();
+
     this.init();
   }
 
@@ -76,9 +83,13 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
   init() {
     var currentFunction = this.element?.FunctionName;
     this.InitFunction().then(() => {
-      this.InitVariables();
+
       this.InitInputs(currentFunction != this.element?.FunctionName);
       this.InitOutputs(currentFunction != this.element?.FunctionName);
+
+      setTimeout(() => {
+        this.InitVariables();
+      }, 500);
     });
   }
 
@@ -107,28 +118,28 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
   }
 
   InitVariables() {
-    this.variables = [];
+    this.variables = [{ Name: 'test', Type: 'string', SerialNumber: 0 }];
     if (this.isSignal) {
       return;
     }
 
-    const usedParams: ParameterDto[] = [];
+    var usedParams: ParameterDto[] = [];
     this.diagram.Shapes?.forEach((shape) => {
       if (shape.Type !== ElementType.Process) {
         shape.InputParameters?.forEach((param) => {
-          if (!usedParams.find((p) => p.Name === param.Name)) {
+          if (param.Name != '' && !usedParams.find((p) => p.Name === param.Name)) {
             usedParams.push(param);
           }
         });
         shape.OutputParameters?.forEach((param) => {
-          if (!usedParams.find((p) => p.Name === param.Name)) {
+          if (param.Name != '' && !usedParams.find((p) => p.Name === param.Name)) {
             usedParams.push(param);
           }
         });
       }
     });
-
-    this.variables = usedParams;
+    console.log(usedParams);
+    this.variables = <ParameterDto[]>usedParams ?? [];
   }
 
   InitInputs(isFunctionChange: boolean = true) {
@@ -251,4 +262,32 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
   isEndOrStart(): boolean {
     return this.element?.Type === ElementType.EndEvent || this.element?.Type === ElementType.StartEvent;
   }
+
+  onChangeFuncGroup(event: any) {
+    if (event == this.diagram.FuncGroup) return;
+    if (this.diagram.FuncGroup == '' || this.diagram.FuncGroup == undefined) {
+      this.diagram.FuncGroup = event;
+      return;
+    }
+
+    this.confirmationService.confirm({
+      message: '<b>Are you sure you want to change the the function group?</b> <br /><small><i>When changing the function group, shape parameter values ​​are deleted</i></small>',
+      header: 'Confirmation',
+      icon: PrimeIcons.INFO_CIRCLE,
+      accept: () => {
+        this.diagram.FuncGroup = event;
+      },
+      reject: (type: ConfirmEventType) => {
+        this.funcGroup = this.diagram.FuncGroup || 'BasicMath';
+      }
+    });
+  }
+
+  apply() {
+    this.diagram.Shapes = this.diagram.Shapes.filter(x => x.ElementId != this.element.ElementId);
+    this.diagram.Shapes.push(this.element);
+    this.commonService.setDocument(this.diagram);
+    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Changes applied successfully' });
+  }
+
 }

@@ -41,10 +41,9 @@ import { LabelDto } from 'src/dtos/diagrams/label.dto';
 import IncomingConnectionNumberRule from './rules/incoming-connection-number.rule';
 import { CustomRenderer } from './props-provider/CustomRender';
 import { ElementType } from 'src/enum/element-type.enum';
-import { PrimeIcons, MenuItem } from 'primeng/api';
+import { PrimeIcons, MenuItem, MessageService } from 'primeng/api';
 import { CustomContextPadProvider } from './props-provider/custom-context-pad.provider';
 import { EditorControlComponent } from 'src/componets/editor-control/editor-control.component';
-import CustomConnectionRenderer from './props-provider/custom-connection-render';
 //declare var propertiesPanel: any;
 //declare var BpmnPropertiesPanelModule: any;
 //declare var BpmnPropertiesProviderModule: any;
@@ -75,7 +74,7 @@ export class EditorComponent extends BaseImports implements OnInit {
   @ViewChild('diagramRefDisable', { static: true }) private diagramRefDisable: ElementRef | undefined;
   @ViewChild('propertiesRef', { static: true }) private propertiesRef: ElementRef | undefined;
   @ViewChild('propertiesRefDisable', { static: true }) private propertiesRefDisable: ElementRef | undefined;
-  constructor(injector: Injector, private signalRService: SignalREditorService) {
+  constructor(injector: Injector, private signalRService: SignalREditorService, private messageService: MessageService) {
     super(injector);
     this.diagram = this.commonService.getDocument();
     const roomId = this.commonService.getRoomId();
@@ -130,16 +129,17 @@ export class EditorComponent extends BaseImports implements OnInit {
       ]
     });
     this.editorService.disableDiagram(this.disebleBpmnJS);
-    this.bpmnJS = this.enableBpmnJS;
     this.disable = false;
-    console.log(this.enableBpmnJS, this.enableBpmnJS)
+    this.bpmnJS = this.enableBpmnJS;
 
     this.initDocumentActions();
-    this.sharedService.on("ReceiveMessage123", this.updateGraph.bind(this))
+    this.sharedService.on("ReceiveMessage123", this.updateGraph.bind(this));
+
   }
 
   ngOnInit(): void {
     this.onCreateConnection();
+
   }
 
   ngAfterContentInit(): void {
@@ -161,13 +161,8 @@ export class EditorComponent extends BaseImports implements OnInit {
         });
       });
 
-      this.bpmnJS.on('element.create', (event: any) => {
-        console.log("element.create", event);
-      });
-
       this.bpmnJS.on('element.click', (event: any) => {
         this.propertiesPanel.update(event.element.id);
-        console.log(event, this.bpmnJS)
       });
     });
 
@@ -237,52 +232,6 @@ export class EditorComponent extends BaseImports implements OnInit {
         }
       });
     }
-  }
-
-  private updateAndRedrawShape(elementId: string) {
-    const modeling: Modeling = this.bpmnJS.get('modeling');
-    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
-
-    const element = elementRegistry.get(elementId) as Shape;
-    if (element) {
-      modeling.moveShape(element, { x: 0, y: 0 });
-    }
-  }
-
-  private importPalette() {
-    // Assuming you have access to the BPMN editor API
-
-    // Get the default palette provider
-    const paletteProvider: any = this.bpmnJS.get('paletteProvider');
-
-    // Define a custom task palette provider
-    const that = this;
-    const customTaskPaletteProvider: any = {
-      getPaletteEntries: function (/* element */) {
-        return {
-          'create.task': {
-            group: 'activity',
-            className: 'bpmn-icon-task',
-            title: 'Task',
-            action: {
-              dragstart: function (event: any, element: any) {
-                const shape = that.createTask(event, element);
-                //.start(event, shape, element);
-              },
-              click: function (event: any, element: any) {
-                const shape = that.createTask(event, element);
-                //create.start(event, shape, element);
-              }
-            }
-          }
-          // Optionally, you can include more task-related symbols as needed.
-        };
-      }
-    };
-
-    // Override the original palette provider with the custom task palette provider
-    paletteProvider.registerProvider('taskPalette', customTaskPaletteProvider);
-
   }
 
   saveSvgAsImage() {
@@ -367,11 +316,6 @@ export class EditorComponent extends BaseImports implements OnInit {
           }
         ]
       },
-      // {
-      //   label: 'Send mess',
-      //   icon: PrimeIcons.SEND,
-      //   command: () => { this.signalRService.sendMessageToGroup(this.group, this.email, this.diagram); }
-      // },
       {
         label: 'Simulate',
         icon: PrimeIcons.PLAY,
@@ -452,38 +396,6 @@ export class EditorComponent extends BaseImports implements OnInit {
     });
   }
 
-
-
-
-  changeColorOfShapes() {
-    const elementFactory: ElementFactory = this.bpmnJS.get('elementFactory'),
-      elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry'),
-      modeling: Modeling = this.bpmnJS.get('modeling');
-
-    this.diagram.Shapes.forEach((element: { Type: any; ElementId: any; X: number; Y: number; }) => {
-      const task = elementFactory.createShape({
-        type: element.Type,
-        id: element.ElementId,
-      });
-
-      // { stroke: 'red', fill: 'yellow' }modeling.createShape(task, { x: <number>element.X, y: <number>element.Y }, <Parent><Element>process, { stroke: 'red', fill: 'yellow' });
-      // Add the missing import statement
-
-      const label = elementFactory.createLabel({
-        id: task.id + '_label',
-        businessObject: elementFactory.create('label', { type: "label", text: 'Your Label Text' })
-      });
-
-      // Add the label to the shape
-      if (task) {
-        modeling.createLabel(task, { x: task.x, y: task.y + 20 }, label);
-      }
-
-
-      // Change the color of the shape
-    });
-  }
-
   private onChange() {
     const eventBus: EventBus = this.bpmnJS.get('eventBus');
     var autoSave: boolean = false;
@@ -504,23 +416,14 @@ export class EditorComponent extends BaseImports implements OnInit {
     this.updateLocal();
     this.webapiDocumentsService.save(this.diagram).subscribe(res => {
       console.log("SAVED", this.diagram.Id, res);
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Diagram saved' });
+    }, error => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error saving diagram' });
     })
   }
 
-  private createTask(event: any, element: any) {
-    const elementFactory: ElementFactory = this.bpmnJS.get('elementFactory'),
-      modeling: Modeling = this.bpmnJS.get('modeling');
-
-    const task = elementFactory.createShape({
-      type: 'bpmn:Task',
-      id: 'Task_' + Math.random().toString(36).substring(7),
-    });
-
-    modeling.createShape(task, { x: 100, y: 100 }, element);
-    return task;
-  }
-
   private updateLocal(updateXml: boolean = true) {
+    console.log("updateLocal", this.diagram)
     if (updateXml) {
       this.bpmnJS.saveXML().then((value: SaveXMLResult) => {
         if (value.xml) {
@@ -557,6 +460,7 @@ export class EditorComponent extends BaseImports implements OnInit {
           Type: (<Element>x).type as ElementType,
           Label: (<Element>x).businessObject?.name ?? ""
         } as ElementDto;
+
         if ((<Shape>x).x != undefined && (<Shape>x).type != 'label') {
 
           this.diagram.Shapes.push(<ShapeDto>el);
@@ -605,81 +509,35 @@ export class EditorComponent extends BaseImports implements OnInit {
       }
       return el;
     });
-
+    console.log(this.diagram)
     this.commonService.setDocument(this.diagram);
   }
 
-  traverseDiagram(diagram: DiagramCreateDto) {
-    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
-    //   const startEvents: ElementLike | undefined = elementRegistry.get(diagram.Shapes?.filter(x => x.Type == 'bpmn:StartEvent').map(x => x.ElementId));
-    //const endEvent: ElementLike | undefined = elementRegistry.get(diagram.EndEventId);
-    const startEvents: ElementLike[] = elementRegistry.getAll().filter(x => x['type'] == 'bpmn:StartEvent');
-    startEvents.forEach(element => {
-      //const startEvents: ElementLike | undefined = elementRegistry.get();
-
-      this.processElement(element, element.id);
-    });
-
-    /*if (endEvent) {
-      this.processElement(endEvent);
-    }*/
-  }
-
-  processElement(element: ElementLike, token: string = "1") {
-    // Process the element here
-    console.log("TOKEN: " + token, 'Processing element:', element);
-
-    const outgoingConnections: Array<Connection> = element?.['outgoing'] || [];
-    for (const connection of outgoingConnections) {
-      const targetElement: ElementLike | undefined = connection.target;
-      if (targetElement) {
-        this.processElement(targetElement, token);
-      }
-    }
-  }
-
-
-  changeColorOfShapes1() {
-    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
-    const modeling: Modeling = this.bpmnJS.get('modeling');
-
-    elementRegistry.getAll().forEach(x => {
-      //const moddle: Moddle = this.bpmnJS.get('moddle');
-      //const color = moddle.create('bpmn:Color', { stroke: 'red', fill: 'yellow' });
-      //moddle.getPropertyDescriptor(x, { stroke: 'red', fill: 'yellow' });
-      //moddle.setColor(x.businessObject, color);
-    });
-  }
-
-  changeColorOfShapes2(id: string) {
-    const graphicsFactory: any = this.bpmnJS.get('graphicsFactory');
-    const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
-
-    // Get the element
-    const element = elementRegistry.get(id);
-
-    // Draw the shape
-    const shape = graphicsFactory?.drawShape(element);
-
-    // Update the color of the shape
-    graphicsFactory.setFill(shape, 'red');
-    graphicsFactory.setStroke(shape, 'black');
-  }
-
   enableModule(enable: boolean) {
+    if (this.disable !== enable) {
+      return;
+    }
     this.disable = !enable;
+    this.bpmnJS.saveXML().then((value: SaveXMLResult) => {
+      this.diagram.Shapes = [];
+      this.diagram.Connections = [];
+      if (value.xml) {
+        this.diagram.Xml = value.xml;
 
-
-    if (enable) {
-      console.log("enable")
-      this.bpmnJS = this.enableBpmnJS
-    }
-    else {
-      console.log("disable")
-      this.bpmnJS = this.disebleBpmnJS;
-    }
-    this.importDiagram(this.diagram.Xml).subscribe(() => {
-    })
+        if (enable) {
+          console.log("enable")
+          this.bpmnJS = this.enableBpmnJS
+        }
+        else {
+          console.log("disable")
+          this.bpmnJS = this.disebleBpmnJS;
+        }
+        if (!this.diagram.Xml || this.diagram.Xml.length !== 0) {
+          this.importDiagram(this.diagram.Xml).subscribe(() => {
+          });
+        }
+      }
+    });
   }
 
   // @HostListener('window:beforeunload', ['$event'])
