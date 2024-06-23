@@ -14,7 +14,7 @@ import { ParameterDto } from 'src/dtos/parameter.dto';
 import { ConnectionDto } from 'src/dtos/diagrams/connection.dto';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmEventType, Confirmation, ConfirmationService, MessageService, PrimeIcons } from 'primeng/api';
-
+import { of } from 'rxjs';
 @Component({
   selector: 'cmp-properties-panel',
   standalone: true,
@@ -61,6 +61,15 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
     }
     const element = this.diagram.Shapes.find(e => e.ElementId === elementId);
     this.element = element ? Object.assign({}, element) : new ShapeDto();
+    this.element.InputParameters = [];
+    element?.InputParameters?.map((param) => {
+      this.element.InputParameters?.push(param);
+    });
+
+    this.element.OutputParameters = [];
+    element?.OutputParameters?.map((param) => {
+      this.element.OutputParameters?.push(param);
+    });
 
     this.init();
   }
@@ -75,21 +84,23 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
 
   OnChangeFunction(event: any) {
     this.selectedFunctionInfo = this.module?.[event.value];
-    this.InitVariables();
-    this.InitInputs();
-    this.InitOutputs();
+    this.element.InputParameters = [];
+
+    this.InitInputs().then(() => {
+      this.InitOutputs().then(() => {
+        this.InitVariables();
+      });
+    });
   }
 
   init() {
     var currentFunction = this.element?.FunctionName;
     this.InitFunction().then(() => {
-
-      this.InitInputs(currentFunction != this.element?.FunctionName);
-      this.InitOutputs(currentFunction != this.element?.FunctionName);
-
-      setTimeout(() => {
-        this.InitVariables();
-      }, 500);
+      this.InitInputs(currentFunction != this.element?.FunctionName).then((res) => {
+        this.InitOutputs(currentFunction != this.element?.FunctionName).then(() => {
+          this.InitVariables();
+        });
+      });
     });
   }
 
@@ -138,19 +149,17 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
         });
       }
     });
-    console.log(usedParams);
     this.variables = <ParameterDto[]>usedParams ?? [];
   }
 
   InitInputs(isFunctionChange: boolean = true) {
     if (this.element == undefined) {
-      return;
+      return new Promise<void>((resolve) => resolve());
     }
     if (!isFunctionChange) {
-      return;
+      return new Promise<void>((resolve) => resolve());
     }
-
-    this.variables = [];
+    this.variables = this.element.InputParameters.map(a => Object.assign({}, a));
     this.element.InputParameters = [];
 
     if (this.isSignal) {
@@ -175,7 +184,7 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
       if (this.variables.length > this.selectedFunctionInfo?.parameters.length) {
         alert('There are more connections than expected. Please check the diagram.');
       }
-      return;
+      return new Promise<void>((resolve) => resolve());
     }
 
     var existParameters = [...(this.variables)];
@@ -197,13 +206,13 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
 
           this.element.InputParameters.push({ Type: paramTypes[0], Name: '', SerialNumber: maxSerialNumber + 1 });
         });
-      return;
     }
+    return new Promise<void>((resolve) => resolve());
   }
 
   InitOutputs(isFunctionChange: boolean = true) {
     if (this.element == undefined || !isFunctionChange) {
-      return;
+      return new Promise<void>((resolve) => resolve());
     }
 
     this.element.OutputParameters = [];
@@ -214,12 +223,13 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
 
       if (this.isSignal) {
         this.element.OutputParameters.push(this.variables.find(x => x.Type == this.selectedFunctionInfo?.returnType) ?? { Type: this.selectedFunctionInfo?.returnType, Name: '', SerialNumber: maxSerialNumber });
-        return;
+        return new Promise<void>((resolve) => resolve());
       }
 
       this.element.OutputParameters.push({ Type: this.selectedFunctionInfo?.returnType, Name: '', SerialNumber: maxSerialNumber });
-      return;
+      return new Promise<void>((resolve) => resolve());
     }
+    return new Promise<void>((resolve) => resolve());
   }
 
   getUsedParams(element: ShapeDto) {
@@ -286,7 +296,6 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
   apply() {
     this.diagram.Shapes = this.diagram.Shapes.filter(x => x.ElementId != this.element.ElementId);
     this.diagram.Shapes.push(this.element);
-    console.log(this.diagram, this.element);
     this.commonService.setDocument(this.diagram);
     this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Changes applied successfully' });
   }

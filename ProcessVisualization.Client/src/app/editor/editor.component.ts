@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Injector, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Injector, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
@@ -44,6 +44,7 @@ import { ElementType } from 'src/enum/element-type.enum';
 import { PrimeIcons, MenuItem, MessageService } from 'primeng/api';
 import { CustomContextPadProvider } from './props-provider/custom-context-pad.provider';
 import { EditorControlComponent } from 'src/componets/editor-control/editor-control.component';
+import { ControleEditorState } from 'src/enum/controle-editor-state.enum';
 //declare var propertiesPanel: any;
 //declare var BpmnPropertiesPanelModule: any;
 //declare var BpmnPropertiesProviderModule: any;
@@ -55,7 +56,7 @@ import { EditorControlComponent } from 'src/componets/editor-control/editor-cont
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss']
 })
-export class EditorComponent extends BaseImports implements OnInit {
+export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
   @ViewChild('propertiesPanel') propertiesPanel!: PropertiesPanelComponent;
   private enableBpmnJS!: Modeler;
   private disebleBpmnJS!: Modeler;
@@ -162,6 +163,7 @@ export class EditorComponent extends BaseImports implements OnInit {
       });
 
       this.bpmnJS.on('element.click', (event: any) => {
+        console.log("element.click", event.element.id, this.diagram.Shapes);
         this.propertiesPanel.update(event.element.id);
       });
     });
@@ -170,6 +172,7 @@ export class EditorComponent extends BaseImports implements OnInit {
 
   ngOnDestroy(): void {
     this.bpmnJS.destroy();
+    this.signalRService.ChangeContoleEditorState(this.group, this.email, ControleEditorState.NoContole);
     this.signalRService.removeFromGroup(this.group);
   }
 
@@ -523,6 +526,8 @@ export class EditorComponent extends BaseImports implements OnInit {
     }
     this.disable = !enable;
     this.bpmnJS.saveXML().then((value: SaveXMLResult) => {
+      var shapes = this.diagram.Shapes.map(a => Object.assign({}, a));;
+
       this.diagram.Shapes = [];
       this.diagram.Connections = [];
       if (value.xml) {
@@ -536,8 +541,18 @@ export class EditorComponent extends BaseImports implements OnInit {
           console.log("disable")
           this.bpmnJS = this.disebleBpmnJS;
         }
+
         if (!this.diagram.Xml || this.diagram.Xml.length !== 0) {
-          this.importDiagram(this.diagram.Xml).subscribe(() => {
+          this.importDiagram(this.diagram.Xml).subscribe((res) => {
+            this.updateLocal(false);
+            this.diagram.Shapes.map(x => {
+              var el = shapes.find(y => y.ElementId == x.ElementId || (y.Type == x.Type && y.Label == x.Label && y.X == x.X && y.Y == x.Y && y.Width == x.Width && y.Height == x.Height));
+              if (el) {
+                x.InputParameters = el.InputParameters;
+                x.OutputParameters = el.OutputParameters;
+              }
+            });
+            this.commonService.setDocument(this.diagram);
           });
         }
       }
