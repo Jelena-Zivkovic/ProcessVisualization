@@ -1,7 +1,9 @@
 <cmp-header></cmp-header>
 <div class="flex flex-row pt-3 rooms">
-  <div class="flex flex-column  w-4" style="min-width: 15rem;">
-    <div class="mx-4 my-2 flex flex-row justify-content-around border-bottom-1 border-200">
+  <div class="flex flex-column w-4" style="min-width: 15rem">
+    <div
+      class="mx-4 my-2 flex flex-row justify-content-around border-bottom-1 border-200"
+    >
       <div class="align-items-around action-button">
         <p-card (click)="toggleRoomDialog()">
           <div class="custom-icon">
@@ -21,13 +23,22 @@
         </p-card>
       </div>
     </div>
-    <div class="mx-4 my-1 room" *ngFor="let room of rooms" [id]="'room_' +room.Id">
-      <p-card (click)="showRoomDetails(room.Id)" [ngClass]="{'selected': (selectedRoom && selectedRoom.Id == room.Id)}">
+    <div
+      class="mx-4 my-1 room"
+      *ngFor="let room of rooms"
+      [id]="'room_' + room.Id"
+    >
+      <p-card
+        (click)="showRoomDetails(room.Id)"
+        [ngClass]="{ selected: selectedRoom && selectedRoom.Id == room.Id }"
+      >
         <div class="flex flex-row align-items-center">
           <div class="room-logo">
             <i class="fa-solid fa-users"></i>
           </div>
-          <div class="ml-4 room-name text-lg font-semibold">{{ room.Name }}</div>
+          <div class="ml-4 room-name text-lg font-semibold">
+            {{ room.Name }}
+          </div>
           <div class="ml-auto mr-1 w-1 room-hovered">
             <i class="fa-solid fa-angle-right m-auto"></i>
           </div>
@@ -41,21 +52,44 @@
         <i class="fa-solid fa-users"></i>
       </div>
       <div class="mx-4 my-3">
-        <div class="text-2xl mt-1 font-semibold">{{selectedRoom.Name}}
+        <div class="text-2xl mt-1 font-semibold">
+          {{ selectedRoom.Name }}
           <p-menu #menu [model]="items1" [popup]="true"></p-menu>
-          <p-button type="button" (click)="openRoomDetailsAction($event)" icon="pi pi-angle-down"
-            class="room-details-buttons" styleClass="p-button-text" style="color:aqua"></p-button>
+          <p-button
+            type="button"
+            (click)="openRoomDetailsAction($event)"
+            icon="pi pi-angle-down"
+            class="room-details-buttons"
+            styleClass="p-button-text"
+            style="color: aqua"
+          ></p-button>
         </div>
-        <div class="font-italic mt-2"> {{ (selectedRoom == undefined || selectedRoom == null ? 0 :
-          selectedRoom.Users.length)
-          + ((selectedRoom.Users && selectedRoom.Users.length > 2) ? " members" : " member" )
-          }} </div>
+        <div class="font-italic mt-2">
+          {{
+            (selectedRoom == undefined || selectedRoom == null
+              ? 0
+              : selectedRoom.Users.length) +
+              (selectedRoom.Users && selectedRoom.Users.length > 2
+                ? " members"
+                : " member")
+          }}
+        </div>
       </div>
 
-      <p-button label="Add new" icon="pi pi-plus" styleClass="p-button-outlined" class="ml-auto mr-4 my-auto"
-        (click)="addNewDiagram()"> </p-button>
+      <p-button
+        label="Add new"
+        icon="pi pi-plus"
+        styleClass="p-button-outlined"
+        class="ml-auto mr-4 my-auto"
+        (click)="addNewDiagram()"
+      >
+      </p-button>
     </div>
-    <p-table class="file-explorer" [value]="selectedRoom.Documents" [tableStyle]="{ 'min-width': '50rem' }">
+    <p-table
+      class="file-explorer"
+      [value]="selectedRoom.Documents"
+      [tableStyle]="{ 'min-width': '50rem' }"
+    >
       <ng-template pTemplate="header" let-data>
         <tr>
           <th>Name</th>
@@ -66,9 +100,14 @@
       <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr>
           <td>{{ rowData.Name }}</td>
-          <td>{{ rowData.UpdatedAt | date: "dd.MM.yyyy. HH:mm" }}</td>
+          <td>{{ rowData.UpdatedAt | date : "dd.MM.yyyy. HH:mm" }}</td>
           <td class="flex justify-content-end p-2 px-5">
-            <button type="button" pButton icon="pi pi-file-edit" (click)="openDocument(rowData.Id)"></button>
+            <button
+              type="button"
+              pButton
+              icon="pi pi-file-edit"
+              (click)="openDocument(rowData.Id)"
+            ></button>
           </td>
         </tr>
       </ng-template>
@@ -76,65 +115,123 @@
 
     <div class="card flex justify-content-center">
       <!-- <p-toast></p-toast> -->
-
     </div>
   </div>
 </div>
 
-<p-dialog [(visible)]="isRoomDialogOpen" header="Create new room" [modal]="true">
+<p-dialog
+  [(visible)]="isRoomDialogOpen"
+  header="Create new room"
+  [modal]="true"
+>
   <cmp-room-dialog (closeDialog)="toggleRoomDialog($event)"></cmp-room-dialog>
 </p-dialog>
 
-<p-dialog [(visible)]="isJoinRoomDialogOpen" header="Join to room" [modal]="true">
+<p-dialog
+  [(visible)]="isJoinRoomDialogOpen"
+  header="Join to room"
+  [modal]="true"
+>
   <div class="flex flex-column mb-3">
     <label for="name" class="mb-1">Room code:</label>
-    <input pInputText id="name" aria-describedby="name-help" [(ngModel)]="roomCode" />
+    <input
+      pInputText
+      id="name"
+      aria-describedby="name-help"
+      [(ngModel)]="roomCode"
+    />
   </div>
   <div class="flex justify-content-end">
-    <p-button label="Cancel" (click)="isJoinRoomDialogOpen = false" class="mx-2" styleClass="p-button-outlined w-full">
+    <p-button
+      label="Cancel"
+      (click)="isJoinRoomDialogOpen = false"
+      class="mx-2"
+      styleClass="p-button-outlined w-full"
+    >
     </p-button>
     <p-button label="Join" (click)="joinRoom()"></p-button>
   </div>
 </p-dialog>
 
-<p-dialog [(visible)]="isRoomSettingsDialogOpen" header="Room settings" [modal]="true">
+<p-dialog
+  [(visible)]="isRoomSettingsDialogOpen"
+  header="Room settings"
+  [modal]="true"
+>
   <div class="flex flex-column mb-3">
     <label for="name" class="mb-1">Room name:</label>
-    <input pInputText id="name" aria-describedby="name-help" [(ngModel)]="selectedRoom.Name" />
+    <input
+      pInputText
+      id="name"
+      aria-describedby="name-help"
+      [(ngModel)]="selectedRoom.Name"
+    />
   </div>
   <div class="flex flex-column mb-3">
     <label for="name" class="mb-1">Room code:</label>
-    <input pInputText id="name" aria-describedby="name-help" disabled="true" [(ngModel)]="selectedRoom.RoomCode" />
+    <input
+      pInputText
+      id="name"
+      aria-describedby="name-help"
+      disabled="true"
+      [(ngModel)]="selectedRoom.RoomCode"
+    />
   </div>
   <div class="flex flex-column mb-3">
-    <label for="name" class="mb-1">Room members:</label>
-    <p-table class="file-explorer" [value]="selectedRoom.Users" [tableStyle]="{ 'min-width': '50rem' }">
+    <p-table
+      class="file-explorer"
+      [value]="selectedRoom.Users"
+      [tableStyle]="{ 'min-width': '50rem' }"
+    >
       <ng-template pTemplate="header" let-data>
         <tr>
-          <th>Name</th>
-          <th>Email</th>
+          <th>Members</th>
           <th></th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr>
-          <td>{{ rowData.Name }}</td>
           <td>{{ rowData.Email }}</td>
           <td class="flex justify-content-end p-2 px-5">
-            <button type="button" pButton icon="pi pi-trash" (click)="removeUser(rowData.Id)"></button>
+            <button
+              type="button"
+              pButton
+              icon="pi pi-trash"
+              (click)="removeUser(rowData.Id)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <tr>
+          <td>
+            <input
+              pInputText
+              id="name"
+              placeholder="Add new member..."
+              aria-describedby="name-help"
+              [(ngModel)]="newUser"
+            />
+          </td>
+          <td class="flex justify-content-end px-5">
+            <button
+              type="button"
+              pButton
+              icon="pi pi-plus"
+              (click)="addUser()"
+            ></button>
           </td>
         </tr>
       </ng-template>
     </p-table>
   </div>
-  <div class="flex flex-column mb-3">
-    <label for="name" class="mb-1">Add new member:</label>
-    <input pInputText id="name" aria-describedby="name-help" />
-  </div>
-
   <div class="flex justify-content-end">
-    <p-button label="Cancel" (click)="isRoomSettingsDialogOpen = false" class="mx-2"
-      styleClass="p-button-outlined w-full">
+    <p-button
+      label="Cancel"
+      (click)="isRoomSettingsDialogOpen = false"
+      class="mx-2"
+      styleClass="p-button-outlined w-full"
+    >
     </p-button>
     <p-button label="Save" (click)="saveRoomSettings()"></p-button>
   </div>

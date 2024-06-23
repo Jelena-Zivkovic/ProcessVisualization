@@ -286,6 +286,7 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
   apply() {
     this.diagram.Shapes = this.diagram.Shapes.filter(x => x.ElementId != this.element.ElementId);
     this.diagram.Shapes.push(this.element);
+    console.log(this.diagram, this.element);
     this.commonService.setDocument(this.diagram);
     this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Changes applied successfully' });
   }

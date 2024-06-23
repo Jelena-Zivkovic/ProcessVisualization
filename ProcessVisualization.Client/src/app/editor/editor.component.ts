@@ -205,7 +205,8 @@ export class EditorComponent extends BaseImports implements OnInit {
 
         task.businessObject.name = element.Label ?? "";
 
-        const created = modeling.createShape(task, { x: <number>element.X, y: <number>element.Y }, <Parent>process);
+        const created = modeling.createShape(task, { x: (<number>element.X + task.width / 2), y: (<number>element.Y + task.height / 2) }, <Parent>process);
+        //const created = modeling.createShape(task, { x: <number>element.X, y: <number>element.Y }, <Parent>process);
       });
     }
 
@@ -225,7 +226,11 @@ export class EditorComponent extends BaseImports implements OnInit {
               //   { x: 200, y: 200 }
               // ],
             });
+
             connection.businessObject.name = element.Label;
+            if (element.WayPoints.length != 0) {
+              connection.waypoints = element.WayPoints;
+            }
 
             modeling.createConnection(source, target, connection, <Parent>process);
           }
@@ -423,7 +428,6 @@ export class EditorComponent extends BaseImports implements OnInit {
   }
 
   private updateLocal(updateXml: boolean = true) {
-    console.log("updateLocal", this.diagram)
     if (updateXml) {
       this.bpmnJS.saveXML().then((value: SaveXMLResult) => {
         if (value.xml) {
@@ -476,6 +480,7 @@ export class EditorComponent extends BaseImports implements OnInit {
         (<ShapeDto>el).Width = (<Shape>x).width;
         (<ShapeDto>el).Height = (<Shape>x).height;
 
+        console.log("el", (<ShapeDto>el).ElementId, (<ShapeDto>el).InputParameters)
         if (!(<ShapeDto>el).InputParameters) {
           (<ShapeDto>el).InputParameters = [];
         }
@@ -509,7 +514,6 @@ export class EditorComponent extends BaseImports implements OnInit {
       }
       return el;
     });
-    console.log(this.diagram)
     this.commonService.setDocument(this.diagram);
   }
 

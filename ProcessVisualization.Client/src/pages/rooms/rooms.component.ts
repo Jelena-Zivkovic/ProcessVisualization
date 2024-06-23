@@ -1,6 +1,5 @@
 import { Component, Injector, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
 
 import { HeaderComponent } from '../../app/header/header.component';
 import { CardModule } from 'primeng/card';
@@ -10,11 +9,7 @@ import { MegaMenuModule } from 'primeng/megamenu';
 import { Menu, MenuModule } from 'primeng/menu';
 import { MegaMenuItem, MenuItem, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
-import { AppModule } from '../../app/app.module';
-import { AppComponent } from '../../app/app.component';
 import { BaseImports } from 'src/libs/base-imports';
-import { RouterModule } from '@angular/router';
 import { RoomViewDto } from 'src/dtos/rooms/room-view.dto';
 import { RoomDetailsViewDto } from 'src/dtos/rooms/room-details-view.dto';
 import { RoomDialogComponent } from '../../componets/room-dialog/room-dialog.component';
@@ -45,7 +40,7 @@ export class RoomsComponent extends BaseImports {
   isRoomSettingsDialogOpen: boolean = false;
 
   roomCode: string = "";
-
+  newUser: string = "";
   constructor(injector: Injector, private messageService: MessageService) {
     super(injector);
   }
@@ -61,7 +56,8 @@ export class RoomsComponent extends BaseImports {
             label: 'Room settings',
             icon: 'pi pi-cog',
             command: () => {
-              alert("dd");
+              this.isRoomSettingsDialogOpen = true;
+              console.log(this.selectedRoom);
             }
           },
           {
@@ -137,6 +133,20 @@ export class RoomsComponent extends BaseImports {
 
   removeUser(userId: number) {
     this.selectedRoom.Users = this.selectedRoom.Users.filter(x => x.Id !== userId);
+  }
+
+  addUser() {
+    var data: RoomJoinDto = {
+      RoomCode: this.selectedRoom.RoomCode,
+      UserEmail: this.newUser
+    }
+
+    this.webapiRoomsService.joinRoom(data).subscribe(res => {
+      if (!res.IsSuccess) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: res.Message ?? "" });
+      }
+    });
+
   }
 
   saveRoomSettings() {

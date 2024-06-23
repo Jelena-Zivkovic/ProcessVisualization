@@ -21,6 +21,7 @@ import { CustomRenderer } from 'src/app/editor/props-provider/CustomRender';
 import { ParameterDto } from 'src/dtos/parameter.dto';
 import EventBus from 'diagram-js/lib/core/EventBus';
 import { EventBusEventCallback } from 'bpmn-js/lib/BaseViewer';
+import { PrimeIcons } from 'primeng/api';
 
 @Component({
   selector: 'app-diagram-simulation',
@@ -150,8 +151,6 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
     </bpmn:definitions>`;
   }
 
-
-
   resizeElement(elementId: string, width: number, height: number) {
     const elementRegistry: ElementRegistry = this.bpmnJS.get('elementRegistry');
     const shape = elementRegistry.get(elementId);
@@ -176,8 +175,13 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
   initDocumentActions() {
     this.documentActions = [
       {
+        label: '',
+        icon: PrimeIcons.CHEVRON_LEFT,
+        command: () => { this.routerService.back(); }
+      },
+      {
         label: 'Simulate',
-        icon: 'pi pi-fw pi-arrows-alt',
+        icon: PrimeIcons.PLAY,
         command: () => { this.traverseDiagram1(this.diagram); }
       }
     ];

@@ -91,6 +91,7 @@ namespace ProcessVisualization.Api.Business.Services
             result.Description = room.Description;
             result.ImageUrl = room.ImageUrl;
             result.CreatedAt = room.CreatedAt;
+            result.RoomCode = room.RoomCode;
             result.LastUpdatedAt = room.LastUpdatedAt;
             result.Users = room.RoomUsers.Where(x => x.isActive).Select(x => new UserDto
             {
