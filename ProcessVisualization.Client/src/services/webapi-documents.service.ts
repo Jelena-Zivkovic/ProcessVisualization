@@ -20,6 +20,7 @@ export class WebapiDocumentsService extends BaseApiService {
   }
 
   save(document: DiagramCreateDto, showLoader = false) {
+    console.log(document);
     return this.http.post<ResponseTemplateDto<DiagramCreateDto>>(
       this.baseUrl + "/Save",
       document,

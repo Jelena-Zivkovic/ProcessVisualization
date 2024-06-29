@@ -330,7 +330,6 @@ namespace ProcessVisualization.Api.Business.Services
 
                     newShape.OutputParameters.Add(parameter);
                 }
-
             }
             
             res = this._documentRepository.SaveDocument(document).Result;

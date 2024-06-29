@@ -11,6 +11,7 @@ import { ControleEditorState } from 'src/enum/controle-editor-state.enum';
 export class SignalREditorService {
   private hubConnection!: signalR.HubConnection;
   private hubPath: string = "editorhub";
+  private closeConnection: boolean = false;
   sharedService: SharedService;
   constructor(injector: Injector) {
     this.sharedService = injector.get(SharedService);
@@ -22,7 +23,12 @@ export class SignalREditorService {
       .withUrl(Constants.BASE_URL + this.hubPath)
       .build();
 
-    this.hubConnection.onclose(() => {
+    this.hubConnection.onclose((callback) => {
+      console.log('Connection closed', callback);
+      if (this.closeConnection) {
+        this.closeConnection = false;
+        return;
+      }
       this.start().then(() => {
         console.log('Connection started');
         this.registerOnServerEvents(groupName);
@@ -33,7 +39,7 @@ export class SignalREditorService {
     });
 
     this.start().then(() => {
-      console.log('Connection started');
+      console.log('Connection started', groupName);
       this.registerOnServerEvents(groupName);
     });
   }
@@ -75,7 +81,18 @@ export class SignalREditorService {
 
   removeFromGroup = (groupName: string) => {
     this.hubConnection.invoke('RemoveFromGroup', groupName)
+      .then((res) => console.log("RemoveFromGroup", res))
       .catch(err => console.error(err));
+  }
+
+  stopConnection = () => {
+    console.log('Stopping connection...', this.hubConnection.state);
+    if (this.hubConnection) {
+      this.closeConnection = true;
+      this.hubConnection.stop()
+        .then(() => console.log('Connection stopped successfully.'))
+        .catch(err => console.error('Error while stopping connection: ', err));
+    }
   }
 
   sendMessageToGroup = (groupName: string, user: string, message: DiagramCreateDto) => {

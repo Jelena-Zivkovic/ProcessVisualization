@@ -38,6 +38,7 @@ export class RoomsComponent extends BaseImports {
   isRoomDialogOpen: boolean = false;
   isJoinRoomDialogOpen: boolean = false;
   isRoomSettingsDialogOpen: boolean = false;
+  isManageMembersDialogOpen: boolean = false;
 
   roomCode: string = "";
   newUser: string = "";
@@ -57,7 +58,13 @@ export class RoomsComponent extends BaseImports {
             icon: 'pi pi-cog',
             command: () => {
               this.isRoomSettingsDialogOpen = true;
-              console.log(this.selectedRoom);
+            }
+          },
+          {
+            label: 'Manage members',
+            icon: 'pi pi-users',
+            command: () => {
+              this.isManageMembersDialogOpen = true;
             }
           },
           {

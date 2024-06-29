@@ -61,10 +61,12 @@
             icon="pi pi-angle-down"
             class="room-details-buttons"
             styleClass="p-button-text"
-            style="color: aqua"
           ></p-button>
         </div>
-        <div class="font-italic mt-2">
+        <div
+          class="font-italic mt-2 link"
+          (click)="isRoomSettingsDialogOpen = !isRoomSettingsDialogOpen"
+        >
           {{
             (selectedRoom == undefined || selectedRoom == null
               ? 0
@@ -177,6 +179,23 @@
       [(ngModel)]="selectedRoom.RoomCode"
     />
   </div>
+  <div class="flex justify-content-end">
+    <p-button
+      label="Cancel"
+      (click)="isRoomSettingsDialogOpen = false"
+      class="mx-2"
+      styleClass="p-button-outlined w-full"
+    >
+    </p-button>
+    <p-button label="Save" (click)="saveRoomSettings()"></p-button>
+  </div>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="isManageMembersDialogOpen"
+  header="Room settings"
+  [modal]="true"
+>
   <div class="flex flex-column mb-3">
     <p-table
       class="file-explorer"
@@ -227,12 +246,11 @@
   </div>
   <div class="flex justify-content-end">
     <p-button
-      label="Cancel"
-      (click)="isRoomSettingsDialogOpen = false"
+      label="Close"
+      (click)="isManageMembersDialogOpen = false"
       class="mx-2"
       styleClass="p-button-outlined w-full"
     >
     </p-button>
-    <p-button label="Save" (click)="saveRoomSettings()"></p-button>
   </div>
 </p-dialog>

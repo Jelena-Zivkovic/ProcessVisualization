@@ -1,9 +1,6 @@
 import { Component, ElementRef, HostListener, Injector, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
-import type eventBus from "bpmn-js/lib/NavigatedViewer"
-import type InternalEvent from "bpmn-js/lib/NavigatedViewer"
 import Modeler from 'bpmn-js/lib/Modeler';
 import Canvas from 'diagram-js/lib/core/Canvas';
 import ElementRegistry from 'diagram-js/lib/core/ElementRegistry';
@@ -11,7 +8,7 @@ import ElementFactory from 'diagram-js/lib/core/ElementFactory';
 import Modeling from 'diagram-js/lib/features/modeling/Modeling';
 import EventBus from 'diagram-js/lib/core/EventBus';
 
-import { from, ignoreElements, Observable, of } from 'rxjs';
+import { from, ignoreElements, Observable, of, Subscription } from 'rxjs';
 import { ElementLike, ShapeLike, Parent } from 'diagram-js/lib/model/Types';
 import { Connection, Element } from 'bpmn-js/lib/model/Types';
 
@@ -58,6 +55,7 @@ import { ControleEditorState } from 'src/enum/controle-editor-state.enum';
 })
 export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
   @ViewChild('propertiesPanel') propertiesPanel!: PropertiesPanelComponent;
+  subscription: Subscription[] = [];
   private enableBpmnJS!: Modeler;
   private disebleBpmnJS!: Modeler;
   disable: boolean = false;
@@ -134,8 +132,13 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
     this.bpmnJS = this.enableBpmnJS;
 
     this.initDocumentActions();
-    this.sharedService.on("ReceiveMessage123", this.updateGraph.bind(this));
+    this.subscription.push(this.sharedService.on("ReceiveMessage123", this.updateGraph.bind(this)));
+    // this.sharedService.on("ChangeContoleEditorState123", this.enableModule.bind(this));
 
+    var that = this;
+    this.bpmnJS.on('commandStack.shape.delete.postExecuted', function (eventData: any, context: any) {
+      that.diagram.Shapes = that.diagram.Shapes.filter(x => x.ElementId != eventData.context.shape.id);
+    });
   }
 
   ngOnInit(): void {
@@ -163,7 +166,6 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
       });
 
       this.bpmnJS.on('element.click', (event: any) => {
-        console.log("element.click", event.element.id, this.diagram.Shapes);
         this.propertiesPanel.update(event.element.id);
       });
     });
@@ -171,9 +173,15 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    console.log("destroy")
     this.bpmnJS.destroy();
-    this.signalRService.ChangeContoleEditorState(this.group, this.email, ControleEditorState.NoContole);
+    this.enableBpmnJS.destroy();
+    this.disebleBpmnJS.destroy();
     this.signalRService.removeFromGroup(this.group);
+    setTimeout(() => {
+      this.signalRService.stopConnection();
+    }, 1000);
+    this.subscription.forEach(x => x.unsubscribe());
   }
 
   private importDiagram(xml: string): Observable<{ warnings: Array<any> }> {
@@ -209,7 +217,6 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
         task.businessObject.name = element.Label ?? "";
 
         const created = modeling.createShape(task, { x: (<number>element.X + task.width / 2), y: (<number>element.Y + task.height / 2) }, <Parent>process);
-        //const created = modeling.createShape(task, { x: <number>element.X, y: <number>element.Y }, <Parent>process);
       });
     }
 
@@ -224,10 +231,6 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
               type: 'bpmn:SequenceFlow',
               source: source,
               target: target,
-              // waypoints: [
-              //   { x: 100, y: 100 },
-              //   { x: 200, y: 200 }
-              // ],
             });
 
             connection.businessObject.name = element.Label;
@@ -422,12 +425,12 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
 
   private save() {
     this.updateLocal();
-    this.webapiDocumentsService.save(this.diagram).subscribe(res => {
+    this.subscription.push(this.webapiDocumentsService.save(this.diagram).subscribe(res => {
       console.log("SAVED", this.diagram.Id, res);
       this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Diagram saved' });
     }, error => {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error saving diagram' });
-    })
+    }));
   }
 
   private updateLocal(updateXml: boolean = true) {
@@ -483,7 +486,6 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
         (<ShapeDto>el).Width = (<Shape>x).width;
         (<ShapeDto>el).Height = (<Shape>x).height;
 
-        console.log("el", (<ShapeDto>el).ElementId, (<ShapeDto>el).InputParameters)
         if (!(<ShapeDto>el).InputParameters) {
           (<ShapeDto>el).InputParameters = [];
         }
@@ -524,6 +526,7 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
     if (this.disable !== enable) {
       return;
     }
+
     this.disable = !enable;
     this.bpmnJS.saveXML().then((value: SaveXMLResult) => {
       var shapes = this.diagram.Shapes.map(a => Object.assign({}, a));;

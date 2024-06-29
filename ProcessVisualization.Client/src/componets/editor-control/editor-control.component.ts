@@ -38,7 +38,6 @@ export class EditorControlComponent extends BaseImports implements OnInit {
       this.controlStack = data.Data;
     }
 
-
     this.controlState = this.controlStack.find(x => x.userEmail == this.userData.Email)?.state;
     this.controlState = this.controlState == undefined ? ControleEditorState.NoContole : this.controlState;
     this.requestStack = this.controlStack.filter(x => x.state == ControleEditorState.ContoleRequest && x.userEmail != this.userData.Email);

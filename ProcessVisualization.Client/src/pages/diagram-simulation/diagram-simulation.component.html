@@ -5,9 +5,50 @@
     <div #diagramRef class="diagram-container"></div>
   </div>
   <div class="editor-dock-zoom">
-    <p-button icon="pi pi-fw pi-arrows-alt" styleClass="p-button-outlined" (click)="fitContent()"></p-button>
-    <p-button icon="pi pi-plus" styleClass="p-button-outlined" (click)="zoomIn()"></p-button>
-    <p-button icon="pi pi-minus" styleClass="p-button-outlined" (click)="zoomOut()"></p-button>
+    <p-button
+      icon="pi pi-fw pi-arrows-alt"
+      styleClass="p-button-outlined"
+      (click)="fitContent()"
+    ></p-button>
+    <p-button
+      icon="pi pi-plus"
+      styleClass="p-button-outlined"
+      (click)="zoomIn()"
+    ></p-button>
+    <p-button
+      icon="pi pi-minus"
+      styleClass="p-button-outlined"
+      (click)="zoomOut()"
+    ></p-button>
+  </div>
+  <div class="timespan-chooser">
+    <p-button
+      styleClass="p-button-outlined"
+      pTooltip="3s"
+      tooltipPosition="top"
+      [ngClass]="{ selected: timespan == 3000 }"
+      (click)="timespan = 3000"
+    >
+      ></p-button
+    >
+    <p-button
+      styleClass="p-button-outlined"
+      pTooltip="1.5s"
+      tooltipPosition="top"
+      [ngClass]="{ selected: timespan == 1500 }"
+      (click)="timespan = 1500"
+    >
+      >></p-button
+    >
+    <p-button
+      styleClass="p-button-outlined"
+      pTooltip="1s"
+      tooltipPosition="top"
+      [ngClass]="{ selected: timespan == 1000 }"
+      (click)="timespan = 1000"
+    >
+      >>>
+    </p-button>
   </div>
 </div>
 <div class="grid">
@@ -17,16 +58,16 @@
       <!-- <p-button icon="pi pi-times" styleClass="p-button-outlined" (click)="clearConsole()"></p-button> -->
     </div>
     <div class="console-content">
-      <p *ngFor="let msg of resultConsole"  class="log-row"> {{msg}}</p>
+      <p *ngFor="let msg of resultConsole" class="log-row">{{ msg }}</p>
     </div>
   </div>
   <div class="logs col">
     <div class="logs-header">
       <div class="logs-title">Logs</div>
       <!-- <p-button icon="pi pi-times" styleClass="p-button-outlined" (click)="clearLogs()"></p-button> -->
-
     </div>
     <div class="logs-content">
-      <div *ngFor="let log of logs" class="log-row">{{log}}</div>
+      <div *ngFor="let log of logs" class="log-row">{{ log }}</div>
     </div>
   </div>
+</div>

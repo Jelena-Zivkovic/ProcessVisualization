@@ -13,20 +13,18 @@ import { ButtonModule } from 'primeng/button';
 import { MenubarModule } from 'primeng/menubar';
 import Canvas from 'diagram-js/lib/core/Canvas';
 import { PropertiesPanelComponent } from 'src/app/properties-panel/properties-panel.component';
-import { Observable, from } from 'rxjs';
+import { Observable, delay, from, of, switchMap, tap } from 'rxjs';
 import { ShapeDto } from 'src/dtos/diagrams/shape.dto';
 import { ElementType } from 'src/enum/element-type.enum';
-import { InjectionNames } from 'src/app/editor/bpmn-js/bpmn-js';
 import { CustomRenderer } from 'src/app/editor/props-provider/CustomRender';
 import { ParameterDto } from 'src/dtos/parameter.dto';
-import EventBus from 'diagram-js/lib/core/EventBus';
-import { EventBusEventCallback } from 'bpmn-js/lib/BaseViewer';
-import { PrimeIcons } from 'primeng/api';
+import { MenuItem, PrimeIcons } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-diagram-simulation',
   standalone: true,
-  imports: [CommonModule, MenubarModule, ButtonModule, PropertiesPanelComponent],
+  imports: [CommonModule, MenubarModule, ButtonModule, TooltipModule, PropertiesPanelComponent],
   templateUrl: './diagram-simulation.component.html',
   styleUrls: ['./diagram-simulation.component.scss']
 })
@@ -38,8 +36,12 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
   logs: string[] = [];
   resultConsole: string[] = [];
   varibales: ParameterDto[] = [];
+  stepByStep: boolean = false;
+  startEvent: ShapeDto[] = [];
+  timespan: number = 1500;
 
-  documentActions: any;
+  documentActions: MenuItem[] = [];
+  inProgerss: boolean = false;
 
   constructor(injector: Injector) {
     super(injector);
@@ -77,6 +79,8 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
     this.importDiagram(this.initConfigEditor());
     this.initGraph(this.diagram);
     this.editorService.disableDiagram(this.bpmnJS);
+
+    this.startEvent = this.diagram.Shapes.filter(x => x.Type == ElementType.StartEvent);
   }
 
   private async initGraph(diagram: DiagramCreateDto) {
@@ -88,31 +92,37 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
       startEvent: ElementLike | undefined = await elementRegistry.get('StartEvent');
 
     if (diagram.Shapes?.length > 0) {
-      diagram.Shapes.forEach((element: { Type: any; ElementId: any; X: number; Y: number; }) => {
-
-
+      diagram.Shapes.forEach((element: ShapeDto) => {
         const task = elementFactory.createShape({
           type: element.Type,
-          id: element.ElementId,
-          /* name: 'Task Name',
-
-           businessObject: {
-             name: 'Task Name' // This is the label text
-           }*/
+          id: element.ElementId
         });
 
-        const created = modeling.createShape(task, { x: <number>element.X, y: <number>element.Y }, <Parent>process);
+        task.businessObject.name = element.Label ?? "";
 
+        const created = modeling.createShape(task, { x: (<number>element.X + task.width / 2), y: (<number>element.Y + task.height / 2) }, <Parent>process);
       });
     }
 
     if (diagram.Connections?.length > 0) {
       diagram.Connections.forEach((element: ConnectionDto) => {
-        if (element && (<ConnectionDto>element)?.Source && (<ConnectionDto>element)?.Target) {
-          var source = <Element>elementRegistry.find(x => x.id == element.Source);
-          var target = <Element>elementRegistry.find(x => x.id == element.Target);
-          if (source && target) {
-            modeling.connect(source, target);
+        if (element && element.Source && element.Target) {
+          const source = elementRegistry.get(element.Source) as Element;
+          const target = elementRegistry.get(element.Target) as Element;
+
+          if (source && target && parent) {
+            var connection = elementFactory.createConnection({
+              type: 'bpmn:SequenceFlow',
+              source: source,
+              target: target,
+            });
+
+            connection.businessObject.name = element.Label;
+            if (element.WayPoints.length != 0) {
+              connection.waypoints = element.WayPoints;
+            }
+
+            modeling.createConnection(source, target, connection, <Parent>process);
           }
         }
       });
@@ -180,49 +190,91 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
         command: () => { this.routerService.back(); }
       },
       {
-        label: 'Simulate',
+        label: 'Play',
         icon: PrimeIcons.PLAY,
-        command: () => { this.traverseDiagram1(this.diagram); }
+        disabled: this.inProgerss,
+        command: () => {
+          this.stepByStep = false;
+          this.startEvent = this.diagram.Shapes.filter(x => x.Type == ElementType.StartEvent);
+          this.traverseDiagram1(this.diagram);
+        }
+      },
+      {
+        label: 'Next Step',
+        icon: PrimeIcons.FORWARD,
+        command: () => {
+          this.stepByStep = true;
+          this.traverseDiagram1(this.diagram);
+        }
       }
     ];
   }
 
   traverseDiagram1(diagram: DiagramCreateDto) {
-    const startEvents: ShapeDto[] = diagram.Shapes.filter(x => x.Type == ElementType.StartEvent);
-    startEvents.forEach((element, inx, arr) => {
+    //const startEvents: ShapeDto[] = diagram.Shapes.filter(x => x.Type == ElementType.StartEvent);
+    this.startEvent.forEach((element, inx, arr) => {
       this.processElement1(element, diagram, inx.toString());
     });
   }
 
 
   processElement1(element: ShapeDto, diagram: DiagramCreateDto, token: string = "1") {
+    this.inProgerss = true;
+    this.initDocumentActions();
     this.resizeElement(element.ElementId, element.Width + 20, element.Height + 20);
-    setTimeout(() => {
-      var result;
-      if (element.Type != ElementType.EndEvent && element.Type != ElementType.StartEvent) {
-        this.executeFunction(element, diagram, token).then((res) => {
-          this.log(element, diagram, token);
-        });
-      }
-      else {
-        this.log(element, diagram, token);
+    if (this.stepByStep) {
+      this.startEvent = [];
+      var ingoingConnections: ConnectionDto[] = diagram.Connections.filter(x => x.Target == element.ElementId) || [];
+      for (const connection of ingoingConnections) {
+        const sourceElement: ShapeDto | undefined = diagram.Shapes.find(x => x.ElementId == connection.Source) ?? undefined;
+        if (sourceElement) {
+          this.resizeElement(sourceElement.ElementId, sourceElement.Width, sourceElement.Height);
+        }
       }
 
+      if (element.Type == ElementType.EndEvent) {
+        this.startEvent = this.diagram.Shapes.filter(x => x.Type == ElementType.StartEvent);
+      }
+    }
+
+    of(null).pipe(
+      delay(this.timespan),
+      switchMap(() => {
+        if (element.Type != ElementType.EndEvent && element.Type != ElementType.StartEvent) {
+          return from(this.executeFunction(element, diagram, token)).pipe(
+            tap(() => this.log(element, diagram, token))
+          );
+        } else {
+          this.log(element, diagram, token);
+          return of(null);
+        }
+      })
+    ).subscribe(() => {
       const outgoingConnections: ConnectionDto[] = diagram.Connections.filter(x => x.Source == element.ElementId) || [];
       if (element.Type != ElementType.Loop) {
         for (const connection of outgoingConnections) {
           const targetElement: ShapeDto | undefined = diagram.Shapes.find(x => x.ElementId == connection.Target) ?? undefined;
           if (targetElement) {
-            this.processElement1(targetElement, diagram, token);
+            if (!this.stepByStep) {
+              this.processElement1(targetElement, diagram, token);
+            } else {
+              this.startEvent.push(targetElement);
+            }
           }
         }
-      }
-      else {
+      } else {
         this.handleIf(element, diagram, token);
       }
-      this.resizeElement(element.ElementId, element.Width, element.Height);
 
-    }, 1000);
+      if (element.Type == ElementType.EndEvent) {
+        this.inProgerss = false;
+        this.initDocumentActions();
+      }
+
+      if (!this.stepByStep || element.Type == ElementType.EndEvent) {
+        this.resizeElement(element.ElementId, element.Width, element.Height);
+      }
+    });
   }
 
   executeFunction(element: ShapeDto, diagram: DiagramCreateDto, token: string = "1") {
@@ -289,7 +341,11 @@ export class DiagramSimulationComponent extends BaseImports implements AfterCont
         connection = connections.find(x => x.Label == "false");
       }
       if (connection && connection.Target != undefined) {
-        this.processElement1(diagram.Shapes.find(x => x.ElementId == connection?.Target) ?? new ShapeDto(), diagram, token);
+        if (!this.stepByStep) {
+          this.processElement1(diagram.Shapes.find(x => x.ElementId == connection?.Target) ?? new ShapeDto(), diagram, token);
+        } else {
+          this.startEvent.push(diagram.Shapes.find(x => x.ElementId == connection?.Target) ?? new ShapeDto());
+        }
       }
     });
   }

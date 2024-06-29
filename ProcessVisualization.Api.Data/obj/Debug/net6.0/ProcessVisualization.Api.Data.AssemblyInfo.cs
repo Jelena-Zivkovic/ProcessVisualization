@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ProcessVisualization.Api.Data")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e5e4506d93fb04a8eed40d80738229b738edd269")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f50b1e9554da61c98475d510b4e40290dec4ca8c")]
 [assembly: System.Reflection.AssemblyProductAttribute("ProcessVisualization.Api.Data")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ProcessVisualization.Api.Data")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

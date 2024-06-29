@@ -46,7 +46,7 @@ namespace ProcessVisualization.Api.Business.Services
                 return states;
             }
 
-            if (newState == ControleEditorStateEnum.HaveContole && states.Exists(x => x.State == ControleEditorStateEnum.HaveContole))
+            if (newState == ControleEditorStateEnum.HaveContole && states.Exists(x => x.UserEmail != email && x.State == ControleEditorStateEnum.HaveContole))
             {
                 newState = ControleEditorStateEnum.RequestForContole;
             }

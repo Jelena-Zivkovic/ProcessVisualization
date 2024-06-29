@@ -56,3 +56,17 @@
   margin-right: 1rem;
 }
 }
+
+.timespan-chooser {
+  position: absolute;
+  bottom: 33%;
+  left: calc(5vw);
+  display: flex;
+  width: 175px;
+  flex-wrap: wrap;
+  background-color: var(--primary-color-text);
+  border: 1px solid var(--secondary-color);
+  border-radius: 6px;
+
+}
+
