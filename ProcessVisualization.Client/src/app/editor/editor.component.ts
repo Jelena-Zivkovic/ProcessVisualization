@@ -228,6 +228,7 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
 
           if (source && target && parent) {
             var connection = elementFactory.createConnection({
+              id: <string>element.ElementId ?? "",
               type: 'bpmn:SequenceFlow',
               source: source,
               target: target,
@@ -425,6 +426,7 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
 
   private save() {
     this.updateLocal();
+
     this.subscription.push(this.webapiDocumentsService.save(this.diagram).subscribe(res => {
       console.log("SAVED", this.diagram.Id, res);
       this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Diagram saved' });
@@ -446,14 +448,14 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
     const modeling: Modeling = this.bpmnJS.get('modeling');
 
     //this.diagram.Shapes = [];
-    this.diagram.Connections = [];
+    //this.diagram.Connections = [];
     var defaultElements = Object.values(DefaultElement);
     if (!this.diagram.Xml) {
       this.diagram.Xml = "";
     }
 
     elementRegistry.getAll().filter(y => !defaultElements.find(z => z == y.id)).forEach(x => {
-      var el: ShapeDto | ElementDto | ConnectionDto | undefined = this.diagram.Shapes.find(y => y.ElementId == x.id);
+      var el: ShapeDto | ElementDto | ConnectionDto | undefined = this.diagram.Shapes.find(y => y.ElementId == x.id) ?? this.diagram.Connections.find(y => y.ElementId == x.id);
       if (el) {
         el.Label = (<Element>x).businessObject?.name ?? "";
         el.Type = (<Element>x).type as ElementType;
@@ -471,12 +473,14 @@ export class EditorComponent extends BaseImports implements OnInit, OnDestroy {
           Label: (<Element>x).businessObject?.name ?? ""
         } as ElementDto;
 
-        if ((<Shape>x).x != undefined && (<Shape>x).type != 'label') {
+        if ((<Shape>x).type != 'label') {
+          if ((<Shape>x).x != undefined) {
 
-          this.diagram.Shapes.push(<ShapeDto>el);
-        }
-        else {
-          this.diagram.Connections.push(<ConnectionDto>el);
+            this.diagram.Shapes.push(<ShapeDto>el);
+          }
+          else if ((<Connection>x).type === 'bpmn:SequenceFlow') {
+            this.diagram.Connections.push(<ConnectionDto>el);
+          }
         }
       }
 

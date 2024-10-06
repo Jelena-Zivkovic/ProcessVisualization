@@ -8,6 +8,7 @@ import { BaseImports } from 'src/libs/base-imports';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
 import { SignInDto } from 'src/dtos/sign-in/sign-in.dto';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-sign-in',
@@ -22,7 +23,7 @@ export class SignInComponent extends BaseImports {
     Password: new FormControl(''),
   });
 
-  constructor(injector: Injector) {
+  constructor(injector: Injector, private messageService: MessageService) {
     super(injector);
   }
 
@@ -38,6 +39,8 @@ export class SignInComponent extends BaseImports {
     }
     this.authenticationService.login(signInDto).subscribe(res => {
       this.routerService.navigate("rooms");
+    }, err => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error });
     });
   }
 }

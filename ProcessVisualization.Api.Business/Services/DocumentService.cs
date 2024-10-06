@@ -53,6 +53,7 @@ namespace ProcessVisualization.Api.Business.Services
                     Source = x.Source,
                     Target = x.Target,
                     Type = x.Type,
+                    Label  = x.Label ?? string.Empty
                     //WayPoints = x.WayPoints.Select(y => new PointDto { X = y.X, Y = y.Y }).ToList(),
                 }).ToList(),
                 Shapes = doc.Shapes.Select(x => new ShapeDto
@@ -63,7 +64,9 @@ namespace ProcessVisualization.Api.Business.Services
                     X = x.X,
                     Y = x.Y,
                     Type = x.Type,
-                    ElementId = x.ElementId
+                    ElementId = x.ElementId,
+                    Label = x.Label,
+                    FunctionName = x.FunctionName,
                 }).ToList(),
             });
         }

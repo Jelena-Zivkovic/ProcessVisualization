@@ -65,7 +65,7 @@
         </div>
         <div
           class="font-italic mt-2 link"
-          (click)="isRoomSettingsDialogOpen = !isRoomSettingsDialogOpen"
+          (click)="isManageMembersDialogOpen = !isManageMembersDialogOpen"
         >
           {{
             (selectedRoom == undefined || selectedRoom == null
@@ -198,7 +198,7 @@
 >
   <div class="flex flex-column mb-3">
     <p-table
-      class="file-explorer"
+      class="members-dialog"
       [value]="selectedRoom.Users"
       [tableStyle]="{ 'min-width': '50rem' }"
     >

@@ -9,6 +9,7 @@ import { SharedService } from './shared.service';
 import { RouterService } from './router.service';
 import { AuthenticationResponseDto } from 'src/dtos/authentication-response/authentication-response.dto';
 import { Constants } from 'src/app/app.constants';
+import { MessageService } from 'primeng/api';
 
 @Injectable()
 export class AuthenticationService {
@@ -19,7 +20,8 @@ export class AuthenticationService {
   private loggedIn!: boolean;
   constructor(
     private httpService: HttpClient,
-    private injector: Injector
+    private injector: Injector,
+    private messageService: MessageService
   ) {
     this.key = 'login-data';
     this.commonService = this.injector.get(CommonService);
@@ -52,7 +54,7 @@ export class AuthenticationService {
             return this.mapData(res);
           } else {
             //custom error handler
-            return this.customMapError(body.ErrorMessage);
+            return this.customMapError(body.ErrorMessage ?? body.Message ?? 'Error');
           }
         }),
         catchError((err) => {
@@ -71,7 +73,7 @@ export class AuthenticationService {
     this.commonService.hideLoader();
 
     //regex solution
-    alert(msg?.replace(/_/g, ' '));
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: msg?.replace(/_/g, ' ') ?? 'Error' });
     return {};
   }
 

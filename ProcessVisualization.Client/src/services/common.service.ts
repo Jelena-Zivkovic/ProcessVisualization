@@ -140,6 +140,7 @@ export class CommonService {
   }
 
   setDocument(doc: DiagramCreateDto) {
+    console.log(doc);
     localStorage.setItem("diagram", JSON.stringify(doc));
   }
 

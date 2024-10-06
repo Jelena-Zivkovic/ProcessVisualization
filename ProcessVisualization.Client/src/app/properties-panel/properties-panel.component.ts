@@ -45,13 +45,14 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
     this.funcGroups = this.editorService.getAllFunctionGroups();
     this.init();
 
-
     if (this.diagram.FuncGroup == '' || this.diagram.FuncGroup == undefined) {
       this.diagram.FuncGroup = 'BasicMath';
     }
   }
 
   ngAfterContentInit(): void {
+
+
   }
 
   public update(elementId: string | undefined = undefined) {
@@ -117,6 +118,7 @@ export class PropertiesPanelComponent extends BaseImports implements AfterConten
         module = 'BasicFunctions';
         break;
     }
+    this.funcGroup = module;
 
     return this.getTaskFunctions(module).then((res) => {
       if (this.element) {

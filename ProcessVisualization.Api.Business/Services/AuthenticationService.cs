@@ -67,6 +67,7 @@ namespace ProcessVisualization.Api.Business.Services
                 {
                     Message = "There is no user with that Email address",
                     IsSuccess = false,
+                    Data = new LoginResultDto(),
                 };
             }
 
@@ -77,6 +78,7 @@ namespace ProcessVisualization.Api.Business.Services
                 {
                     Message = "Invalid password",
                     IsSuccess = false,
+                    Data = new LoginResultDto(),
                 };
 
             var claims = new[]

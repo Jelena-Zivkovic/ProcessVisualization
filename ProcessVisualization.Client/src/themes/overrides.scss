@@ -120,7 +120,8 @@ body {
 .group[data-group="artifact"],
 .group[data-group="event"] div.bpmn-icon-intermediate-event-none,
 .group[data-group="activity"] div.bpmn-icon-subprocess-expanded,
-.djs-context-pad .group[data-group="edit"] [data-action="replace"] {
+.djs-context-pad .group[data-group="edit"] [data-action="replace"],
+.djs-context-pad .group[data-group="model"] [data-action="append.intermediate-event"] {
   display: none;
 }
 
@@ -160,7 +161,8 @@ body {
 }
 
 ///File explorer
-p-table.p-element.file-explorer {
+p-table.p-element.file-explorer,
+p-table.p-element.members-dialog {
   .p-datatable.p-component > .p-datatable-wrapper > .p-datatable-table {
     .p-datatable-tbody {
       tr {
@@ -286,3 +288,26 @@ p-table.p-element.file-explorer {
     }
 }
 
+p-table.p-element.members-dialog {
+  .p-datatable.p-component > .p-datatable-wrapper > .p-datatable-table {
+    .p-datatable-tbody {
+      tr {
+        td:first-child::before {
+         
+   font-family: "Font Awesome 5 Free";
+   content: "\f007";
+   display: inline-block;
+   padding-right: 3px;
+   vertical-align: middle;
+   font-weight: 900;
+    font-size: 18px;
+    color: white;
+    text-shadow: -1.5px 1.5px 0 var(--primary-100),
+    1.5px 1.5px 0 var(--primary-100),
+    1.5px -1.5px 0 var(--primary-100),
+    -1.5px -1.5px 0 var(--primary-100);
+        }
+      }
+    }
+  }
+}

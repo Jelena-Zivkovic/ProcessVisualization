@@ -21,12 +21,12 @@ export default class IncomingConnectionNumberRule extends RuleProvider {
       }
 
       if (target?.type === ElementType.Task || target?.type === 'bpmn:ExclusiveGateway') {
-        if (target.incoming && target.incoming.length >= 2) {
+        if (target.incoming && target.incoming.length >= 6) {
           return false;
         }
       }
 
-      if (source.outgoing && ((source.outgoing.length >= 1 && source.type !== 'bpmn:ExclusiveGateway') || (source.type === 'bpmn:ExclusiveGateway' && source.outgoing.length >= 2))) {
+      if (source.outgoing && ((source.outgoing.length >= 6 && source.type !== 'bpmn:ExclusiveGateway') || (source.type === 'bpmn:ExclusiveGateway' && source.outgoing.length >= 2))) {
         return false;
       }
 
